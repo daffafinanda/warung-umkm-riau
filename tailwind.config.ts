@@ -17,7 +17,7 @@ export default {
         
       },
       fontFamily: {
-        outfit: ['var(--font-outfit)', 'sans-serif'],
+        outfit: ['var(--font-outfit)',],
       },
     },
   },

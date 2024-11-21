@@ -1,9 +1,10 @@
 import React from "react";
 
+
 const HomeFrame: React.FC = () => {
   return (
-    <section className="py-12 px-4 md:px-6 lg:px-8">
-      <div className="flex flex-col max-w-6xl mx-auto md:flex-row items-center justify-between gap-12">
+    <section className=" py-12 px-4 md:px-6 lg:px-8">
+      <div className="flex flex-col  max-w-6xl mx-auto md:flex-row items-center justify-between gap-12">
         {/* Teks dan Button */}
         <div className="flex-1 text-center md:text-left">
           <h1 className="text-black font-bold text-3xl pb-8 md:text-5xl leading-tight md:leading-[60px]">
@@ -29,7 +30,7 @@ const HomeFrame: React.FC = () => {
         {/*Gambar*/}
         <div className="flex-1 justify-center hidden md:block">
           <div
-            className="w-full min-w-[400px] h-[600px] rounded-t-full"
+            className="w-full  h-[600px] rounded-t-full"
             style={{
               backgroundImage: `url('https://i.pinimg.com/736x/84/a5/22/84a5227a7adbf9e64388c54af4ff248d.jpg')`,
               backgroundSize: "cover",

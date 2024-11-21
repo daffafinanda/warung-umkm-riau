@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "@/layout/common/navbar";
+import Navbar from "@/app/landing-page/bar/navbar";
 
 const LayananPage: React.FC = () => {
   return (

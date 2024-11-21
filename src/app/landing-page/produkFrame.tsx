@@ -1,5 +1,5 @@
 import React from "react";
-import ProductCard from "@/layout/components/productCard";
+import ProductCard from "@/app/components/productCard";
 
 interface Product {
   id: number;
@@ -17,23 +17,26 @@ const ProdukFrame: React.FC<ProdukFrameProps> = ({ products }) => {
   return (
     <section className="py-12 px-4 md:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-start mb-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center md:justify-between mb-8 gap-4">
           <div className="max-w-xl text-black">
-            <h2 className="text-3xl font-bold mb-2">Katalog Produk</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-3xl md:text-5xl font-bold mb-2">Katalog Produk</h2>
+            <p className="text-muted-foreground md:text-xl">
               Kami membuat produk yang berkualitas dengan harga yang terjangkau
             </p>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground md:text-xl">
               Klik selengkapnya jika ingin melihat produk lainnya.
             </p>
           </div>
-          <button className="bg-[#447455] hover:bg-[#365e44] text-white px-4 py-2 rounded-md">
-            Selengkapnya {'>'}
-          </button>
+          {/* Tombol responsif */}
+          <div className="items-center"> 
+            <button className=" hover:bg-foreground bg-green text-white hover:text-green md:px-12 md:py-5 px-6 py-3 rounded-full shadow-lg self-start md:">
+              Selengkapnya {'>>'}
+            </button>
+          </div>
         </div>
 
         {/* Menggunakan grid dengan 4 kolom per tampilan besar (lg) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 text-black">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 text-black">
           {products.map((product) => (
             <div key={product.id} className="w-full">
               <ProductCard {...product} />

@@ -12,7 +12,7 @@ const ProductCard: React.FC<Product> = ({ id, name, price, dimensions, image }) 
   return (
     <div
       key={id}
-      className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+      className="bg- rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
     >
       <div className="aspect-square relative">
         <img

@@ -8,8 +8,8 @@ const HomeFrame: React.FC = () => {
         {/* Teks dan Button */}
         <div className="flex-1 text-center md:text-left">
           <h1 className="text-black font-bold text-3xl pb-8 md:text-5xl leading-tight md:leading-[60px]">
-            Dukung <span className="text-[#2F6835]">Usaha UMKM</span> dengan Akses Mudah ke{" "}
-            <span className="text-[#2F6835]">Barang dan Peralatan Berkualitas</span>!
+            Dukung <span className="text-primary">Usaha UMKM</span> dengan Akses Mudah ke{" "}
+            <span className="text-primary">Barang dan Peralatan Berkualitas</span>!
           </h1>
           <p className="text-black font-normal pb-16 text-base md:text-xl leading-relaxed mt-4 md:mt-6">
             Menyediakan berbagai barang dan peralatan UMKM berkualitas yang bisa dibeli atau

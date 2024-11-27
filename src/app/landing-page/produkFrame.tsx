@@ -1,19 +1,39 @@
 import React from "react";
-import ProductCard from "@/app/components/productCard";
+import ProductCard from "@/app/components/ProductCard";
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  dimensions: string;
-  image: string;
-}
+const ProdukFrame: React.FC = () => {
+  // Data produk didefinisikan langsung di dalam komponen
+  const products = [
+    {
+      id: 1,
+      name: "Meja",
+      price: 50000,
+      dimensions: "3x3x3",
+      image: "https://i.pinimg.com/736x/84/a5/22/84a5227a7adbf9e64388c54af4ff248d.jpg",
+    },
+    {
+      id: 2,
+      name: "Meja",
+      price: 50000,
+      dimensions: "3x3x3",
+      image: "https://i.pinimg.com/736x/84/a5/22/84a5227a7adbf9e64388c54af4ff248d.jpg",
+    },
+    {
+      id: 3,
+      name: "Meja",
+      price: 50000,
+      dimensions: "3x3x3",
+      image: "https://i.pinimg.com/736x/84/a5/22/84a5227a7adbf9e64388c54af4ff248d.jpg",
+    },
+    {
+      id: 4,
+      name: "Meja",
+      price: 50000,
+      dimensions: "3x3x3",
+      image: "https://i.pinimg.com/736x/84/a5/22/84a5227a7adbf9e64388c54af4ff248d.jpg",
+    },
+  ];
 
-interface ProdukFrameProps {
-  products: Product[];
-}
-
-const ProdukFrame: React.FC<ProdukFrameProps> = ({ products }) => {
   return (
     <section className="py-12 px-4 md:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
@@ -28,8 +48,8 @@ const ProdukFrame: React.FC<ProdukFrameProps> = ({ products }) => {
             </p>
           </div>
           {/* Tombol responsif */}
-          <div className="items-center"> 
-            <button className=" hover:bg-foreground bg-green text-white hover:text-green md:px-12 md:py-5 px-6 py-3 rounded-full shadow-lg self-start md:">
+          <div className="items-center">
+            <button className="hover:bg-foreground bg-primary text-white hover:text-primary md:px-12 md:py-5 px-6 py-3 rounded-full shadow-lg self-start">
               Selengkapnya {'>>'}
             </button>
           </div>

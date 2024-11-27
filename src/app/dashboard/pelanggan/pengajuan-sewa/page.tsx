@@ -1,6 +1,6 @@
 "use client";
 
-const Dashboard = () => {
+const PengajuanSewa: React.FC = () => {
   // Mendefinisikan tipe status yang bisa ada
   type Status = "Disetujui" | "Menunggu" | "Diproses" | "Ditolak";
 
@@ -10,7 +10,7 @@ const Dashboard = () => {
     jenisKelamin: "Laki-laki",
     alamatDomisili: "Jl. Kebon Kacang No. 12, Jakarta",
     alamatKTP: "Jl. Kebon Melati No. 5, Jakarta",
-    fotoKTP: "https://via.placeholder.com/150", // URL gambar KTP
+    fotoKTP: "https://about.lovia.id/wp-content/uploads/2020/05/150067.jpg", // URL gambar KTP
     awalPenyewaan: "2024-11-01",
     akhirPenyewaan: "2024-12-01",
     lokasiBooth: "Mall Senayan",
@@ -35,7 +35,7 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-2xl">
-      <h1 className="text-2xl font-bold text-green mb-6 text-center">
+      <h1 className="text-2xl font-bold text-primary mb-6 text-center">
         Form Penyewaan Anda
       </h1>
       <form className="space-y-4">
@@ -52,7 +52,7 @@ const Dashboard = () => {
             id="nama"
             value={formData.nama}
             readOnly
-            className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner shadow-lg focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+            className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner  focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
           />
         </div>
 
@@ -69,7 +69,7 @@ const Dashboard = () => {
             id="jenisKelamin"
             value={formData.jenisKelamin}
             readOnly
-            className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner shadow-lg focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+            className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner  focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
           />
         </div>
 
@@ -86,7 +86,7 @@ const Dashboard = () => {
             id="alamatDomisili"
             value={formData.alamatDomisili}
             readOnly
-            className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner shadow-lg focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+            className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner  focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
           />
         </div>
 
@@ -103,7 +103,7 @@ const Dashboard = () => {
             id="alamatKTP"
             value={formData.alamatKTP}
             readOnly
-            className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner shadow-lg focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+            className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner  focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
           />
         </div>
 
@@ -116,8 +116,7 @@ const Dashboard = () => {
             Foto KTP
           </label>
           <div
-            className="bg-background mt-2 w-full h-64 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center overflow-hidden bg-gray-50 shadow-inner shadow-lg"
-            style={{ position: "relative" }}
+            className="bg-background mt-2 w-full h-64 border-2 z-0 border-dashed border-gray-300 rounded-md flex items-center justify-center overflow-hidden bg-gray-50 shadow-inner "
           >
             <img
               src={formData.fotoKTP}
@@ -141,7 +140,7 @@ const Dashboard = () => {
               id="awalPenyewaan"
               value={formData.awalPenyewaan}
               readOnly
-              className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner shadow-lg focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+              className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner  focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
             />
           </div>
           <div>
@@ -156,7 +155,7 @@ const Dashboard = () => {
               id="akhirPenyewaan"
               value={formData.akhirPenyewaan}
               readOnly
-              className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner shadow-lg focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+              className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner  focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
             />
           </div>
         </div>
@@ -188,19 +187,19 @@ const Dashboard = () => {
           </label>
           <div
             id="statusProses"
-            className={`bg-background mt-2 px-4 py-2 rounded-lg text-center font-medium ${getStatusClass(formData.statusProses)}`}
+            className={`bg-background mb-12 mt-2 px-4 py-2 rounded-lg text-center font-medium ${getStatusClass(formData.statusProses)}`}
           >
             {formData.statusProses}
           </div>
         </div>
 
         {/* Tombol Edit, Hapus, dan Batalkan Pengajuan */}
-        <div className="flex space-x-4 mt-6 w-full">
+        <div className="flex space-x-4 w-full">
           {/* Menunggu: hanya Batalkan Pengajuan */}
           {formData.statusProses === "Menunggu" && (
             <button
               type="button"
-              className="w-full py-2 px-4 border border-transparent rounded-md shadow-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              className="w-full py-2 px-4 border border-transparent rounded-full  text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
             >
               Batalkan Pengajuan
             </button>
@@ -211,13 +210,13 @@ const Dashboard = () => {
             <>
               <button
                 type="button"
-                className="w-full py-2 px-4 border border-transparent rounded-md shadow-lg text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                className="w-full py-2 px-4 border border-transparent rounded-full  text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
               >
                 Edit Pengajuan
               </button>
               <button
                 type="button"
-                className="w-full py-2 px-4 border border-transparent rounded-md shadow-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="w-full py-2 px-4 border border-transparent rounded-full shadow-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 Hapus Pengajuan
               </button>
@@ -229,4 +228,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default PengajuanSewa;

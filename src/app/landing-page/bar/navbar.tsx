@@ -22,27 +22,27 @@ const Navbar: React.FC = () => {
     <nav className="bg-background fixed w-full h-auto z-20 top-0 start-0 border-b">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="#" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <span className="self-center text-lg font-black font-outfit whitespace-nowrap text-green md:text-2xl">
+          <span className="self-center text-lg font-black font-outfit whitespace-nowrap text-primary md:text-2xl">
             Warung UMKM Riau
           </span>
         </a>
         <div className="flex md:order-2 space-x-1 md:space-x-4 rtl:space-x-reverse">
           <button
             type="button"
-            className="text-white text-sm bg-green hover:bg-[#2f68358a] focus:ring-4 focus:outline-none focus:ring-[#2f683527] font-medium rounded-lg px-2 py-0 text-center shadow-md hover:shadow-lg md:px-5 md:py-3"
+            className="text-white text-sm bg-primary hover:bg-[#2f68358a] focus:ring-4 focus:outline-none focus:ring-[#2f683527] font-medium rounded-lg px-2 py-0 text-center shadow-md hover:shadow-lg md:px-5 md:py-3"
           >
             Masuk
           </button>
           <button
             type="button"
-            className="text-green text-sm bg-foreground hover:bg-[#2f68351b] focus:ring-4 focus:outline-none focus:ring-[#2f683527] font-medium rounded-lg px-2 py-0 text-center shadow-md hover:shadow-lg md:px-5 md:py-3"
+            className="text-primary text-sm bg-foreground hover:bg-[#2f68351b] focus:ring-4 focus:outline-none focus:ring-[#2f683527] font-medium rounded-lg px-2 py-0 text-center shadow-md hover:shadow-lg md:px-5 md:py-3"
           >
             Daftar
           </button>
 
           <button
             type="button"
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-green rounded-lg md:hidden hover:bg-gray-200"
+            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-primary rounded-lg md:hidden hover:bg-gray-200"
             aria-controls="navbar-sticky"
             aria-expanded={isMenuOpen ? "true" : "false"}
             onClick={toggleMenu}
@@ -76,8 +76,8 @@ const Navbar: React.FC = () => {
                   href={item.href}
                   className={`block py-2 px-3 rounded md:p-0 ${
                     pathname === item.href
-                      ? "text-green font-bold"
-                      : "text-gray-900 hover:bg-gray-200 md:hover:bg-transparent md:hover:text-green"
+                      ? "text-primary font-bold"
+                      : "text-gray-900 hover:bg-gray-200 md:hover:bg-transparent md:hover:text-primary"
                   }`}
                 >
                   {item.name}

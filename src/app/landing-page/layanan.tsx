@@ -19,8 +19,8 @@ const LayananFrame: React.FC = () => {
         <div className="grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8 mt-8 mx-auto">
           {/* Card untuk Cash */}
           <div className="relative flex flex-col items-center p-12 bg-foreground shadow-md rounded-3xl space-y-4">
-            <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-lg">
-              <IoCashOutline className="text-6xl text-green"/>
+            <div className="flex items-center justify-center w-16 h-16 rounded-lg">
+              <IoCashOutline className="text-6xl text-primary"/>
             </div>
             <h3 className="text-xl font-semibold text-black">Cash</h3>
             <p className="text-sm text-gray-600 text-center">
@@ -29,8 +29,8 @@ const LayananFrame: React.FC = () => {
           </div>
           {/* Card untuk Kredit */}
           <div className="relative flex flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4">
-            <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-lg ">
-                <CiCreditCard1 className="text-6xl text-green" />
+            <div className="flex items-center justify-center w-16 h-16 rounded-lg ">
+                <CiCreditCard1 className="text-6xl text-primary" />
             </div>
             <h3 className="text-xl font-semibold text-black">Kredit</h3>
             <p className="text-sm text-gray-600 text-center">
@@ -39,8 +39,8 @@ const LayananFrame: React.FC = () => {
           </div>
           {/* Card untuk Sewa */}
           <div className="relative flex flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4">
-            <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-lg">
-              <GoContainer className="text-6xl text-green"/>
+            <div className="flex items-center justify-center w-16 h-16 rounded-lg">
+              <GoContainer className="text-6xl text-primary"/>
             </div>
             <h3 className="text-xl font-semibold text-black">Sewa</h3>
             <p className="text-sm text-gray-600 text-center">

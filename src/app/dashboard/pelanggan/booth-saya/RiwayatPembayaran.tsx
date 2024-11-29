@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { RxCross2 } from "react-icons/rx";
 import { AiOutlineFileImage } from "react-icons/ai";
+import ImageModal from '@/components/ImageModal'; // Import ImageModal
 
 interface PaymentRecord {
   date: string;
-  amount: string; // Properti jumlah dalam string
+  amount: string;
   image: string;
 }
 
@@ -14,7 +15,6 @@ interface PaymentHistoryPopupProps {
   payments: PaymentRecord[];
 }
 
-// Fungsi untuk memformat angka menjadi format Rupiah
 const formatCurrency = (amount: string | number) => {
   const number = typeof amount === 'string' ? parseFloat(amount) : amount;
   return `Rp ${number.toLocaleString('id-ID')}`;
@@ -70,27 +70,12 @@ const PaymentHistoryPopup: React.FC<PaymentHistoryPopupProps> = ({ isOpen, onClo
         </div>
       </div>
 
-      {/* Modal gambar */}
-      {selectedImage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-60"
-          onClick={() => setSelectedImage(null)}
-        >
-          <div className="relative">
-            <img
-              src={selectedImage}
-              alt="Bukti Pembayaran"
-              className="max-w-screen max-h-screen rounded-lg shadow-lg"
-            />
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-2 right-2 text-white bg-red-500 hover:bg-red-600 p-2 rounded-full"
-            >
-              <RxCross2 size={24} />
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={!!selectedImage} 
+        imageSrc={selectedImage || ''}
+        onClose={() => setSelectedImage(null)}
+      />
     </div>
   );
 };

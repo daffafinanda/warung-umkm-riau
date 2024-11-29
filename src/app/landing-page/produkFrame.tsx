@@ -1,5 +1,5 @@
 import React from "react";
-import ProductCard from "@/app/components/ProductCard";
+import ProductCard from "@/components/ProductCard";
 
 const ProdukFrame: React.FC = () => {
   // Data produk didefinisikan langsung di dalam komponen

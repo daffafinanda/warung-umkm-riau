@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import PaymentHistoryPopup from "@/app/components/RiwayatPembayaran"; // Pastikan import sesuai lokasi file
+import PaymentHistoryPopup from "@/app/dashboard/pelanggan/booth-saya/RiwayatPembayaran"; // Pastikan import sesuai lokasi file
 
 const BoothPage: React.FC = () => {
   const [isPopupOpen, setPopupOpen] = useState(false);
@@ -36,7 +36,7 @@ const BoothPage: React.FC = () => {
   const closePopup = () => setPopupOpen(false);
 
   return (
-    <div className="container mx-auto my-8 text-black">
+    <div className="container max-w-full sm:mx-auto mt-8 text-black">
       <div className="bg-white rounded-lg shadow-md p-6 max-w-xl mx-auto">
         <h2 className="text-2xl font-bold mb-4 text-center text-primary">Informasi Booth Anda</h2>
         <div className="grid grid-cols-2 gap-4 mb-4">

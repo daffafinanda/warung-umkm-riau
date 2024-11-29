@@ -27,11 +27,11 @@ const Layout = ({ children }: LayoutProps) => {
       <Sidebar role={userRole} isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64 ">
+      <div className="flex-1 lg:pl-64 ">
         {/* Navbar */}
         <Navbar toggleSidebar={toggleSidebar} />
         {/* Main Content */}
-        <main className="p-6 mt-24">{children}</main>
+        <main className="py-6 mt-10 md:mt-12 ">{children}</main>
       </div>
 
       {/* Overlay untuk menutup sidebar di layar kecil */}

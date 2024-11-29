@@ -34,7 +34,7 @@ const PengajuanSewa: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-2xl">
+    <div className="max-w-3xl sm:mx-auto mx-3 mt-8 bg-white p-6 rounded-lg shadow-2xl">
       <h1 className="text-2xl font-bold text-primary mb-6 text-center">
         Form Penyewaan Anda
       </h1>

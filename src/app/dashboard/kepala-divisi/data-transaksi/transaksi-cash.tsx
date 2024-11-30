@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ModalCash from "@/app/dashboard/kepala-divisi/data-transaksi/ModalCash";
+import ModalCash from "@/app/dashboard/kepala-divisi/data-transaksi/CashModal";
 
 // Define the type for each order item
 interface OrderData {

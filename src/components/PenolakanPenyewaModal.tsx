@@ -1,17 +1,11 @@
-interface ModalTambahRiwayatKerusakanBoothProps {
+interface ModalPenolakanPenyewaanProps {
     isOpen: boolean;
     onClose: () => void;
-    newRiwayat: { tanggal: string; deskripsi: string };
-    setNewRiwayat: React.Dispatch<React.SetStateAction<{ tanggal: string; deskripsi: string }>>;
-    onTambahRiwayat: () => void;
 }
 
-const ModalTambahRiwayatKerusakanBooth: React.FC<ModalTambahRiwayatKerusakanBoothProps> = ({
+const ModalPenolakanPenyewaan: React.FC<ModalPenolakanPenyewaanProps> = ({
     isOpen,
     onClose,
-    newRiwayat,
-    setNewRiwayat,
-    onTambahRiwayat
 }) => {
     if (!isOpen) {
         return null;
@@ -26,14 +20,12 @@ const ModalTambahRiwayatKerusakanBooth: React.FC<ModalTambahRiwayatKerusakanBoot
                     <textarea
                         className="w-full h-[150px] p-2 text-black border border-gray-300 rounded-md"
                         placeholder="Deskripsikan Kerusakan"
-                        value={newRiwayat.deskripsi}
-                        onChange={(e) => setNewRiwayat({ ...newRiwayat, deskripsi: e.target.value })}
                     />
                     <button
-                        className="bg-primary text-white w-full px-4 py-2 rounded-lg"
-                        onClick={onTambahRiwayat} // Call onAddRiwayat to handle adding new data
+                        className="bg-red-500 text-white w-full px-4 py-2 rounded-lg"
+                        onClick={onClose}
                     >
-                        Konfirmasi
+                        Konfirmasi Penolakan
                     </button>
                     <button
                         className="bg-white text-black w-full px-4 py-2 rounded-lg border border-abu2"
@@ -44,7 +36,8 @@ const ModalTambahRiwayatKerusakanBooth: React.FC<ModalTambahRiwayatKerusakanBoot
                 </div>
             </div>
         </div>
-    );
+    )
+
 }
 
-export default ModalTambahRiwayatKerusakanBooth;
+export default ModalPenolakanPenyewaan

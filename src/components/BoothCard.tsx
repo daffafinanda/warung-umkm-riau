@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { MdCheckCircle, MdWarning, MdError, MdAddCircle, MdCalendarToday } from "react-icons/md";
 import ModalRiwayatKerusakanBooth from "@/components/ModalRiwayatKerusakanBooth";
@@ -6,13 +7,25 @@ import ModalTambahRiwayatKerusakanBooth from "@/components/ModalTambahRiwayatKer
 interface BoothCardProps {
     boothName: string;
     initialPenyewa: string;
-    initialKerusakan: string;
+    initialKerusakan: number;
     initialStatus: string;
+    riwayat: { tanggal: string; deskripsi: string }[];
+    onAddRiwayat: (newRiwayat: { tanggal: string; deskripsi: string }) => void;
 }
 
-export default function BoothCard({ boothName, initialPenyewa, initialKerusakan, initialStatus }: BoothCardProps) {
+export default function BoothCard({
+    boothName,
+    initialPenyewa,
+    initialKerusakan,
+    initialStatus,
+    riwayat,
+    onAddRiwayat,
+
+}: BoothCardProps) {
     const [penyewa, setPenyewa] = useState<string | null>(initialPenyewa);
     const [status, setStatus] = useState(initialStatus);
+    const [newRiwayat, setNewRiwayat] = useState({ tanggal: "", deskripsi: "" });
+
 
     // Modal Hapus Penyewa
     const [isModalHapusPenyewa, setIsModalHapusPenyewa] = useState(false);
@@ -20,14 +33,16 @@ export default function BoothCard({ boothName, initialPenyewa, initialKerusakan,
     const closeModalHapusPenyewa = () => setIsModalHapusPenyewa(false);
 
     // Modal Riwayat Kerusakan
-    const [isModalRiwayatKerusakanOpen, setisModalRiwayatKerusakanOpen] = useState(false);
-    const openModalRiwayatKerusakan = () => setisModalRiwayatKerusakanOpen(true);
-    const closeModalRiwayatKerusakan = () => setisModalRiwayatKerusakanOpen(false);
+    const [isModalRiwayatKerusakanOpen, setIsModalRiwayatKerusakanOpen] = useState(false);
+    const openModalRiwayatKerusakan = () => setIsModalRiwayatKerusakanOpen(true);
+    const closeModalRiwayatKerusakan = () => setIsModalRiwayatKerusakanOpen(false);
 
     //ModalTambah Riwayat Kerusakan
     const [isModalTambahRiwayatKerusakanOpen, setIsModalTambahRiwayatKerusakanOpen] = useState(false);
     const openModalTambahRiwayatKerusakan = () => setIsModalTambahRiwayatKerusakanOpen(true);
     const closeModalTambahRiwayatKerusakan = () => setIsModalTambahRiwayatKerusakanOpen(false);
+
+    
 
     useEffect(() => {
         setStatus(initialStatus);
@@ -36,6 +51,16 @@ export default function BoothCard({ boothName, initialPenyewa, initialKerusakan,
     useEffect(() => {
         setPenyewa(initialPenyewa);
     }, [initialPenyewa]);
+
+    const handleTambahRiwayat = () => {
+        const newRiwayatData = {
+            tanggal: new Date().toISOString(), // Set current date
+            deskripsi: newRiwayat.deskripsi,
+        };
+        onAddRiwayat(newRiwayatData); // Pass new riwayat to parent
+        setNewRiwayat({ tanggal: "", deskripsi: "" }); // Reset input
+        closeModalTambahRiwayatKerusakan();
+    };
 
     // Penentuan warna berdasarkan status
     const cardColor = status === "kosong"
@@ -76,8 +101,16 @@ export default function BoothCard({ boothName, initialPenyewa, initialKerusakan,
 
     return (
         <div className={`rounded-lg shadow-md w-full border pb-3 bg-white ${cardColor}`} >
-            <ModalRiwayatKerusakanBooth isOpen={isModalRiwayatKerusakanOpen} onClose={closeModalRiwayatKerusakan} />
-            <ModalTambahRiwayatKerusakanBooth isOpen={isModalTambahRiwayatKerusakanOpen} onClose={closeModalTambahRiwayatKerusakan} />
+            <ModalRiwayatKerusakanBooth
+                isOpen={isModalRiwayatKerusakanOpen}
+                onClose={closeModalRiwayatKerusakan}
+                riwayat={riwayat} // Pass riwayat to Modal
+            />
+            <ModalTambahRiwayatKerusakanBooth  isOpen={isModalTambahRiwayatKerusakanOpen}
+                onClose={closeModalTambahRiwayatKerusakan}
+                newRiwayat={newRiwayat}
+                setNewRiwayat={setNewRiwayat}
+                onTambahRiwayat={handleTambahRiwayat} />
             <div className={`${divColor} rounded-t-lg w-full justify-between flex px-4 py-2`}>
                 <h3 className="text-lg  font-bold">{boothName}</h3>
                 <div className="rounded-lg px-2 items-center flex justify-center border border-white">

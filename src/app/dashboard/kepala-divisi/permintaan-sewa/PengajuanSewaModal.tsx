@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import FormData from "@/components/FormData";
+import ConfirmationPopup from "@/components/ConfirmationPopUp";
 
 interface RentalRequest {
   id: number;
@@ -19,6 +20,7 @@ interface RentalRequest {
 interface PengajuanSewaModalProps {
   request: RentalRequest | null;
   onClose: () => void;
+  onSave: (id: number, selectedBooth: string) => void;
   onDelete: (id: number) => void;
 }
 
@@ -26,26 +28,37 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
   request,
   onClose,
   onDelete,
+  onSave,
 }) => {
   const [showBoothSelector, setShowBoothSelector] = useState(false);
   const [selectedBooth, setSelectedBooth] = useState("");
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [showBoothConfirmPopup, setShowBoothConfirmPopup] = useState(false); // New state for booth confirmation popup
 
   if (!request) return null;
 
   const handleDelete = () => {
-    if (window.confirm("Apakah Anda yakin ingin menolak pengajuan ini?")) {
-      onDelete(request.id);
-      onClose();
-    }
+    onDelete(request.id);
+    setShowDeletePopup(false);
+    onClose();
   };
+
+  const handleBoothSelectionConfirm = () => {
+    // Handle booth selection
+    if (request && selectedBooth) {
+      onSave(request.id, selectedBooth);  // Call onSave to save the selected booth
+    }
+    
+    // Close the confirmation popup and booth selector
+    setShowBoothConfirmPopup(false);
+    setShowBoothSelector(false);
+    onClose();  // Close the modal after saving the booth selection
+};
 
   return (
     <div className="fixed top-0 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
       {/* Modal Container */}
       <div className="relative max-w-3xl h-full w-full bg-white p-6 rounded-lg shadow-2xl overflow-auto">
-      
-        
-
         {/* Modal Header */}
         <h1 className="text-2xl font-bold text-primary mb-6 text-center">
           Permintaan Sewa {request.nama}
@@ -59,7 +72,7 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
         {/* Modal Footer */}
         <div className="mt-6 grid grid-cols-2 gap-2">
           <button
-            onClick={handleDelete}
+            onClick={() => setShowDeletePopup(true)}
             className="py-2 bg-red-600 text-white rounded-xl hover:bg-opacity-75"
           >
             Tolak pengajuan
@@ -105,20 +118,35 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
                 Batal
               </button>
               <button
-                onClick={() => {
-                  alert(`Booth yang dipilih: ${selectedBooth}`);
-                  setShowBoothSelector(false);
-                  onClose();
-                }}
+                onClick={() => setShowBoothConfirmPopup(true)} // Show confirmation popup
                 className="py-2 px-4 bg-primary text-white rounded-lg hover:bg-lime-800"
                 disabled={!selectedBooth}
               >
                 Konfirmasi
               </button>
             </div>
-          
           </div>
         </div>
+      )}
+
+      {/* Delete confirmation popup */}
+      {showDeletePopup && (
+        <ConfirmationPopup
+          title="Konfirmasi Penolakan"
+          message="Apakah Anda yakin ingin menolak pengajuan ini?"
+          onConfirm={handleDelete}
+          onCancel={() => setShowDeletePopup(false)}
+        />
+      )}
+
+      {/* Booth selection confirmation popup */}
+      {showBoothConfirmPopup && (
+        <ConfirmationPopup
+          title="Konfirmasi Pemilihan Booth"
+          message={`Apakah Anda yakin ingin memilih ${selectedBooth}?`}  
+          onConfirm={handleBoothSelectionConfirm}
+          onCancel={() => setShowBoothConfirmPopup(false)}
+        />
       )}
     </div>
   );

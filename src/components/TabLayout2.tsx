@@ -7,17 +7,17 @@ const TabLayout: React.FC<{ tabs: { label: string, content: React.ReactNode }[] 
   const [activeTab, setActiveTab] = useState(0);
 
   return (
-    <div className="space-y-4 bg-foreground rounded-xl min-w-full"> {/* Pastikan lebar tab memenuhi container */}
+    <div className="bg-white shadow-lg rounded-lg overflow-hidden"> {/* Clean background with shadow */}
       {/* Tab Header */}
-      <div className="flex justify-center w-full rounded-xl bg-background">
+      <div className="flex border-b-2 border-gray-200">
         {tabs.map((tab, index) => (
           <button
             key={index}
             onClick={() => setActiveTab(index)}
-            className={`px-6 rounded-t-lg py-2 m-0 text-lg font-medium w-full transition-all duration-300 ${
+            className={`px-6 py-3 text-lg font-semibold w-full transition-all duration-200 ease-in-out transform hover:scale-96 ${
               activeTab === index
-                ? "bg-foreground text-primary border-x-2 border-t-2 border-primary " // Tab yang terpilih
-                : "text-gray-600 hover:bg-gray-100 hover-rounded-none border-b-2 border-gray-400 shadow-inherit"
+                ? "text-primary border-b-4 border-primary" // Active Tab Style
+                : "text-gray-700 hover:text-primary hover:text-opacity-50 hover:border-b-4 hover:border-primary hover:border-opacity-40" // Inactive Tab Style
             }`}
           >
             {tab.label}
@@ -26,7 +26,7 @@ const TabLayout: React.FC<{ tabs: { label: string, content: React.ReactNode }[] 
       </div>
 
       {/* Tab Content */}
-      <div className="mt-4">
+      <div className="p-6 bg-gray-50 rounded-b-lg">
         {tabs[activeTab].content}
       </div>
     </div>

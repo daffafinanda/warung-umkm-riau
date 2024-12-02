@@ -41,7 +41,7 @@ const DataTransaksi: React.FC = () => {
   ];
 
   return (
-    <div className=" p-6 rounded-xl mx-auto right-0 max-w-sm sm:max-w-full">
+    <div className=" p-6 rounded-xl sm:mx-auto mx-0 max-w-sm sm:max-w-full">
       <TabLayout tabs={tabs} />
     </div>
   );

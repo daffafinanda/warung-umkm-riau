@@ -61,11 +61,11 @@ const TransaksiCash: React.FC = () => {
   };
 
   return (
-    <div className="relative px-6 py-4 bg-foreground dark:bg-gray-900 min-h-full">
+    <div className="relative px-6 py-4 bg-foreground  min-h-full">
       {/* Wrapper to enable horizontal scroll only for the table */}
       <div className="overflow-x-auto left-64 shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table className="w-full text-sm text-left text-gray-500 ">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
             <tr>
               <th scope="col" className="px-6 py-3">Pembeli</th>
               <th scope="col" className="px-6 py-3">Produk</th>
@@ -78,9 +78,9 @@ const TransaksiCash: React.FC = () => {
             {data.map((item, index) => (
               <tr
                 key={index}
-                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                className="bg-white border-b  hover:bg-gray-50 "
               >
-                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap ">
                   {item.buyer}
                 </td>
                 <td className="px-6 py-4">{item.product}</td>
@@ -89,7 +89,7 @@ const TransaksiCash: React.FC = () => {
                 <td className="px-6 py-4 text-right">
                   <button
                     onClick={() => openModal(item)}
-                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                    className="font-medium text-blue-600  hover:underline"
                   >
                     Detail
                   </button>

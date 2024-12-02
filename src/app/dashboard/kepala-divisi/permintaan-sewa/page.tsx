@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import RentalRequestCard from "@/components/RentalRequestCard";
 import PengajuanSewaModal from "./PengajuanSewaModal";
+import NotificationPopup from "@/components/NotificationPopUp"; // Komponen notifikasi
 
 interface RentalRequest {
   id: number;
@@ -17,20 +18,9 @@ interface RentalRequest {
   akhirPenyewaan: string;
   lokasiBooth: string;
 }
-const handleDeleteRequest = async (id: number) => {
-  try {
-    await fetch(`/api/rental-requests/${id}`, { method: "DELETE" });
-    alert("Pengajuan berhasil dihapus");
-    // Perbarui daftar pengajuan setelah penghapusan
-  } catch (error) {
-    console.error("Gagal menghapus pengajuan:", error);
-    alert("Terjadi kesalahan saat menghapus pengajuan");
-  }
-};
-
 
 export default function Home() {
-  const rentalRequests: RentalRequest[] = [
+  const [rentalRequests, setRentalRequests] = useState<RentalRequest[]>([
     {
       id: 1,
       nama: "John Doe",
@@ -51,31 +41,19 @@ export default function Home() {
       tanggalPermintaan: "2024-11-30",
       noHp: "08123456789",
       nik: "1234567890",
-      jenisKelamin: "Laki-Laki",
-      alamatDomisili: "Jl. Kebon Kacang No. 12, Jakarta",
-      alamatKTP: "Jl. Kebon Melati No. 5, Jakarta",
+      jenisKelamin: "Perempuan",
+      alamatDomisili: "Jl. Kebon Melati No. 8, Jakarta",
+      alamatKTP: "Jl. Kebon Kacang No. 3, Jakarta",
       fotoKTP: "https://about.lovia.id/wp-content/uploads/2020/05/150067.jpg",
       awalPenyewaan: "2024-11-01",
       akhirPenyewaan: "2024-12-01",
-      lokasiBooth: "Mall Senayan",
+      lokasiBooth: "Mall Kelapa Gading",
     },
-    {
-      id: 3,
-      nama: "John Doe",
-      tanggalPermintaan: "2024-11-30",
-      noHp: "08123456789",
-      nik: "1234567890",
-      jenisKelamin: "Laki-Laki",
-      alamatDomisili: "Jl. Kebon Kacang No. 12, Jakarta",
-      alamatKTP: "Jl. Kebon Melati No. 5, Jakarta",
-      fotoKTP: "https://about.lovia.id/wp-content/uploads/2020/05/150067.jpg",
-      awalPenyewaan: "2024-11-01",
-      akhirPenyewaan: "2024-12-01",
-      lokasiBooth: "Mall Senayan",
-    },
-  ];
+  ]);
 
   const [selectedRequest, setSelectedRequest] = useState<RentalRequest | null>(null);
+  const [isPopupVisible, setPopupVisible] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState(""); // State untuk pesan notifikasi
 
   const handleDetailClick = (request: RentalRequest) => {
     setSelectedRequest(request);
@@ -83,6 +61,22 @@ export default function Home() {
 
   const closeModal = () => {
     setSelectedRequest(null);
+  };
+
+  const handleSave = () => {
+    // Simulasi penyimpanan
+    setNotificationMessage("Booth berhasil dipilih dan disimpan!"); // Set pesan notifikasi
+    setPopupVisible(true); // Tampilkan notifikasi
+    closeModal(); // Tutup modal
+  };
+
+  const handleDeleteRequest = (id: number) => {
+    // Perbarui data dengan menghapus item berdasarkan ID
+    const updatedRequests = rentalRequests.filter((request) => request.id !== id);
+    setRentalRequests(updatedRequests);
+    setNotificationMessage("Pengajuan berhasil ditolak!"); // Set pesan notifikasi
+    setPopupVisible(true); // Tampilkan notifikasi
+    closeModal();
   };
 
   return (
@@ -99,7 +93,19 @@ export default function Home() {
         ))}
       </div>
 
-      <PengajuanSewaModal request={selectedRequest} onClose={closeModal} onDelete={handleDeleteRequest} />
+      <PengajuanSewaModal
+        request={selectedRequest}
+        onClose={closeModal}
+        onSave={handleSave} // Tambahkan fungsi simpan
+        onDelete={() => handleDeleteRequest(selectedRequest?.id ?? 0)}
+      />
+
+      {/* Notifikasi Pop-up */}
+      <NotificationPopup
+        message={notificationMessage}
+        isVisible={isPopupVisible}
+        onClose={() => setPopupVisible(false)}
+      />
     </div>
   );
 }

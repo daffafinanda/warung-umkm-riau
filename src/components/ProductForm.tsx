@@ -31,8 +31,21 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  // Use the existing image if no new image is selected
+  // Gunakan gambar yang sudah ada jika tidak ada gambar baru
   const imageToDisplay = imageFile || product.image;
+
+  // Validasi input
+  const handleSave = () => {
+    const { name, price, dimensions, description } = product;
+
+    if (!name || price === 0 || !dimensions || !description || !imageToDisplay) {
+      alert("Harap isi semua field yang ada");
+      return;
+    }
+
+    // Panggil fungsi onSave jika validasi lolos
+    onSave(product);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -131,7 +144,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             Batal
           </button>
           <button
-            onClick={() => onSave(product)}
+            onClick={handleSave}
             className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-80"
           >
             Simpan

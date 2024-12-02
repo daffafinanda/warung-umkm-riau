@@ -116,7 +116,7 @@ const PengelolaanProduk: React.FC = () => {
     <div className="p-6">
       <button
         onClick={handleAddProduct}
-        className="bg-foreground border-2 shadow-md border-primary w-full flex items-center justify-center font-semibold text-lg text-primary px-4 py-3 rounded-lg mb-6 hover:bg-primary hover:text-white"
+        className="bg-primary shadow-xl border-primary w-full flex items-center justify-center font-semibold text-lg text-white px-4 py-3 rounded-lg mb-6 hover:bg-primary hover:bg-opacity-80"
       >
         <FaPlus />
         <span className="ml-2">Tambah Produk</span>

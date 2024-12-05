@@ -14,8 +14,7 @@ interface RentalRequest {
   alamatDomisili: string;
   alamatKTP: string;
   fotoKTP: string;
-  awalPenyewaan: string;
-  akhirPenyewaan: string;
+  durasiPenyewaan: number;
   lokasiBooth: string;
 }
 
@@ -31,8 +30,7 @@ export default function Home() {
       alamatDomisili: "Jl. Kebon Kacang No. 12, Jakarta",
       alamatKTP: "Jl. Kebon Melati No. 5, Jakarta",
       fotoKTP: "https://about.lovia.id/wp-content/uploads/2020/05/150067.jpg",
-      awalPenyewaan: "2024-11-01",
-      akhirPenyewaan: "2024-12-01",
+      durasiPenyewaan: 2,
       lokasiBooth: "Mall Senayan",
     },
     {
@@ -45,8 +43,7 @@ export default function Home() {
       alamatDomisili: "Jl. Kebon Melati No. 8, Jakarta",
       alamatKTP: "Jl. Kebon Kacang No. 3, Jakarta",
       fotoKTP: "https://about.lovia.id/wp-content/uploads/2020/05/150067.jpg",
-      awalPenyewaan: "2024-11-01",
-      akhirPenyewaan: "2024-12-01",
+      durasiPenyewaan: 2,
       lokasiBooth: "Mall Kelapa Gading",
     },
   ]);
@@ -80,7 +77,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className=" bg-gray-100 p-6">
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {rentalRequests.map((request) => (
           <RentalRequestCard

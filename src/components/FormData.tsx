@@ -8,8 +8,7 @@ interface FormData {
   alamatDomisili: string;
   alamatKTP: string;
   fotoKTP: string;
-  awalPenyewaan: string;
-  akhirPenyewaan: string;
+  durasiPenyewaan: number;
   lokasiBooth: string;
 }
 
@@ -67,26 +66,39 @@ const RentalForm: React.FC<RentalFormProps> = ({ formData }) => {
         </div>
       </div>
 
-      {/* Awal Penyewaan and Akhir Penyewaan */}
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          label="Awal Penyewaan"
-          id="awalPenyewaan"
-          value={formData.awalPenyewaan}
-        />
-        <FormField
-          label="Akhir Penyewaan"
-          id="akhirPenyewaan"
-          value={formData.akhirPenyewaan}
-        />
+      {/* Lokasi Booth and Durasi Penyewaan */}
+      <div className="grid sm:grid-cols-3 grid-cols-1 gap-4">
+        {/* Lokasi Booth - Menempati 2 kolom */}
+        <div className="sm:col-span-2">
+          <FormField
+            label="Lokasi Booth"
+            id="lokasiBooth"
+            value={formData.lokasiBooth}
+          />
+        </div>
+
+        {/* Durasi Penyewaan - Menempati 1 kolom */}
+        <div>
+          <label
+            htmlFor="durasiPenyewaan"
+            className="block text-sm font-medium text-gray-700 capitalize"
+          >
+            Durasi Penyewaan
+          </label>
+          <div className="flex items-center mt-1">
+            <input
+              type="text"
+              id="durasiPenyewaan"
+              value={formData.durasiPenyewaan}
+              readOnly
+              className="bg-background block w-full rounded-md border-gray-300 shadow-inner focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+            />
+            <span className="mx-2 text-gray-900">Bulan</span>
+          </div>
+        </div>
       </div>
 
-      {/* Lokasi Booth */}
-      <FormField
-        label="Lokasi Booth"
-        id="lokasiBooth"
-        value={formData.lokasiBooth}
-      />
+
     </>
   );
 };

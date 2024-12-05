@@ -12,8 +12,7 @@ const PengajuanSewa: React.FC = () => {
     alamatDomisili: "Jl. Kebon Kacang No. 12, Jakarta",
     alamatKTP: "Jl. Kebon Melati No. 5, Jakarta",
     fotoKTP: "https://about.lovia.id/wp-content/uploads/2020/05/150067.jpg", // URL gambar KTP
-    awalPenyewaan: "2024-11-01",
-    akhirPenyewaan: "2024-12-01",
+    durasiPenyewaan: 2,
     lokasiBooth: "Mall Senayan",
     statusProses: "Menunggu" as Status, // Cast statusProses ke tipe Status
     nik: "1234567890123456", // NIK

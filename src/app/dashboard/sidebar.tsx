@@ -12,7 +12,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, toggleSidebar }) => {
-  const currentPath = usePathname();
+  const currentPath = usePathname(); // Get the current pathname
 
   const rolePrefix = `/dashboard/${role}`;
 
@@ -29,6 +29,21 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, toggleSidebar }) => {
   ];
 
   const filteredMenus = menus.filter((menu) => menu.roles.includes(role));
+
+  // Function to check if the current path is related to the menu's link
+  const isActive = (menuLink: string) => {
+    if (menuLink === "/") {
+      // Home menu is only active when the path is exactly "/"
+      return currentPath === menuLink;
+    } else if (menuLink === `${rolePrefix}`) {
+      // Dashboard menu is only active when the path is exactly "/dashboard/{role}"
+      return currentPath === menuLink;
+    } else if (currentPath?.startsWith(menuLink)) {
+      // For other menus, activate when the path starts with the menu's link
+      return true;
+    }
+    return false;
+  };
 
   return (
     <aside
@@ -50,14 +65,14 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, toggleSidebar }) => {
                 href={menu.link}
                 onClick={toggleSidebar}
                 className={`flex items-center p-2 rounded-lg ${
-                  currentPath === menu.link
+                  isActive(menu.link)
                     ? "bg-[#2f68351b] text-primary font-bold"
                     : "text-gray-900 hover:bg-gray-100"
                 }`}
               >
                 <menu.icon
                   className={`w-5 h-5 ${
-                    currentPath === menu.link ? "text-primary" : "text-gray-500"
+                    isActive(menu.link) ? "text-primary" : "text-gray-500"
                   }`}
                 />
                 <span className="ms-3">{menu.label}</span>
@@ -71,3 +86,4 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, toggleSidebar }) => {
 };
 
 export default Sidebar;
+  

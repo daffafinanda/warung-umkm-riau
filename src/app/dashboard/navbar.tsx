@@ -12,16 +12,25 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const actorRoles = ["direktur", "kepala-divisi", "pelanggan"];
 
   const getPageTitle = (path: string) => {
-    const pathSegments = path.split("/").filter(Boolean);
-    const lastSegment = pathSegments[pathSegments.length - 1];
+    const pathSegments = path.split("/").filter(Boolean); // Split the path by "/" and remove empty segments
 
-    if (actorRoles.includes(lastSegment)) {
+    // Case 1: If path only has one segment after "/dashboard", it must be an actor, so show "Dashboard"
+    if (pathSegments.length === 2 && actorRoles.includes(pathSegments[1])) {
       return "Dashboard";
     }
 
-    return lastSegment
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+    // Case 2: If path has two or more segments (actor and menu), the second segment is the menu
+    if (pathSegments.length >= 3 && actorRoles.includes(pathSegments[1])) {
+      const menuSegment = pathSegments[2];
+
+      // Format the menu segment from kebab-case to title case (e.g., "permintaan-sewa" => "Permintaan Sewa")
+      return menuSegment
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+    }
+
+    // Default case: If the structure doesn't match, return "Loading..."
+    return "Loading...";
   };
 
   const pageTitle = pathname ? getPageTitle(pathname) : "Loading...";

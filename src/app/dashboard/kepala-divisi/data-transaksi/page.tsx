@@ -27,7 +27,7 @@ const DataTransaksi: React.FC = () => {
     {
       label: "Penjualan",
       content: (
-        <div className="">
+        <div>
           <h1 className="my-4 text-primary text-2xl font-bold">Riwayat Penjualan</h1>
           <TabLayout2
             tabs={[

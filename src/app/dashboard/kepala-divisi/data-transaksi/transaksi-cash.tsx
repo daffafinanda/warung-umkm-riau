@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ModalCash from "@/app/dashboard/kepala-divisi/data-transaksi/CashModal";
+import ModalCash from "@/components/CashModal";
 
 // Define the type for each order item
 interface OrderData {
@@ -61,9 +61,9 @@ const TransaksiCash: React.FC = () => {
   };
 
   return (
-    <div className="relative px-6 py-4 bg-foreground  min-h-full">
+    <div className="relative bg-foreground  min-h-full">
       {/* Wrapper to enable horizontal scroll only for the table */}
-      <div className="overflow-x-auto left-64 shadow-md sm:rounded-lg">
+      <div className="overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left text-gray-500 ">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
             <tr>

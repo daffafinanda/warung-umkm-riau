@@ -8,7 +8,7 @@ type FormData = {
   ukuran: string;
   harga: string;
   jumlah: number;
-  bukti: string; // URL gambar atau Base64
+  bukti: string;
   nama: string;
   jenisKelamin: string;
   noHp: string;

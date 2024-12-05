@@ -19,7 +19,7 @@ const DataTransaksi: React.FC = () => {
       label: "Penyewaan",
       content: (
         <div >
-          <h1 className="my-4 text-primary text-2xl font-bold">Riwayat Penyewaan</h1>
+          
         <RiwayatPenyewaan />
         </div>
       ),
@@ -28,7 +28,7 @@ const DataTransaksi: React.FC = () => {
       label: "Penjualan",
       content: (
         <div>
-          <h1 className="my-4 text-primary text-2xl font-bold">Riwayat Penjualan</h1>
+          <h1 className="my-4 text-primary text-2xl font-bold bg-foreground rounded-lg shadow-md p-4">Riwayat Penjualan</h1>
           <TabLayout2
             tabs={[
               { label: "Cash", content: <TransaksiCash /> },
@@ -41,7 +41,7 @@ const DataTransaksi: React.FC = () => {
   ];
 
   return (
-    <div className=" p-6 rounded-xl sm:mx-auto mx-0 max-w-sm sm:max-w-full">
+    <div className=" p-6 rounded-xl mx-auto max-w-sm sm:max-w-full">
       <TabLayout tabs={tabs} />
     </div>
   );

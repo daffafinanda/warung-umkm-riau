@@ -1,44 +1,41 @@
-import React, { useState, useEffect } from "react";
-import ImageModal from "@/components/ImageModal";
+import React, { useState } from "react";
 
-type FormData = {
+interface Product {
+  nama: string;
+  ukuran: string;
+  harga: number;
+  jumlah: number;
+}
+
+interface FormData {
   id: string;
   tanggal: string;
-  produk: string;
-  ukuran: string;
-  harga: string;
-  jumlah: number;
-  bukti: string;
   nama: string;
-  jenisKelamin: string;
   noHp: string;
   alamat: string;
-};
+  produk: Product[];
+  totalTransaksi: number;
+  bukti: string;
+}
 
-type DetailModalProps = {
+interface ModalCashProps {
   isOpen: boolean;
   onClose: () => void;
-  data: FormData;
-  onEdit: (id: string, updatedData: FormData) => void;
+  onEdit: (data: FormData) => void;
   onDelete: (id: string) => void;
-};
+  data: FormData;
+}
 
-const ModalCash: React.FC<DetailModalProps> = ({
+
+const ModalCash: React.FC<ModalCashProps> = ({
   isOpen,
   onClose,
-  data,
   onEdit,
   onDelete,
+  data,
 }) => {
-  const [isImageOpen, setIsImageOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState<FormData>(data);
-  const [imagePreview, setImagePreview] = useState<string>(data.bukti);
-
-  useEffect(() => {
-    setFormData(data);
-    setImagePreview(data.bukti);
-  }, [data]);
 
   if (!isOpen) return null;
 
@@ -46,271 +43,235 @@ const ModalCash: React.FC<DetailModalProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFormData((prevData) => ({
-          ...prevData,
-          bukti: event.target?.result as string, // Simpan gambar sebagai base64
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleProductChange = (
+    index: number,
+    field: keyof Product,
+    value: string | number
+  ) => {
+    setFormData((prev) => {
+      const updatedProducts = [...prev.produk];
+      const updatedProduct = { ...updatedProducts[index], [field]: value };
+      updatedProducts[index] = updatedProduct as Product;
+      return { ...prev, produk: updatedProducts };
+    });
   };
 
   const handleSave = () => {
-    onEdit(data.id, formData);
-    setEditMode(false);
-  };
-
-  const handleCancel = () => {
-    setEditMode(false);
-    setFormData(data); // Reset form data to initial data
-    setImagePreview(data.bukti); // Reset image preview to initial value
+    onEdit(formData);
+    setIsEditMode(false);
   };
 
   return (
-    <>
-      {/* Main Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 sm:mx-8">
-          <div className="flex justify-between items-center border-b px-4 py-3">
-            <h2 className="text-lg font-bold text-black">
-              {editMode ? "Edit Pembelian" : "Detail Pembelian"}
-            </h2>
-            <button
-              className="text-gray-500 hover:text-gray-700"
-              onClick={onClose}
-            >
-              ✕
-            </button>
-          </div>
-          {/* Konten Modal */}
-          <div className="px-4 py-4 grid grid-cols-2 gap-4 text-black overflow-y-auto max-h-[calc(100vh-200px)]">
-            {/* Kolom Kiri */}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white text-black rounded-lg shadow-lg p-6 w-full sm:w-3/4 max-w-4xl h-full flex flex-col">
+        <h2 className="text-xl font-bold mb-4">Detail Transaksi</h2>
+        
+        {/* Kontainer untuk form yang scrollable */}
+        <div className="flex-grow overflow-y-auto ">
+          <form className="space-y-4">
             <div>
-              <div className="mb-2">
-                <label className="block font-medium">ID:</label>
-                <p>{formData.id}</p>
-              </div>
-              <div className="mb-2">
-                <label className="block font-medium">Tanggal:</label>
-                {editMode ? (
-                  <input
-                    type="date"
-                    name="tanggal"
-                    value={formData.tanggal}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                  />
-                ) : (
-                  <p>{formData.tanggal}</p>
-                )}
-              </div>
-              <div className="mb-2">
-                <label className="block font-medium">Produk:</label>
-                {editMode ? (
-                  <input
-                    type="text"
-                    name="produk"
-                    value={formData.produk}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                  />
-                ) : (
-                  <p>{formData.produk}</p>
-                )}
-              </div>
-              <div className="mb-2">
-                <label className="block font-medium">Ukuran:</label>
-                {editMode ? (
-                  <input
-                    type="text"
-                    name="ukuran"
-                    value={formData.ukuran}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                  />
-                ) : (
-                  <p>{formData.ukuran}</p>
-                )}
-              </div>
-              <div className="mb-2">
-                <label className="block font-medium">Harga:</label>
-                {editMode ? (
-                  <input
-                    type="number"
-                    name="harga"
-                    value={formData.harga}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                  />
-                ) : (
-                  <p>{formData.harga}</p>
-                )}
-              </div>
-              <div className="mb-2">
-                <label className="block font-medium">Jumlah:</label>
-                {editMode ? (
-                  <input
-                    type="number"
-                    name="jumlah"
-                    value={formData.jumlah}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                  />
-                ) : (
-                  <p>{formData.jumlah}</p>
-                )}
-              </div>
-              <div>
-                <label className="block font-medium">Bukti:</label>
-                {editMode ? (
-                  <>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="w-full border rounded"
-                    />
-                    {formData.bukti && (
-                      <img
-                        src={formData.bukti}
-                        alt="Bukti Pembelian"
-                        className="w-full max-h-48 object-cover rounded mt-2"
-                      />
+              <label className="block font-semibold">Tanggal</label>
+              <input
+                type="date"
+                name="tanggal"
+                value={formData.tanggal}
+                onChange={handleInputChange}
+                disabled={!isEditMode}
+                className="border rounded-md px-4 py-2 w-full"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">Nama</label>
+              <input
+                type="text"
+                name="nama"
+                value={formData.nama}
+                onChange={handleInputChange}
+                disabled={!isEditMode}
+                className="border rounded-md px-4 py-2 w-full"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">No HP</label>
+              <input
+                type="text"
+                name="noHp"
+                value={formData.noHp}
+                onChange={handleInputChange}
+                disabled={!isEditMode}
+                className="border rounded-md px-4 py-2 w-full"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">Alamat</label>
+              <textarea
+                name="alamat"
+                value={formData.alamat}
+                onChange={handleInputChange}
+                disabled={!isEditMode}
+                className="border rounded-md px-4 py-2 w-full"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">Produk</label>
+              <table className="min-w-full table-auto border-collapse">
+                <thead>
+                  <tr>
+                    <th className="border-y font-medium px-4 py-2 text-left">Nama <span className="hidden md:inline">Produk</span></th>
+                    <th className="border-y font-medium px-4 py-2 text-left">Ukuran</th>
+                    <th className="border-y font-medium px-4 py-2 text-left">Harga</th>
+                    <th className="border-y font-medium px-4 py-2 text-left">Jumlah</th>
+                    {isEditMode && (
+                      <th className="border-y px-4 py-2 text-left">Action</th>
                     )}
-                  </>
-                ) : (
-                  <>
-                    <img
-                      src={imagePreview}
-                      alt="Bukti Pembelian"
-                      className="w-full max-h-48 object-cover rounded cursor-pointer hidden sm:block"
-                      onClick={() => setIsImageOpen(true)}
-                    />
-                    <button
-                      className="mt-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 sm:hidden"
-                      onClick={() => setIsImageOpen(true)}
-                    >
-                      Lihat Gambar
-                    </button>
-                  </>
-                )}
-              </div>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formData.produk.map((product, index) => (
+                    <tr key={index}>
+                      <td className="border-b px-4 py-2">
+                        <input
+                          type="text"
+                          value={product.nama}
+                          onChange={(e) =>
+                            handleProductChange(index, "nama", e.target.value)
+                          }
+                          disabled={!isEditMode}
+                          className="border rounded-md px-2 py-1 w-full"
+                        />
+                      </td>
+                      <td className="border-b px-4 py-2">
+                        <input
+                          type="text"
+                          value={product.ukuran}
+                          onChange={(e) =>
+                            handleProductChange(index, "ukuran", e.target.value)
+                          }
+                          disabled={!isEditMode}
+                          className="border rounded-md px-2 py-1 w-full"
+                        />
+                      </td>
+                      <td className="border-b px-4 py-2">
+                        <input
+                          type="number"
+                          value={product.harga}
+                          onChange={(e) =>
+                            handleProductChange(index, "harga", parseFloat(e.target.value))
+                          }
+                          disabled={!isEditMode}
+                          className="border rounded-md px-2 py-1 w-full"
+                        />
+                      </td>
+                      <td className="border-b px-4 py-2">
+                        <input
+                          type="number"
+                          value={product.jumlah}
+                          onChange={(e) =>
+                            handleProductChange(index, "jumlah", parseInt(e.target.value))
+                          }
+                          disabled={!isEditMode}
+                          className="border rounded-md px-2 py-1 w-full"
+                        />
+                      </td>
+                      {isEditMode && (
+                        <td className="border-b px-4 py-2 text-center">
+                          <button
+                            onClick={() => {
+                              const updatedProducts = formData.produk.filter((_, i) => i !== index);
+                              setFormData((prev) => ({ ...prev, produk: updatedProducts }));
+                            }}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            Hapus
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {isEditMode && (
+                <button
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      produk: [
+                        ...prev.produk,
+                        { nama: "", ukuran: "", harga: 0, jumlah: 0 },
+                      ],
+                    }));
+                  }}
+                  className="mt-2 text-blue-500 hover:text-blue-700"
+                >
+                  Tambah Produk
+                </button>
+              )}
             </div>
-            {/* Kolom Kanan */}
+
             <div>
-              <div className="mb-2">
-                <label className="block font-medium">Nama:</label>
-                {editMode ? (
-                  <input
-                    type="text"
-                    name="nama"
-                    value={formData.nama}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                  />
-                ) : (
-                  <p>{formData.nama}</p>
-                )}
-              </div>
-              <div className="mb-2">
-                <label className="block font-medium">Jenis Kelamin:</label>
-                {editMode ? (
-                  <input
-                    type="text"
-                    name="jenisKelamin"
-                    value={formData.jenisKelamin}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                  />
-                ) : (
-                  <p>{formData.jenisKelamin}</p>
-                )}
-              </div>
-              <div className="mb-2">
-                <label className="block font-medium">No. HP:</label>
-                {editMode ? (
-                  <input
-                    type="text"
-                    name="noHp"
-                    value={formData.noHp}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                  />
-                ) : (
-                  <p>{formData.noHp}</p>
-                )}
-              </div>
-              <div>
-                <label className="block font-medium">Alamat:</label>
-                {editMode ? (
-                  <textarea
-                    name="alamat"
-                    value={formData.alamat}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                  />
-                ) : (
-                  <p>{formData.alamat}</p>
-                )}
-              </div>
+              <label className="block font-medium">Total Transaksi</label>
+              <input
+                type="text"
+                name="totalTransaksi"
+                value={formData.totalTransaksi}
+                disabled
+                className="border rounded-md px-4 py-2 w-full"
+              />
             </div>
-          </div>
-          {/* Tombol Aksi */}
-          <div className="flex justify-end border-t p-4">
-          {editMode ? (
-            <>
-            <button
-              className="px-4 py-2 bg-gray-300 rounded mr-2"
-              onClick={handleCancel}
-            >
-              Cancel
-            </button>
-          
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded mr-2"
-                  onClick={handleSave}
-                >
-                  Save
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  className="px-4 py-2 bg-yellow-600 text-white rounded mr-2"
-                  onClick={() => setEditMode(true)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="px-4 py-2 bg-red-600 text-white rounded"
-                  onClick={() => onDelete(formData.id)}
-                >
-                  Delete
-                </button>
-              </>
+            <div>
+              <label className="block font-medium">Bukti Pembayaran</label>
+              <img
+                src={formData.bukti}
+                alt="Bukti Pembayaran"
+                className="w-full h-auto max-h-[200px] object-contain"
+              />
+            </div>
+          </form>
+        </div>
+
+        {/* Footer (Buttons) */}
+        <div className="pt-4 mt-4x flex justify-between space-x-2 border-t">
+          <div className="flex gap-2">
+            {!isEditMode && (
+              <button
+                onClick={() => setIsEditMode(true)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              >
+                Edit
+              </button>
             )}
+            {isEditMode && (
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+              >
+                Simpan
+              </button>
+            )}
+            <button
+              onClick={() => onDelete(formData.id)}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            >
+              Hapus
+            </button>
           </div>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md  hover:bg-gray-600"
+          >
+            Tutup
+          </button>
         </div>
       </div>
-
-      {/* Modal Gambar */}
-      {isImageOpen && (
-        <ImageModal
-          isOpen={isImageOpen}
-          onClose={() => setIsImageOpen(false)}
-          imageSrc={imagePreview}
-        />
-      )}
-    </>
+    </div>
   );
 };
 
 export default ModalCash;
+

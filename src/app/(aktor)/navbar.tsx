@@ -12,26 +12,24 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const actorRoles = ["direktur", "kepala-divisi", "pelanggan"];
 
   const getPageTitle = (path: string) => {
-    const pathSegments = path.split("/").filter(Boolean); // Split the path by "/" and remove empty segments
-
-    // Case 1: If path only has one segment after "/dashboard", it must be an actor, so show "Dashboard"
-    if (pathSegments.length === 2 && actorRoles.includes(pathSegments[1])) {
+    const pathSegments = path.split("/").filter(Boolean); // Pisahkan path berdasarkan "/" dan hapus segmen kosong
+  
+    // Case 1: Jika aktor ada di path segmen pertama, kembalikan "Dashboard"
+    if (actorRoles.includes(pathSegments[0])) {
+      // Jika ada segmen kedua, gunakan segmen kedua sebagai title
+      if (pathSegments.length > 1) {
+        return pathSegments[1]
+          .replace(/-/g, " ") // Ubah kebab-case menjadi Title Case
+          .replace(/\b\w/g, (char) => char.toUpperCase());
+      }
       return "Dashboard";
     }
-
-    // Case 2: If path has two or more segments (actor and menu), the second segment is the menu
-    if (pathSegments.length >= 3 && actorRoles.includes(pathSegments[1])) {
-      const menuSegment = pathSegments[2];
-
-      // Format the menu segment from kebab-case to title case (e.g., "permintaan-sewa" => "Permintaan Sewa")
-      return menuSegment
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-    }
-
-    // Default case: If the structure doesn't match, return "Loading..."
+  
+    // Default case: Jika tidak cocok, tampilkan "Loading..."
     return "Loading...";
   };
+  
+  
 
   const pageTitle = pathname ? getPageTitle(pathname) : "Loading...";
 

@@ -14,7 +14,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, toggleSidebar }) => {
   const currentPath = usePathname(); // Get the current pathname
 
-  const rolePrefix = `/dashboard/${role}`;
+  const rolePrefix = `/${role}`;
 
   const menus = [
     { label: "Home", link: "/", icon: FiHome, roles: ["direktur", "kepala-divisi", "pelanggan"] },

@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import Navbar from "@/app/dashboard/navbar";
-import Sidebar from "@/app/dashboard/sidebar";
+import Navbar from "@/app/(aktor)/navbar";
+import Sidebar from "@/app/(aktor)/sidebar";
 import { usePathname } from "next/navigation";
 
 interface LayoutProps {
@@ -13,7 +13,7 @@ const Layout = ({ children }: LayoutProps) => {
   const pathname = usePathname();
 
   // Ekstraksi peran pengguna dari URL
-  const userRole = pathname.split("/")[2] as "direktur" | "kepala-divisi" | "pelanggan";
+  const userRole = pathname.split("/")[1] as "direktur" | "kepala-divisi" | "pelanggan";
 
   // State untuk toggle sidebar
   const [isSidebarOpen, setSidebarOpen] = useState(false);

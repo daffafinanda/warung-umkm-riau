@@ -25,6 +25,7 @@ interface PenyewaanDetail {
 }
 
 const dummyDetail: PenyewaanDetail[] = [
+  
   {
     id_sewa: "001",
     id_booth: "Booth001",
@@ -93,7 +94,7 @@ const PenyewaanDetailPage = () => {
   };
 
   const handleBack = () => {
-    router.push("/dashboard/kepala-divisi/data-transaksi"); // Navigasi kembali ke halaman sebelumnya
+    router.push("../"); // Navigasi kembali ke halaman sebelumnya
   };
 
   if (!detail) {
@@ -119,7 +120,7 @@ const PenyewaanDetailPage = () => {
         <nav className="text-sm text-gray-600 mb-4">
           <span
             className="cursor-pointer hover:underline"
-            onClick={() => router.push("/dashboard/kepala-divisi/data-transaksi")}
+            onClick={() => router.push("../")}
           >
             Data Transaksi
           </span>{" "}

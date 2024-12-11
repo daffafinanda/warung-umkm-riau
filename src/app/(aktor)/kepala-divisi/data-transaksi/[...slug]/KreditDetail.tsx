@@ -1,10 +1,8 @@
-
-"use client"; 
-import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+"use client";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import ImageModal from "@/components/ImageModal";
-
 
 interface Identitas {
   nama: string;
@@ -37,135 +35,81 @@ interface FormData {
   cicilanPerBulan: number;
   sisaCicilan: number;
   prosesCicilan: string;
-  statusCicilan: 'Lunas' | 'Belum Lunas';
+  statusCicilan: "Lunas" | "Belum Lunas";
   pembayaran: Pembayaran[];
 }
 
-const TransaksiDetail: React.FC = () => {
-  const { id_kredit } = useParams(); // Mendapatkan id dari URL
+// Data transaksi diletakkan di luar fungsi KreditDetail
+const data: FormData[] = [
+  {
+    id: "001",
+    tanggal: "2024-11-30",
+    identitas: {
+      nama: "John Doe",
+      noHp: "08123456789",
+      alamat: "Jl. Merdeka No. 10, Jakarta",
+      fotoKtp: "https://example.com/ktp-johndoe.jpg",
+    },
+    produk: {
+      nama: "Booth Container",
+      ukuran: "4x2x3 meter",
+      harga: 5000000,
+    },
+    dp: 1000000,
+    tenor: 5,
+    jumlahCicilan: 4000000,
+    cicilanPerBulan: 800000,
+    sisaCicilan: 1600000,
+    prosesCicilan: "3/5",
+    statusCicilan: "Belum Lunas",
+    pembayaran: [
+      {
+        tanggal: "2024-12-01",
+        pembayaranKe: 0,
+        jumlah: 1000000,
+        buktiPembayaran: "https://example.com/bukti-pembayaran-0.jpg",
+      },
+      {
+        tanggal: "2024-12-01",
+        pembayaranKe: 1,
+        jumlah: 800000,
+        buktiPembayaran: "https://example.com/bukti-pembayaran-1.jpg",
+      },
+      {
+        tanggal: "2025-01-01",
+        pembayaranKe: 2,
+        jumlah: 800000,
+        buktiPembayaran: "https://example.com/bukti-pembayaran-2.jpg",
+      },
+      {
+        tanggal: "2025-02-01",
+        pembayaranKe: 3,
+        jumlah: 800000,
+        buktiPembayaran: "https://example.com/bukti-pembayaran-3.jpg",
+      },
+    ],
+  },
+  // Data lainnya
+];
+
+const KreditDetail: React.FC = () => {
+  const params = useParams();
+  const slug = params.slug as string[]; // Ambil array slug
+  const id = slug[slug.length - 1]; // Ambil ID dari bagian terakhir slug
   const [transaksi, setTransaksi] = useState<FormData | null>(null);
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string>("");
 
-
   useEffect(() => {
-    // Simulasi pengambilan data berdasarkan id_kredit
-    const data: FormData[] = [
-        {
-            id: "001",
-            tanggal: "2024-11-30",
-            identitas: {
-              nama: "John Doe",
-              noHp: "08123456789",
-              alamat: "Jl. Merdeka No. 10, Jakarta",
-              fotoKtp: "https://example.com/ktp-johndoe.jpg",
-            },
-            produk: {
-              nama: "Booth Container",
-              ukuran: "4x2x3 meter",
-              harga: 5000000,
-            },
-            dp: 1000000,
-            tenor: 5, // Cicilan selama 5 bulan
-            jumlahCicilan: 4000000, // 5000000 - 1000000
-            cicilanPerBulan: 800000, // 4000000 / 5 bulan
-            sisaCicilan: 1600000, // 4000000 - (3 x 800000)
-            prosesCicilan: "3/5",
-            statusCicilan: "Belum Lunas", // Sisa cicilan > 0
-            pembayaran: [
-              {
-                tanggal: "2024-12-01",
-                pembayaranKe: 0,
-                jumlah: 1000000,
-                buktiPembayaran: "https://example.com/bukti-pembayaran-0.jpg",
-              },
-              {
-                tanggal: "2024-12-01",
-                pembayaranKe: 1,
-                jumlah: 800000,
-                buktiPembayaran: "https://example.com/bukti-pembayaran-1.jpg",
-              },
-              {
-                tanggal: "2025-01-01",
-                pembayaranKe: 2,
-                jumlah: 800000,
-                buktiPembayaran: "https://example.com/bukti-pembayaran-2.jpg",
-              },
-              {
-                tanggal: "2025-02-01",
-                pembayaranKe: 3,
-                jumlah: 800000,
-                buktiPembayaran: "https://example.com/bukti-pembayaran-3.jpg",
-              },
-            ],
-          },
-          {
-            id: "002",
-            tanggal: "2024-11-01",
-            identitas: {
-              nama: "Jane Smith",
-              noHp: "08198765432",
-              alamat: "Jl. Sudirman No. 20, Bandung",
-              fotoKtp: "https://example.com/ktp-janesmith.jpg",
-            },
-            produk: {
-              nama: "Kios Portable",
-              ukuran: "3x2x2.5 meter",
-              harga: 4000000,
-            },
-            dp: 500000,
-            tenor: 4,
-            jumlahCicilan: 3500000,
-            cicilanPerBulan: 875000,
-            sisaCicilan: 0, // Semua cicilan telah dibayar
-            prosesCicilan: "4/4",
-            statusCicilan: "Lunas", // Sisa cicilan = 0
-            pembayaran: [
-              {
-                tanggal: "2024-12-01",
-                pembayaranKe: 0,
-                jumlah: 500000,
-                buktiPembayaran: "https://example.com/bukti-pembayaran-0.jpg",
-              },
-              {
-                tanggal: "2025-01-01",
-                pembayaranKe: 1,
-                jumlah: 875000,
-                buktiPembayaran: "https://example.com/bukti-pembayaran-1.jpg",
-              },
-              {
-                tanggal: "2025-02-01",
-                pembayaranKe: 2,
-                jumlah: 875000,
-                buktiPembayaran: "https://example.com/bukti-pembayaran-2.jpg",
-              },
-              {
-                tanggal: "2025-03-01",
-                pembayaranKe: 3,
-                jumlah: 875000,
-                buktiPembayaran: "https://example.com/bukti-pembayaran-3.jpg",
-              },
-              {
-                tanggal: "2025-03-01",
-                pembayaranKe: 4,
-                jumlah: 875000,
-                buktiPembayaran: "https://example.com/bukti-pembayaran-4.jpg",
-              },
-            ],
-          },
-    ];
-    
-
-    // Mencari transaksi berdasarkan id_kredit dan update state
-    const foundTransaksi = data.find(item => item.id === id_kredit);
+    // Mencari transaksi berdasarkan slug dan update state
+    const foundTransaksi = data.find((item) => item.id === id);
     setTransaksi(foundTransaksi || null);
-  }, [id_kredit]); // Menambahkan id_kredit ke dependensi useEffect
+  }, [slug]);
 
   if (!transaksi) {
     return <div>Transaksi tidak ditemukan</div>;
   }
-
 
   const openModal = (imageSrc: string) => {
     setSelectedImage(imageSrc);
@@ -176,10 +120,11 @@ const TransaksiDetail: React.FC = () => {
     setIsModalOpen(false);
     setSelectedImage("");
   };
-  
+
   const handleBack = () => {
     router.push("../"); // Navigasi kembali ke halaman sebelumnya
   };
+
   return (
     <div className="p-6">
   <div className="mb-6">
@@ -339,4 +284,4 @@ const TransaksiDetail: React.FC = () => {
   );
 };
 
-export default TransaksiDetail;
+export default KreditDetail;

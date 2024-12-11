@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MdOutlineArrowBackIos } from "react-icons/md";  // Import tombol Back dari React Icons
+import { MdOutlineArrowBackIos } from "react-icons/md"; // Import tombol Back dari React Icons
 import ImageModal from "@/components/ImageModal";
 
 // Simulasi data untuk penyewaan
@@ -25,7 +25,6 @@ interface PenyewaanDetail {
 }
 
 const dummyDetail: PenyewaanDetail[] = [
-  
   {
     id_sewa: "001",
     id_booth: "Booth001",
@@ -41,11 +40,11 @@ const dummyDetail: PenyewaanDetail[] = [
     sisa: 200000,
   },
   {
-    id_sewa: "002", 
-    id_booth: "Booth002", 
-    nama_penyewa: "Jane Smith", 
+    id_sewa: "002",
+    id_booth: "Booth002",
+    nama_penyewa: "Jane Smith",
     lokasi: "Lokasi B",
-    durasi: 3, 
+    durasi: 3,
     harga: 600000,
     pembayaran: [
       { tanggal: "2024-01-01", jumlah: 200000, bukti: "https://i.pinimg.com/736x/fd/dd/9f/fddd9fb4dd5e11c8ad0c27e2d416ee6f.jpg" },
@@ -54,11 +53,12 @@ const dummyDetail: PenyewaanDetail[] = [
     jumlah_dibayar: 400000,
     sisa: 200000,
   },
-  { id_sewa: "003", 
-    id_booth: "Booth003", 
-    nama_penyewa: "Michael Lee", 
+  {
+    id_sewa: "003",
+    id_booth: "Booth003",
+    nama_penyewa: "Michael Lee",
     lokasi: "Lokasi C",
-    durasi: 1 ,
+    durasi: 1,
     harga: 600000,
     pembayaran: [
       { tanggal: "2024-01-01", jumlah: 200000, bukti: "https://i.pinimg.com/736x/fd/dd/9f/fddd9fb4dd5e11c8ad0c27e2d416ee6f.jpg" },
@@ -66,22 +66,24 @@ const dummyDetail: PenyewaanDetail[] = [
     ],
     jumlah_dibayar: 400000,
     sisa: 200000,
- },
+  },
 ];
 
-const PenyewaanDetailPage = () => {
-  const { id_sewa } = useParams(); // Ambil parameter 'id_sewa' dari URL
+const SewaDetail = () => {
+  const params = useParams();
+  const slug = params.slug as string[]; // Ambil array slug
+  const id = slug[slug.length - 1]; // Ambil ID dari bagian terakhir slug
   const [detail, setDetail] = useState<PenyewaanDetail | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string>("");
   const router = useRouter(); // Untuk navigasi kembali
 
   useEffect(() => {
-    if (id_sewa) {
-      const data = dummyDetail.find((item) => item.id_sewa === id_sewa);
+    if (id) {
+      const data = dummyDetail.find((item) => item.id_sewa === id);
       setDetail(data || null);
     }
-  }, [id_sewa]);
+  }, [id]);
 
   const openModal = (imageSrc: string) => {
     setSelectedImage(imageSrc);
@@ -94,7 +96,7 @@ const PenyewaanDetailPage = () => {
   };
 
   const handleBack = () => {
-    router.push("../"); // Navigasi kembali ke halaman sebelumnya
+    router.push("../"); // Navigasi kembali ke halaman transaksi
   };
 
   if (!detail) {
@@ -103,16 +105,15 @@ const PenyewaanDetailPage = () => {
         <h1 className="text-3xl font-bold text-gray-800">
           Penyewa Tidak Ditemukan
         </h1>
-        <a
-          href="/dashboard/kepala-divisi/data-transaksi"
+        <button
+          onClick={handleBack}
           className="mt-2 text-primary hover:underline"
         >
           Kembali ke Data Transaksi
-        </a>
+        </button>
       </div>
     );
   }
-
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -219,4 +220,4 @@ const PenyewaanDetailPage = () => {
   );
 };
 
-export default PenyewaanDetailPage;
+export default SewaDetail;

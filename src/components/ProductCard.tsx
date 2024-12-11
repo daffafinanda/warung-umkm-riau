@@ -16,10 +16,10 @@ const ProductCard: React.FC<Product> = ({ id, name, price, dimensions, image, on
   return (
     <div
       key={id}
-      className="bg-foreground rounded-lg overflow-hidden transition-shadow cursor-pointer"  // Menambahkan cursor-pointer untuk menunjukkan bisa diklik
+      className="bg-foreground rounded-lg overflow-hidden transition-shadow cursor-pointer text-black"  // Menambahkan cursor-pointer untuk menunjukkan bisa diklik
       onClick={onClick} // Menambahkan onClick untuk menangani klik
     >
-      <div className="flex aspect-square items-center justify-center">
+      <div className="flex aspect-square justify-center">
         <img
           src={image}
           alt={name}

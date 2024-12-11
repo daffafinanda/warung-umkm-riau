@@ -3,10 +3,10 @@ import React from "react";
 
 const HomeFrame: React.FC = () => {
   return (
-    <section className=" py-12 px-4 md:px-6 lg:px-8">
-      <div className="flex flex-col  max-w-6xl mx-auto md:flex-row items-center justify-between gap-12">
+    <section>
+      <div className="flex flex-col mx-auto md:flex-row items-center mb-20 justify-between gap-12">
         {/* Teks dan Button */}
-        <div className="flex-1 text-center md:text-left">
+        <div className="flex-1 text-justify md:text-left">
           <h1 className="text-black font-bold text-3xl pb-8 md:text-5xl leading-tight md:leading-[60px]">
             Dukung <span className="text-primary">Usaha UMKM</span> dengan Akses Mudah ke{" "}
             <span className="text-primary">Barang dan Peralatan Berkualitas</span>!
@@ -28,7 +28,7 @@ const HomeFrame: React.FC = () => {
         </div>
 
         {/*Gambar*/}
-        <div className="flex-1 justify-center hidden md:block">
+        <div className="flex-1 justify-center hidden lg:block">
           <div
             className="w-full  h-[600px] rounded-t-full"
             style={{

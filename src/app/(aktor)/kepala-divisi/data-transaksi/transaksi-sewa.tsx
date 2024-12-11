@@ -41,7 +41,7 @@ const RiwayatPenyewaan = () => {
             <td className="px-6 py-4 text-right">
               <button
                 onClick={() =>
-                  router.push(`data-transaksi/penyewaan/${item.id_sewa}`)
+                  router.push(`data-transaksi/sewa/${item.id_sewa}`)
                 }
                 className="font-medium text-blue-600 hover:underline"
               >

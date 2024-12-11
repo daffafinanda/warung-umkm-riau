@@ -185,7 +185,7 @@ const TransaksiKredit: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 text-right">
                 <button
-                    onClick={() => router.push(`data-transaksi/penjualan/kredit/${item.id}`)}
+                    onClick={() => router.push(`data-transaksi/kredit/${item.id}`)}
                     className="font-medium text-blue-600 hover:underline"
                   >
                     Detail

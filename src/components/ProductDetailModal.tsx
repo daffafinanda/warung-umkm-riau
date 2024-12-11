@@ -38,7 +38,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-auto object-cover rounded-lg shadow-lg transition-all transform hover:scale-105"
+              className="w-full h-auto object-cover rounded-lg transition-all transform hover:scale-105"
             />
           </div>
           {/* Product Details */}

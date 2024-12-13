@@ -28,7 +28,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       <div className="bg-white p-8 rounded-lg shadow-2xl max-w-4xl items-center justify-center w-full transition-transform transform ">
         <button
           onClick={onClose}
-          className="absolute top-2 right-4 text-gray-600 text-4xl focus:outline-none hover:text-gray-800 transition-all"
+          className="absolute top-2 right-2 text-gray-600 text-4xl focus:outline-none hover:text-gray-800 transition-all"
         >
           &times;
         </button>

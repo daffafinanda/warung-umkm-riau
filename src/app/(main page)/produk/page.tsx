@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from "react";
-import Navbar from "@/app/landing-page/bar/navbar";
 import ProductCard from "@/components/ProductCard"; // Adjust the path as necessary
 import ProductDetailModal from "@/components/ProductDetailModal";
 
@@ -143,10 +142,10 @@ const ProdukPage: React.FC = () => {
 
   return (
     <>
-      <Navbar />
-      <main className="p-8 mt-20">
+
+      <main className="p-8">
           <div className="max-w-full mx-auto justify-center lg:max-w-6xl">
-          <h1 className="text-3xl font-bold mb-6 text-black">Produk - produk yang kami buat di Warung UMKM Riau</h1>
+          <h1 className="text-3xl font-semibold mb-6 text-black">Produk - produk yang kami buat di Warung UMKM Riau</h1>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-6">
           {products.map((product) => (
             <div key={product.id} className="shadow-lg hover:shadow-xl">

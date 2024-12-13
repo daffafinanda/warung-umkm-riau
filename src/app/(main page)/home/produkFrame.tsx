@@ -62,8 +62,8 @@ const ProdukFrame: React.FC = () => {
   };
 
   return (
-    <section className="py-12 px-4 md:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+    <section className="py-12">
+      <div className="max-w-6xl">
         <div className="flex flex-col md:flex-row items-start md:items-center md:justify-between mb-8 gap-4">
           <div className="max-w-xl text-black">
             <h2 className="text-3xl md:text-5xl font-bold mb-2">Katalog Produk</h2>
@@ -85,7 +85,7 @@ const ProdukFrame: React.FC = () => {
         {/* Grid untuk menampilkan produk */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 text-black">
           {products.map((product) => (
-            <div key={product.id} className="w-full shadow-lg hover:shadow-xl rounded-lg">
+            <div key={product.id} className="w-full shadow-lg hover:shadow-xl bg-white rounded-lg">
               <ProductCard 
                 {...product}
                 onClick={() => handleProductClick(product)}  // Menambahkan event onClick untuk membuka modal

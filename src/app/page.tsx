@@ -1,10 +1,10 @@
 import React from "react";
-import Navbar from "@/app/landing-page/bar/navbar";
-import HomeFrame from "@/app/landing-page/homeFrame";
-import ProdukFrame from "@/app/landing-page/produkFrame";
-import LayananFrame from "./landing-page/layanan";
-import TentangFrame from "./landing-page/tentang";
-import Footer from "./landing-page/bar/footer";
+import Navbar from "@/app/(main page)/navbar";
+import HomeFrame from "@/app/(main page)/home/homeFrame";
+import ProdukFrame from "@/app/(main page)/home/produkFrame";
+import LayananFrame from "./(main page)/home/layanan";
+import TentangFrame from "./(main page)/home/tentang";
+import Footer from "./(main page)/footer";
 
 const HomePage: React.FC = () => {
   

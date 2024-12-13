@@ -16,7 +16,7 @@ const ProductCard: React.FC<Product> = ({ id, name, price, dimensions, image, on
   return (
     <div
       key={id}
-      className="bg-foreground rounded-lg overflow-hidden transition-shadow cursor-pointer text-black"  // Menambahkan cursor-pointer untuk menunjukkan bisa diklik
+      className="bg-foreground rounded-lg overflow-hidden bg-white transition-shadow cursor-pointer text-black"  // Menambahkan cursor-pointer untuk menunjukkan bisa diklik
       onClick={onClick} // Menambahkan onClick untuk menangani klik
     >
       <div className="flex aspect-square justify-center">
@@ -26,10 +26,10 @@ const ProductCard: React.FC<Product> = ({ id, name, price, dimensions, image, on
           className="object-cover max-w-full max-h-full"
         />
       </div>
-      <div className="justify-center items-center p-6">
+      <div className="justify-center items-center p-2 md:p-6">
         <h3 className="font-semibold">{name}</h3>
         <p className="text-sm text-gray-800 mt-1">{dimensions}</p>
-        <p className="text-muted-foreground font-medium mt-1">{formattedPrice}</p>
+        <p className="text-muted-foreground font-semibold md:font-bold md:text-lg text-sm mt-1">{formattedPrice}</p>
       </div>
     </div>
   );

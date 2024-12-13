@@ -14,7 +14,7 @@ const PengajuanSewa: React.FC = () => {
     fotoKTP: "https://about.lovia.id/wp-content/uploads/2020/05/150067.jpg", // URL gambar KTP
     durasiPenyewaan: 2,
     lokasiBooth: "Mall Senayan",
-    statusProses: "Menunggu" as Status, // Cast statusProses ke tipe Status
+    statusProses: "Diproses" as Status, // Cast statusProses ke tipe Status
     nik: "1234567890123456", // NIK
     noHp: "081234567890", // No HP
   };
@@ -23,15 +23,58 @@ const PengajuanSewa: React.FC = () => {
   const getStatusClass = (status: Status): string => {
     switch (status) {
       case "Disetujui":
-        return "bg-green text-white";
+        return "bg-green-500";
       case "Menunggu":
-        return "bg-gray-300 text-white";
+        return "bg-gray-400 ";
       case "Diproses":
-        return "bg-yellow-400 text-white";
+        return "bg-yellow-400 ";
       case "Ditolak":
-        return "bg-red-400 text-white";
+        return "bg-red-400 ";
       default:
-        return "bg-gray-300 text-black"; // default jika status tidak dikenali
+        return "bg-gray-300 "; // default jika status tidak dikenali
+    }
+  };
+
+  // Fungsi untuk menampilkan tombol berdasarkan status
+  const renderButtons = (status: Status) => {
+    switch (status) {
+      case "Menunggu":
+        return (
+          <button
+            type="button"
+            className="w-full bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 focus:outline-none"
+          >
+            Batalkan Pengajuan
+          </button>
+        );
+      case "Disetujui":
+        return (
+          <button
+            type="button"
+            className="w-full bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-70 focus:outline-none"
+          >
+            Lihat Booth
+          </button>
+        );
+      case "Ditolak":
+        return (
+          <div className="flex space-x-4 w-full">
+            <button
+              type="button"
+              className="w-full bg-yellow-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-yellow-600 focus:outline-none"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              className="w-full bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 focus:outline-none"
+            >
+              Batalkan Pengajuan
+            </button>
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
@@ -41,12 +84,10 @@ const PengajuanSewa: React.FC = () => {
         Form Penyewaan Anda
       </h1>
       <form className="space-y-4">
-        
-
-      <FormData formData={formData} />
+        <FormData formData={formData} />
 
         {/* Status Proses */}
-        <div>
+        <div className="flex flex-row items-center gap-4">
           <label
             htmlFor="statusProses"
             className="block text-sm font-medium text-gray-700"
@@ -55,47 +96,15 @@ const PengajuanSewa: React.FC = () => {
           </label>
           <div
             id="statusProses"
-            className={`bg-background mb-12 mt-2 px-4 py-2 rounded-lg text-center font-medium ${getStatusClass(formData.statusProses)}`}
+            className={`bg-background w-fit  px-4 py-2 rounded-lg text-left font-medium ${getStatusClass(formData.statusProses)}`}
           >
             {formData.statusProses}
           </div>
         </div>
 
-        {/* Tombol Edit, Hapus, dan Batalkan Pengajuan */}
-        <div className="flex space-x-4 w-full">
-          {/* Menunggu: hanya Batalkan Pengajuan */}
-          {formData.statusProses === "Menunggu" && (
-            <button
-              type="button"
-              className="w-full py-2 px-4 border border-transparent rounded-full text-sm font-semibold text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Batalkan Pengajuan
-            </button>
-          )}
-
-          {/* Diproses: Edit, Hapus, Batalkan */}
-          {formData.statusProses === "Diproses" && (
-            <>
-              <button
-                type="button"
-                className="w-full py-2 px-4 border border-transparent rounded-full text-sm font-semibold text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Edit Pengajuan
-              </button>
-              <button
-                type="button"
-                className="w-full py-2 px-4 border border-transparent rounded-full text-sm font-semibold text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-              >
-                Hapus Pengajuan
-              </button>
-              <button
-                type="button"
-                className="w-full py-2 px-4 border border-transparent rounded-full text-sm font-semibold text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                Batalkan Pengajuan
-              </button>
-            </>
-          )}
+        {/* Tombol Aksi */}
+        <div className="flex justify-center">
+          {renderButtons(formData.statusProses)}
         </div>
       </form>
     </div>

@@ -34,7 +34,7 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                 </div>
 
                 <div className="overflow-auto h-[calc(90vh-4rem)] p-4 md:p-6">
-                    <div className="border-0 shadow-none mb-6">
+                    <div className="border-0 shadow-none mb-6 text-black">
                         <div className="p-4">
                             <h3 className="text-base md:text-lg text-black">Biodata Penyewa</h3>
                         </div>
@@ -58,7 +58,7 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                         </div>
                     </div>
 
-                    <div className="border-0 shadow-none mb-6">
+                    <div className="border-0 shadow-none mb-6 text-black">
                         <div className="p-4">
                             <h3 className="text-base md:text-lg">Riwayat Pembayaran</h3>
                         </div>
@@ -71,9 +71,9 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                         </div>
                     </div>
 
-                    <div className="border-0 shadow-none">
-                        <div className="p-4">
-                            <h3 className="text-base md:text-lg">Riwayat Kerusakan</h3>
+                    <div className="border-0 text-black shadow-none">
+                        <div className="p-4 ">
+                            <h3 className="text-base md:text-lg ">Riwayat Kerusakan</h3>
                         </div>
                         <div className="p-4">
                             <ul className="space-y-2 text-sm md:text-base">

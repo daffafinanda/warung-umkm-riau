@@ -77,24 +77,70 @@ const PengelolaanProduk: React.FC = () => {
     });
   };
 
+  const handleUpdateProduct = async (product: Product) => {
+    try {
+      const formData = new FormData();
+      formData.append("jenis", product.name); // Nama produk
+      formData.append("ukuran", product.dimensions); // Ukuran produk
+      formData.append("harga", product.price.toString()); // Harga produk
+      if (imageFile) {
+        const response = await fetch(imageFile); // Ambil blob dari URL file
+        const blob = await response.blob();
+        formData.append("foto", blob, "product-image.jpg"); // Tambahkan file gambar ke formData
+      }
+
+      const response = await fetch(
+        `https://backend-umkm-riau.vercel.app/api/dokumentasi/${product.id}`,
+        {
+          method: "PUT",
+          body: formData, // Gunakan FormData, bukan JSON
+        }
+      );
+
+      const responseData = await response.json();
+      console.log("API Response:", responseData);
+
+      // Jika respons berhasil, perbarui produk di state
+      if (response.ok && responseData.success) {
+        setProducts((prevProducts) =>
+          prevProducts.map((p) =>
+            p.id === product.id
+              ? { ...p, name: product.name, dimensions: product.dimensions, price: product.price, image: imageFile || p.image }
+              : p
+          )
+        );
+        alert("Produk berhasil diperbarui!");
+      } else {
+        console.error("Error updating product:", responseData.message);
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+    } finally {
+      setIsPopUpOpen(false); // Tutup modal setelah simpan
+      setImageFile(null); // Reset gambar
+    }
+  };
+
+
+
+
   const handleSaveProduct = (product: Product) => {
     if (isEditing) {
-      setProducts((prev) =>
-        prev.map((p) => (p.id === product.id ? product : p))
-      );
+      handleUpdateProduct(product); // Jika editing, gunakan fungsi update
     } else {
-      setProducts((prev) => [
-        ...prev,
-        {
-          ...product,
-          id: Date.now().toString(),
-          image: imageFile || product.image,
-        },
-      ]);
+      const newProduct = {
+        ...product,
+        id: Date.now().toString(),
+        image: imageFile || product.image, // Gambar dari URL lokal atau gambar produk
+      };
+      setProducts((prev) => [...prev, newProduct]);
+      setIsPopUpOpen(false); // Tutup modal setelah simpan
+      setImageFile(null); // Reset gambar
     }
-    setIsPopUpOpen(false);
-    setImageFile(null);
   };
+
+
+
 
   const handleEditProduct = (product: Product) => {
     setIsEditing(true);
@@ -143,11 +189,11 @@ const PengelolaanProduk: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setImageFile(fileURL);
-      setCurrentProduct({ ...currentProduct, image: fileURL });
+      setImageFile(URL.createObjectURL(file)); // Simpan URL lokal untuk preview
+      setCurrentProduct({ ...currentProduct, image: file }); // Simpan file asli
     }
   };
+
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -173,29 +219,32 @@ const PengelolaanProduk: React.FC = () => {
         <span className="ml-2">Tambah Produk</span>
       </button>
       <div className="grid grid-cols-2 text-black md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <div key={product.id} className="bg-foreground shadow-xl rounded-lg">
-            <ProductCard
-              {...product}
-              onClick={() => handleViewProductDetails(product)}
-            />
-            <div className="flex space-x-2 pb-4 px-4 justify-center">
-              <button
-                onClick={() => handleEditProduct(product)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400 w-full"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDeleteClick(product)}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-400 w-full"
-              >
-                Hapus
-              </button>
+        {products.map((product) =>
+          product && product.id ? (
+            <div key={product.id} className="bg-foreground shadow-xl rounded-lg">
+              <ProductCard
+                {...product}
+                onClick={() => handleViewProductDetails(product)}
+              />
+              <div className="flex space-x-2 pb-4 px-4 justify-center">
+                <button
+                  onClick={() => handleEditProduct(product)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400 w-full"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteClick(product)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-400 w-full"
+                >
+                  Hapus
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ) : null
+        )}
       </div>
+
 
       <ProductFormModal
         isOpen={isPopUpOpen}

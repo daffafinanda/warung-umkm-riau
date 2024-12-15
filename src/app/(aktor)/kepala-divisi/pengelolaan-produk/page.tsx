@@ -82,8 +82,9 @@ const PengelolaanProduk: React.FC = () => {
       const formData = new FormData();
       formData.append("jenis", product.name); // Nama produk
       formData.append("ukuran", product.dimensions); // Ukuran produk
-      formData.append("harga", product.price.toString());
-      formData.append("deskripsi", product.description); // Harga produk
+      formData.append("harga", product.price.toString()); // Harga produk
+      formData.append("deskripsi", product.description); // Deskripsi produk ditambahkan di sini
+
       if (imageFile) {
         const response = await fetch(imageFile); // Ambil blob dari URL file
         const blob = await response.blob();
@@ -121,6 +122,7 @@ const PengelolaanProduk: React.FC = () => {
       setImageFile(null); // Reset gambar
     }
   };
+
 
 
 

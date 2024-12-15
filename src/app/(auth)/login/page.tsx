@@ -1,37 +1,94 @@
 "use client";
-import React, { useState, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export default function Login() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
 
-    // Dummy data for validation
-    const dummyPhoneNumber = '081234567890';
-    const dummyPassword = 'password123';
+    // Periksa apakah sudah login
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const id_akun = localStorage.getItem('id_akun');
+        
+        if (token && id_akun) {
+            // Jika token ada, ambil biodata
+            fetchBiodata(id_akun, token);
+            router.push('/');
+        }
+    }, []);
 
+    const fetchBiodata = async (id_akun: string, token: string) => {
+        try {
+            const response = await axios.get(`https://backend-umkm-riau.vercel.app/api/BIODATA/${id_akun}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+    
+            if (response.data && Object.keys(response.data).length > 0) {
+                console.log('Biodata:', response.data);
+                localStorage.setItem('biodata', JSON.stringify(response.data)); // Store biodata in localStorage
+            } else {
+                console.log('Biodata tidak ditemukan.');
+                localStorage.removeItem('biodata'); // Clear biodata if not found
+            }
+        } catch (err) {
+            console.error('Gagal mengambil biodata:', err);
+            localStorage.removeItem('biodata'); // Clear biodata in case of error
+        }
+    };
+    
+    
     const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replace(/\D/g, '');
+        const value = e.target.value.replace(/\D/g, ''); // Hanya angka
         setPhoneNumber(value);
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
         if (phoneNumber.length < 11 || phoneNumber.length > 13) {
             setError('Nomor HP Tidak Valid.');
+            setIsLoading(false);
             return;
         }
 
-        if (phoneNumber === dummyPhoneNumber && password === dummyPassword) {
-            alert('Login berhasil!')
-            window.location.href = '/';
-        } else {
-            setError('Nomor HP atau sandi salah.');
+        try {
+            const response = await axios.post('https://backend-umkm-riau.vercel.app/api/akun/login', {
+                no_hp: phoneNumber,
+                password: password
+            });
+
+            if (response.data.success) {
+                // Menyimpan token dan role di localStorage
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('role', response.data.role);
+                localStorage.setItem('no_hp', response.data.no_hp);
+                localStorage.setItem('id_akun', response.data.id_akun);
+
+                // Ambil biodata setelah login
+                fetchBiodata(response.data.id_akun, response.data.token);
+
+                alert('Login berhasil!');
+                window.location.href = '/'; // Arahkan ke halaman utama
+            } else {
+                setError(response.data.message || 'Login gagal.');
+            }
+        } catch (err) {
+            setError('Terjadi kesalahan. Silakan coba lagi.');
+            console.error(err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -88,9 +145,10 @@ export default function Login() {
                     <div className="flex items-center justify-between mb-6">
                         <button
                             type="submit"
-                            className="w-full px-4 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary/90"
+                            className={`w-full px-4 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            disabled={isLoading}
                         >
-                            Login
+                            {isLoading ? 'Memuat...' : 'Login'}
                         </button>
                     </div>
                     <div className="text-center">

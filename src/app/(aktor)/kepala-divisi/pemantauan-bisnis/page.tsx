@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { PemantauanBooth } from '@/components/PemantauanBooth'
 import { PemantauanBoothCard } from '@/components/PemantauanBoothCard'
-
+import LocationPemantauan from '@/components/LocationPemantauan'
 // Define the Booth type
 type Booth = {
   id: string
@@ -52,7 +52,7 @@ export default function PemantauanBisnis() {
                     <p className="text-2xl font-bold text-gray-800">5</p>
                 </div>
             </div>
-
+            <LocationPemantauan/>
             <div className="bg-white p-4 rounded-lg shadow-md">
                 <div className="flex justify-between items-center">
                     <h2 className='font-bold text-gray-800'>Data Penyewa Booth</h2>

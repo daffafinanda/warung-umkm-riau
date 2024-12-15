@@ -1,62 +1,67 @@
 "use client";
-import React, { useState } from "react";
+import Link from "next/link";
+import React, { useState, useEffect } from "react";
 import ProductCard from "@/components/ProductCard";
-import ProductDetailModal from "@/components/ProductDetailModal";  // Import modal
+import ProductDetailModal from "@/components/ProductDetailModal"; // Import modal
+
+// Define the interface for the API response item
+interface APIProduct {
+  id: number;
+  jenis: string;
+  ukuran: string;
+  harga: number;
+  foto?: string; // Optional if null
+}
 
 interface Product {
   id: number;
-  name: string;
-  price: number;
-  dimensions: string;
-  image: string;
-  description: string;
+  jenis: string;
+  ukuran: string;
+  harga: number;
+  foto: string;
+  description?: string; // Optional description
 }
+
 const ProdukFrame: React.FC = () => {
-  // Data produk dengan deskripsi
-  const products = [
-    {
-      id: 1,
-      name: "Meja",
-      price: 50000,
-      dimensions: "3x3x3",
-      image: "https://i.pinimg.com/736x/84/a5/22/84a5227a7adbf9e64388c54af4ff248d.jpg",
-      description: "Meja kayu dengan desain minimalis, cocok untuk berbagai ruang.",
-    },
-    {
-      id: 2,
-      name: "Lemari",
-      price: 75000,
-      dimensions: "4x4x6",
-      image: "https://i.pinimg.com/736x/84/a5/22/84a5227a7adbf9e64388c54af4ff248d.jpg",
-      description: "Lemari penyimpanan besar dengan banyak ruang dan rak.",
-    },
-    {
-      id: 3,
-      name: "Kursi",
-      price: 30000,
-      dimensions: "2x2x3",
-      image: "https://i.pinimg.com/736x/84/a5/22/84a5227a7adbf9e64388c54af4ff248d.jpg",
-      description: "Kursi nyaman dengan bahan berkualitas tinggi.",
-    },
-    {
-      id: 4,
-      name: "Rak",
-      price: 40000,
-      dimensions: "3x2x2",
-      image: "https://i.pinimg.com/736x/84/a5/22/84a5227a7adbf9e64388c54af4ff248d.jpg",
-      description: "Rak penyimpanan yang simpel namun elegan.",
-    },
-  ];
+  // State for product data
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null); // Modal state
 
-  // State untuk mengelola modal yang terbuka
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://backend-umkm-riau.vercel.app/api/dokumentasi"
+        );
+        const result = await response.json();
+        if (result.success) {
+          // Format data to match the Product interface
+          const formattedData = result.data
+            .slice(0, 4)
+            .map((item: APIProduct) => ({
+              id: item.id,
+              jenis: item.jenis,
+              ukuran: item.ukuran,
+              harga: item.harga,
+              foto: item.foto || "https://via.placeholder.com/150", // Placeholder if foto is null
+              description: `Produk ${item.jenis} dengan ukuran ${item.ukuran} dan harga Rp ${item.harga}.`,
+            }));
+          setProducts(formattedData);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
-  // Menangani klik pada ProductCard untuk membuka modal
+  // Handle product click to open modal
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
   };
 
-  // Menutup modal
+  // Close modal
   const handleCloseModal = () => {
     setSelectedProduct(null);
   };
@@ -66,7 +71,9 @@ const ProdukFrame: React.FC = () => {
       <div className="max-w-6xl">
         <div className="flex flex-col md:flex-row items-start md:items-center md:justify-between mb-8 gap-4">
           <div className="max-w-xl text-black">
-            <h2 className="text-3xl md:text-5xl font-bold mb-2">Katalog Produk</h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-2">
+              Katalog Produk
+            </h2>
             <p className="text-muted-foreground md:text-xl">
               Kami membuat produk yang berkualitas dengan harga yang terjangkau
             </p>
@@ -74,33 +81,49 @@ const ProdukFrame: React.FC = () => {
               Klik selengkapnya jika ingin melihat produk lainnya.
             </p>
           </div>
-          {/* Tombol responsif */}
+          {/* Responsive button */}
           <div className="items-center">
+            <Link href="../produk">
             <button className="hover:bg-foreground bg-primary text-white hover:text-primary md:px-12 md:py-5 px-6 py-3 rounded-full shadow-lg self-start">
-              Selengkapnya {'>>'}
+              Selengkapnya {">>"}
             </button>
+            </Link>
           </div>
         </div>
 
-        {/* Grid untuk menampilkan produk */}
+        {/* Product grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 text-black">
           {products.map((product) => (
-            <div key={product.id} className="w-full shadow-lg hover:shadow-xl bg-white rounded-lg">
-              <ProductCard 
-                {...product}
-                onClick={() => handleProductClick(product)}  // Menambahkan event onClick untuk membuka modal
+            <div
+              key={product.id}
+              className="w-full shadow-lg hover:shadow-xl bg-white rounded-lg"
+            >
+              <ProductCard
+                id={product.id} // Maps to id in ProductCard
+                name={product.jenis} // Maps 'jenis' to 'name'
+                price={product.harga} // Maps 'harga' to 'price'
+                dimensions={product.ukuran} // Maps 'ukuran' to 'dimensions'
+                image={product.foto} // Maps 'foto' to 'image'
+                onClick={() => handleProductClick(product)} // Maps the click handler
               />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Menampilkan modal ketika ada produk yang dipilih */}
+      {/* Show modal when a product is selected */}
       {selectedProduct && (
         <ProductDetailModal
           isOpen={!!selectedProduct}
           onClose={handleCloseModal}
-          product={selectedProduct}
+          product={{
+            id: selectedProduct.id,
+            name: selectedProduct.jenis, // Map 'jenis' to 'name'
+            price: selectedProduct.harga, // Map 'harga' to 'price'
+            dimensions: selectedProduct.ukuran, // Map 'ukuran' to 'dimensions'
+            image: selectedProduct.foto, // Map 'foto' to 'image'
+            description: selectedProduct.description || "", // Map 'description'
+          }}
         />
       )}
     </section>

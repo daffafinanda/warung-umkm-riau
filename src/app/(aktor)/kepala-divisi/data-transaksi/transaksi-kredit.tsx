@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { BsJournalPlus } from "react-icons/bs";
 
 interface Identitas {
   nama: string;
@@ -145,10 +146,13 @@ const TransaksiKredit: React.FC = () => {
   ];
 
   return (
-    <div className="relative bg-foreground min-h-full">
-      <div className="overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+    <div className="relative">
+      <button className="absolute right-1 -top-16  text-white  bg-primary hover:bg-opacity-50 hover:text-black px-6 sm:px-4 py-2 rounded-lg flex items-center">
+                  <BsJournalPlus className=" sm:mr-2 mr-0 text-lg sm:text-xl " /> <span className="text-white hidden md:inline">Tambah Riwayat</span>
+                </button>
+      <div className="overflow-x-auto shadow-2xl shadow-primary rounded-lg">
+        <table className="w-full text-sm text-left text-gray-500 ">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr>
               <th scope="col" className="px-6 py-3">Tanggal</th>
               <th scope="col" className="px-6 py-3">Nama Pembeli</th>
@@ -161,8 +165,9 @@ const TransaksiKredit: React.FC = () => {
           <tbody>
             {data.map((item, index) => (
               <tr
-                key={index}
-                className="bg-white border-b hover:bg-gray-50"
+              key={index}
+              className="bg-white border-b hover:bg-gray-50 cursor-pointe"
+              onClick={() => router.push(`data-transaksi/kredit/${item.id}`)}
               >
                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                   {item.tanggal}
@@ -176,10 +181,10 @@ const TransaksiKredit: React.FC = () => {
                   <span
                     className={`px-2 py-1 text-xs font-medium rounded ${
                       item.statusCicilan === "Lunas"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
                     }`}
-                  >
+                    >
                     {item.statusCicilan}
                   </span>
                 </td>
@@ -187,7 +192,7 @@ const TransaksiKredit: React.FC = () => {
                 <button
                     onClick={() => router.push(`data-transaksi/kredit/${item.id}`)}
                     className="font-medium text-blue-600 hover:underline"
-                  >
+                    >
                     Detail
                   </button>
                 </td>
@@ -197,6 +202,7 @@ const TransaksiKredit: React.FC = () => {
         </table>
       </div>
     </div>
+
   );
 };
 

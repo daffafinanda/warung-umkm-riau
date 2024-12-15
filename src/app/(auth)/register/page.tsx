@@ -21,7 +21,7 @@ export default function RegisterPage() {
         }
 
         // Redirect ke halaman OTP
-        router.push(`/register/verifikasi-otp?noHp=${encodeURIComponent(noHp)}`);
+        router.push(`/register/password`);
     };
 
     const handleGoBackToLogin = () => {

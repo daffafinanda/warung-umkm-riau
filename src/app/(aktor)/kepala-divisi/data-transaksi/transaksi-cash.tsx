@@ -1,5 +1,8 @@
+"use client";
 import React, { useState } from "react";
 import ModalCash from "@/components/CashModal";
+import { BsJournalPlus } from "react-icons/bs";
+import { useRouter } from "next/navigation";
 
 // Define the type for each order item
 interface Product {
@@ -23,7 +26,7 @@ interface FormData {
 const TransaksiCash: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedData, setSelectedData] = useState<FormData | null>(null);
-
+  const router = useRouter();
   const data: FormData[] = [
     {
       id: "001",
@@ -57,10 +60,10 @@ const TransaksiCash: React.FC = () => {
     // Tambahkan data lainnya di sini
   ];
 
-  const openModal = (item: FormData) => {
-    setSelectedData(item);
-    setIsOpen(true);
-  };
+  // const openModal = (item: FormData) => {
+  //   setSelectedData(item);
+  //   setIsOpen(true);
+  // };
 
   const closeModal = () => {
     setSelectedData(null);
@@ -70,8 +73,7 @@ const TransaksiCash: React.FC = () => {
   // Define onEdit and onDelete functions
   const onEdit = (data: FormData) => {
     console.log("Editing item with data:", data);
-    // Implementasikan logika edit di sini, misalnya memperbarui state
-    // atau mengirim data ke server.
+ 
   };
 
   const onDelete = (id: string) => {
@@ -81,6 +83,9 @@ const TransaksiCash: React.FC = () => {
 
   return (
     <div className="relative bg-foreground min-h-full">
+      <button className="absolute right-1 -top-16  text-white  bg-primary hover:bg-opacity-50 hover:text-black px-6 sm:px-4 py-2 rounded-lg flex items-center">
+            <BsJournalPlus className=" sm:mr-2 mr-0 text-lg sm:text-xl " /> <span className="text-white hidden md:inline">Tambah Riwayat</span>
+          </button>
       {/* Wrapper to enable horizontal scroll only for the table */}
       <div className="overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left text-gray-500">
@@ -105,7 +110,7 @@ const TransaksiCash: React.FC = () => {
                 <td className="px-6 py-4">{item.totalTransaksi}</td>
                 <td className="px-6 py-4 text-right">
                   <button
-                    onClick={() => openModal(item)}
+                    onClick={() => router.push(`data-transaksi/cash/${item.id}`)}
                     className="font-medium text-blue-600 hover:underline"
                   >
                     Detail

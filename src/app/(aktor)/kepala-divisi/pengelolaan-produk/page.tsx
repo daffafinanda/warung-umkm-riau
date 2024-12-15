@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProductCard from "@/components/ProductCard"; // Sesuaikan dengan path komponen Anda
 import { FaPlus } from "react-icons/fa";
 import ProductFormModal from "@/components/ProductForm"; // Import the new modal component
@@ -7,24 +7,20 @@ import ConfirmationPopup from "@/components/ConfirmationPopUp";
 import ProductDetailModal from "@/components/ProductDetailModal"; // Add a new component for product details
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
-  price: number;
+  price: number | string;
   dimensions: string;
-  image: string;
+  image: string | null;
   description: string;
 }
 
 const PengelolaanProduk: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([
-    { id: 1, name: "Produk A", price: 50000, dimensions: "10x10", image: "https://i.pinimg.com/736x/3d/e6/62/3de6629d3894212dff66f2586580df95.jpg", description: "Deskripsi produk Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  aaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaa" },
-    { id: 2, name: "Produk B", price: 75000, dimensions: "15x15", image: "https://i.pinimg.com/736x/3d/e6/62/3de6629d3894212dff66f2586580df95.jpg", description: "Deskripsi produk B" },
-  ]);
-
+  const [products, setProducts] = useState<Product[]>([]);
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product>({
-    id: Date.now(),
+    id: Date.now().toString(),
     name: "",
     price: 0,
     dimensions: "",
@@ -35,14 +31,44 @@ const PengelolaanProduk: React.FC = () => {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [imageFile, setImageFile] = useState<string | null>(null);
 
-  // New state to control product details modal visibility
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(
+          "https://backend-umkm-riau.vercel.app/api/dokumentasi"
+        );
+        const data = await response.json();
+
+        if (data.success) {
+          // Map API data to Product interface
+          const fetchedProducts = data.data.map((item: any) => ({
+            id: item.id,
+            name: item.jenis, // Assuming 'jenis' is equivalent to 'name'
+            price: item.harga,
+            dimensions: item.ukuran,
+            image: item.foto || "https://via.placeholder.com/150", // Default image if null
+            description: "Deskripsi produk", // Assuming there's no description in the API data
+          }));
+          setProducts(fetchedProducts);
+        } else {
+          console.error("Failed to fetch products:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleAddProduct = () => {
     setIsPopUpOpen(true);
-    setIsEditing(false); // Set to add mode
+    setIsEditing(false);
     setCurrentProduct({
-      id: Date.now(),
+      id: Date.now().toString(),
       name: "",
       price: 0,
       dimensions: "",
@@ -53,11 +79,18 @@ const PengelolaanProduk: React.FC = () => {
 
   const handleSaveProduct = (product: Product) => {
     if (isEditing) {
-      // Update the existing product
-      setProducts((prev) => prev.map((p) => (p.id === product.id ? product : p)));
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? product : p))
+      );
     } else {
-      // Add a new product
-      setProducts((prev) => [...prev, { ...product, id: Date.now(), image: imageFile || product.image }]);
+      setProducts((prev) => [
+        ...prev,
+        {
+          ...product,
+          id: Date.now().toString(),
+          image: imageFile || product.image,
+        },
+      ]);
     }
     setIsPopUpOpen(false);
     setImageFile(null);
@@ -74,20 +107,37 @@ const PengelolaanProduk: React.FC = () => {
     setShowConfirmation(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (productToDelete) {
-      // Proceed with the deletion logic, for example:
-      setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.id !== productToDelete.id)
-      );
-      setProductToDelete(null);
+      try {
+        const response = await fetch(
+          `https://backend-umkm-riau.vercel.app/api/dokumentasi/${productToDelete.id}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          setProducts((prevProducts) =>
+            prevProducts.filter((product) => product.id !== productToDelete.id)
+          );
+          setProductToDelete(null);
+          setShowConfirmation(false);
+        } else {
+          console.error("Failed to delete product:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error deleting product:", error);
+      }
     }
-    setShowConfirmation(false); // Fix variable name here
   };
 
   const handleCancelDelete = () => {
     setProductToDelete(null);
-    setShowConfirmation(false); // Fix variable name here
+    setShowConfirmation(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +149,9 @@ const PengelolaanProduk: React.FC = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setCurrentProduct((prev) => ({
       ...prev,
@@ -107,16 +159,15 @@ const PengelolaanProduk: React.FC = () => {
     }));
   };
 
-  // Handle displaying product details in a modal
   const handleViewProductDetails = (product: Product) => {
-    setSelectedProduct(product); // Set the selected product to show in the modal
+    setSelectedProduct(product);
   };
 
   return (
     <div className="p-6">
       <button
         onClick={handleAddProduct}
-        className="bg-primary shadow-xl border-primary w-full flex items-center justify-center font-semibold text-lg text-white px-4 py-3 rounded-lg mb-6 hover:bg-primary hover:bg-opacity-80  hover:scale-95 transition-all duration-200 ease-in-out"
+        className="bg-primary shadow-xl border-primary w-full flex items-center justify-center font-semibold text-lg text-white px-4 py-3 rounded-lg mb-6 hover:bg-primary hover:bg-opacity-80 hover:scale-95 transition-all duration-200 ease-in-out"
       >
         <FaPlus />
         <span className="ml-2">Tambah Produk</span>
@@ -126,7 +177,7 @@ const PengelolaanProduk: React.FC = () => {
           <div key={product.id} className="bg-foreground shadow-xl rounded-lg">
             <ProductCard
               {...product}
-              onClick={() => handleViewProductDetails(product)} // Handle click to view details
+              onClick={() => handleViewProductDetails(product)}
             />
             <div className="flex space-x-2 pb-4 px-4 justify-center">
               <button
@@ -156,7 +207,6 @@ const PengelolaanProduk: React.FC = () => {
         onInputChange={handleInputChange}
       />
 
-      {/* Confirmation Popup */}
       {showConfirmation && productToDelete && (
         <ConfirmationPopup
           title="Konfirmasi Penghapusan"
@@ -166,11 +216,10 @@ const PengelolaanProduk: React.FC = () => {
         />
       )}
 
-      {/* Product Details Modal */}
       {selectedProduct && (
         <ProductDetailModal
-          isOpen={!!selectedProduct} // Show if selectedProduct is not null
-          onClose={() => setSelectedProduct(null)} // Close when user dismisses
+          isOpen={!!selectedProduct}
+          onClose={() => setSelectedProduct(null)}
           product={selectedProduct}
         />
       )}

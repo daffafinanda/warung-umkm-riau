@@ -50,8 +50,14 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-full overflow-auto text-black">
-        <h3 className="text-xl font-bold mb-4">{product.id ? "Edit Produk" : "Tambah Produk Baru"}</h3>
-        
+        <h3 className="text-xl font-bold mb-4">
+          {product.id === null || product.id === undefined
+            ? "Tambah Produk Baru"
+            : "Edit Produk"}
+        </h3>
+
+
+
         {/* Input Fields */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">
@@ -100,7 +106,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             onChange={onInputChange}
           />
         </div>
-        
+
         {/* Image Selection */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">
@@ -120,7 +126,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
               className="hidden"
               onChange={onFileChange}
             />
-            
+
             {/* Display selected or existing image */}
             {imageToDisplay && (
               <div className="mt-2 border rounded-lg bg-white p-2">

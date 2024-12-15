@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import ProductCard from "@/components/ProductCard"; // Sesuaikan dengan path komponen Anda
+import ProductCard from "@/components/ProductCard";
 import { FaPlus } from "react-icons/fa";
-import ProductFormModal from "@/components/ProductForm"; // Import the new modal component
+import ProductFormModal from "@/components/ProductForm";
 import ConfirmationPopup from "@/components/ConfirmationPopUp";
-import ProductDetailModal from "@/components/ProductDetailModal"; // Add a new component for product details
+import ProductDetailModal from "@/components/ProductDetailModal";
 
 interface Product {
   id: string;
@@ -20,7 +20,7 @@ const PengelolaanProduk: React.FC = () => {
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product>({
-    id: Date.now().toString(),
+    id: "", // Set id kosong pada produk baru
     name: "",
     price: 0,
     dimensions: "",
@@ -30,7 +30,6 @@ const PengelolaanProduk: React.FC = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [imageFile, setImageFile] = useState<string | null>(null);
-
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Fetch data from API
@@ -44,14 +43,23 @@ const PengelolaanProduk: React.FC = () => {
 
         if (data.success) {
           // Map API data to Product interface
-          const fetchedProducts = data.data.map((item: any) => ({
-            id: item.id,
-            name: item.jenis, // Assuming 'jenis' is equivalent to 'name'
-            price: item.harga,
-            dimensions: item.ukuran,
-            image: item.foto || "https://via.placeholder.com/150", // Default image if null
-            description: "Deskripsi produk", // Assuming there's no description in the API data
-          }));
+          const fetchedProducts = data.data
+            .map((item: any) => {
+              if (!item.id) {
+                console.warn("ID produk tidak ditemukan di data:", item);
+                return null; // Jangan masukkan produk yang tidak valid
+              }
+              return {
+                id: item.id,
+                name: item.jenis, // Assuming 'jenis' is equivalent to 'name'
+                price: item.harga,
+                dimensions: item.ukuran,
+                image: item.foto || "https://via.placeholder.com/150", // Default image if null
+                description: "Deskripsi produk", // Assuming there's no description in the API data
+              };
+            })
+            .filter(Boolean); // Hapus produk dengan id yang tidak valid
+
           setProducts(fetchedProducts);
         } else {
           console.error("Failed to fetch products:", data.message);
@@ -68,7 +76,7 @@ const PengelolaanProduk: React.FC = () => {
     setIsPopUpOpen(true);
     setIsEditing(false);
     setCurrentProduct({
-      id: Date.now().toString(),
+      id: "", // ID kosong untuk produk baru
       name: "",
       price: 0,
       dimensions: "",
@@ -78,12 +86,17 @@ const PengelolaanProduk: React.FC = () => {
   };
 
   const handleUpdateProduct = async (product: Product) => {
+    if (!product.id) {
+      console.error("Produk tidak memiliki ID");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("jenis", product.name); // Nama produk
       formData.append("ukuran", product.dimensions); // Ukuran produk
       formData.append("harga", product.price.toString()); // Harga produk
-      formData.append("deskripsi", product.description); // Deskripsi produk ditambahkan di sini
+      formData.append("deskripsi", product.description); // Deskripsi produk
 
       if (imageFile) {
         const response = await fetch(imageFile); // Ambil blob dari URL file
@@ -102,7 +115,6 @@ const PengelolaanProduk: React.FC = () => {
       const responseData = await response.json();
       console.log("API Response:", responseData);
 
-      // Jika respons berhasil, perbarui produk di state
       if (response.ok && responseData.success) {
         setProducts((prevProducts) =>
           prevProducts.map((p) =>
@@ -123,64 +135,109 @@ const PengelolaanProduk: React.FC = () => {
     }
   };
 
-
-
-
-
-  const handleSaveProduct = (product: Product) => {
+  const handleSaveProduct = async (product: Product) => {
     if (isEditing) {
-      handleUpdateProduct(product); // Jika editing, gunakan fungsi update
+      handleUpdateProduct(product);
     } else {
-      const newProduct = {
-        ...product,
-        id: Date.now().toString(),
-        image: imageFile || product.image, // Gambar dari URL lokal atau gambar produk
-      };
-      setProducts((prev) => [...prev, newProduct]);
-      setIsPopUpOpen(false); // Tutup modal setelah simpan
-      setImageFile(null); // Reset gambar
+      try {
+        const formData = new FormData();
+        formData.append("jenis", product.name);
+        formData.append("ukuran", product.dimensions);
+        formData.append("harga", product.price.toString());
+        formData.append("deskripsi", product.description);
+
+        if (imageFile) {
+          const response = await fetch(imageFile); // Ambil blob dari URL file
+          const blob = await response.blob();
+          formData.append("foto", blob, "product-image.jpg");
+        }
+
+        const response = await fetch(
+          "https://backend-umkm-riau.vercel.app/api/dokumentasi",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const responseData = await response.json();
+        console.log("Response Data:", responseData); // Lihat respons API
+
+        // Periksa jika respons berhasil meskipun tanpa ID
+        if (response.ok && responseData.success) {
+          // Cek apakah ID produk tersedia di response, jika tidak, kita berikan fallback
+          const newProduct = {
+            ...product,
+            id: "unknown-id", // Anda bisa menggunakan ID acak atau "unknown-id" jika tidak ada ID dari API
+            image: imageFile || "https://via.placeholder.com/150", // Gambar default jika tidak ada
+          };
+
+          setProducts((prev) => [...prev, newProduct]); // Tambahkan produk baru ke state
+          setIsPopUpOpen(false);
+          setImageFile(null);
+          alert("Produk berhasil ditambahkan!");
+        } else {
+          console.error("Error adding product:", responseData.message);
+          alert(`Gagal menambahkan produk: ${responseData.message}`);
+        }
+      } catch (error) {
+        console.error("Error adding product:", error);
+        alert("Terjadi kesalahan saat menambahkan produk. Silakan coba lagi.");
+      }
     }
   };
 
 
 
 
+
   const handleEditProduct = (product: Product) => {
+    if (!product.id) {
+      console.error("Produk tidak memiliki ID");
+      return;
+    }
     setIsEditing(true);
     setCurrentProduct(product);
     setIsPopUpOpen(true);
   };
 
   const handleDeleteClick = (product: Product) => {
+    if (!product.id) {
+      console.error("Produk tidak memiliki ID");
+      return;
+    }
     setProductToDelete(product);
     setShowConfirmation(true);
   };
 
   const handleConfirmDelete = async () => {
-    if (productToDelete) {
-      try {
-        const response = await fetch(
-          `https://backend-umkm-riau.vercel.app/api/dokumentasi/${productToDelete.id}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+    if (!productToDelete?.id) {
+      console.error("Produk tidak valid untuk dihapus");
+      return;
+    }
 
-        if (response.ok) {
-          setProducts((prevProducts) =>
-            prevProducts.filter((product) => product.id !== productToDelete.id)
-          );
-          setProductToDelete(null);
-          setShowConfirmation(false);
-        } else {
-          console.error("Failed to delete product:", response.statusText);
+    try {
+      const response = await fetch(
+        `https://backend-umkm-riau.vercel.app/api/dokumentasi/${productToDelete.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      } catch (error) {
-        console.error("Error deleting product:", error);
+      );
+
+      if (response.ok) {
+        setProducts((prevProducts) =>
+          prevProducts.filter((product) => product.id !== productToDelete.id)
+        );
+        setProductToDelete(null);
+        setShowConfirmation(false);
+      } else {
+        console.error("Failed to delete product:", response.statusText);
       }
+    } catch (error) {
+      console.error("Error deleting product:", error);
     }
   };
 
@@ -196,7 +253,6 @@ const PengelolaanProduk: React.FC = () => {
       setCurrentProduct({ ...currentProduct, image: file }); // Simpan file asli
     }
   };
-
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -247,7 +303,6 @@ const PengelolaanProduk: React.FC = () => {
           ) : null
         )}
       </div>
-
 
       <ProductFormModal
         isOpen={isPopUpOpen}

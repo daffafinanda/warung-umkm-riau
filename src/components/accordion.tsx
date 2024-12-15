@@ -22,18 +22,16 @@ const Accordion: React.FC<AccordionProps> = ({ items }) => {
         <div key={index} className="mb-2">
           <button
             type="button"
-            className={`flex items-center justify-between w-full p-5 font-medium text-gray-500 border border-b-0 rounded-t-xl ${
-              activeIndex === index ? "bg-gray-100" : "hover:bg-gray-100"
-            }`}
+            className={`flex items-center justify-between w-full p-5 font-medium text-gray-500 border border-b-0 rounded-t-xl ${activeIndex === index ? "bg-gray-100" : "hover:bg-gray-100"
+              }`}
             onClick={() => toggleAccordion(index)}
             aria-expanded={activeIndex === index}
             aria-controls={`accordion-body-${index}`}
           >
             <span>{item.title}</span>
             <svg
-              className={`w-3 h-3 transition-transform ${
-                activeIndex === index ? "rotate-180" : ""
-              }`}
+              className={`w-3 h-3 transition-transform ${activeIndex === index ? "rotate-180" : ""
+                }`}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 10 6"
@@ -49,9 +47,8 @@ const Accordion: React.FC<AccordionProps> = ({ items }) => {
           </button>
           <div
             id={`accordion-body-${index}`}
-            className={`${
-              activeIndex === index ? "block" : "hidden"
-            } p-5 border border-t-0 rounded-b-xl`}
+            className={`${activeIndex === index ? "block" : "hidden"
+              } p-5 border border-t-0 rounded-b-xl`}
           >
             <p>{item.content}</p>
           </div>

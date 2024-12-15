@@ -5,7 +5,7 @@ import {
   MdLocationPin,
   MdOutlineMessage,
 } from "react-icons/md";
-import Accordion from "@/components/Accordion"; // Pastikan lokasi impor sesuai dengan struktur proyek Anda
+import Accordion from "@/components/Accordion";
 
 export default function TentangFrame() {
   return (

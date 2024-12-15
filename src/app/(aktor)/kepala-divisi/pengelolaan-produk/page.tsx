@@ -82,7 +82,8 @@ const PengelolaanProduk: React.FC = () => {
       const formData = new FormData();
       formData.append("jenis", product.name); // Nama produk
       formData.append("ukuran", product.dimensions); // Ukuran produk
-      formData.append("harga", product.price.toString()); // Harga produk
+      formData.append("harga", product.price.toString());
+      formData.append("deskripsi", product.description); // Harga produk
       if (imageFile) {
         const response = await fetch(imageFile); // Ambil blob dari URL file
         const blob = await response.blob();
@@ -105,7 +106,7 @@ const PengelolaanProduk: React.FC = () => {
         setProducts((prevProducts) =>
           prevProducts.map((p) =>
             p.id === product.id
-              ? { ...p, name: product.name, dimensions: product.dimensions, price: product.price, image: imageFile || p.image }
+              ? { ...p, name: product.name, dimensions: product.dimensions, price: product.price, image: imageFile || p.image, description: product.description }
               : p
           )
         );

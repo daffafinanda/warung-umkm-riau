@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import LayananSewa from './Layanan-Sewa';
 import LayananCash from './LayananCash';
+import LayananKredit from './LayananKredit';  
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<'Cash' | 'Kredit' | 'Sewa'>('Cash');
@@ -33,7 +34,7 @@ export default function HomePage() {
       <div>  
         <div className="my-6 px-6 max-w-6xl mx-auto text-black">
           {activeTab === 'Cash' && <LayananCash/>}
-          {activeTab === 'Kredit' && <h1>Halaman kredit</h1>}
+          {activeTab === 'Kredit' && <LayananKredit />}
           {activeTab === 'Sewa' && <LayananSewa />}
         </div>
       </div>

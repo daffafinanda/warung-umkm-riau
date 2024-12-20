@@ -27,7 +27,9 @@ const Biodata: React.FC = () => {
 
   });
 
+
   const router = useRouter();
+
   const [errorFields, setErrorFields] = useState<string[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -39,13 +41,16 @@ const Biodata: React.FC = () => {
     { name: 'Pembayaran', status: 'upcoming' as const },
   ];
 
+  
+
   useEffect(() => {
-    const biodata = localStorage.getItem('biodata');
-    if (biodata) {
-      // If biodata exists in localStorage, redirect to /biodata/pengajuan-sewa
-      router.push('/biodata/pengajuan-sewa');
-    }
-  }, [router]);
+      const biodata = localStorage.getItem("biodata");
+      if (biodata) {
+        // Redirect to the specific page if biodata exists
+        router.replace("/biodata/pengajuan-sewa");
+      }
+  }, [ router]);
+
 
   // Validation function
   const validateForm = () => {

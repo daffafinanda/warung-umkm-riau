@@ -1,11 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-// import { LocationMap } from '@/components/Location'
-import { BoothItem } from '@/components/PemantauanBoothCard'
 import { PemantauanBooth } from '@/components/PemantauanBooth'
+import { PemantauanBoothCard } from '@/components/PemantauanBoothCard'
 
-const boothData = [
+// Define the Booth type
+type Booth = {
+  id: string
+  penyewa: string
+  lokasi: string
+  status: string
+  ktpImage: string
+}
+
+const boothData: Booth[] = [
     { id: "1", penyewa: "Bu Warni", lokasi: "Panam", status: "Aktif", ktpImage: "/placeholder.svg?height=200&width=320" },
     { id: "2", penyewa: "Pak Budi", lokasi: "Sukajadi", status: "Menunggak", ktpImage: "/placeholder.svg?height=200&width=320" },
     { id: "3", penyewa: "Ibu Siti", lokasi: "Marpoyan", status: "Aktif", ktpImage: "/placeholder.svg?height=200&width=320" },
@@ -15,9 +23,9 @@ const boothData = [
 
 export default function PemantauanBisnis() {
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [selectedBooth, setSelectedBooth] = useState(boothData[0])
+    const [selectedBooth, setSelectedBooth] = useState<Booth>(boothData[0]) // Use the Booth type here
 
-    const handleDetailClick = (booth) => {
+    const handleDetailClick = (booth: Booth) => {  // Define booth type here
         setSelectedBooth(booth)
         setIsModalOpen(true)
     }
@@ -27,7 +35,7 @@ export default function PemantauanBisnis() {
     }
 
     return (
-        <div className="mx-auto p-4 space-y-4 bg-gray-100 h-full overflow-y-auto pb-32">
+        <div className="mx-auto p-4 space-y-4 bg-gray-100 h-screen overflow-y-auto pb-32">
             <div className="grid gap-4 md:grid-cols-3">
                 <div className="bg-white p-4 rounded-lg shadow-md">
                     <h2 className="text-sm font-bold text-gray-800">Total Pendapatan</h2>
@@ -45,22 +53,20 @@ export default function PemantauanBisnis() {
                 </div>
             </div>
 
-            {/* <LocationMap /> */}
-
             <div className="bg-white p-4 rounded-lg shadow-md">
                 <div className="flex justify-between items-center">
                     <h2 className='font-bold text-gray-800'>Data Penyewa Booth</h2>
                 </div>
                 <div className="mt-4">
-                    <div className="hidden md:block text-black">
-                        <table className="min-w-full table-auto">
+                    <div className="hidden md:block">
+                        <table className="min-w-full table-auto text-black text-left">
                             <thead>
                                 <tr>
-                                    <th className="px-4 py-2 border-b text-left">ID Booth</th>
-                                    <th className="px-4 py-2 border-b text-left">Penyewa</th>
-                                    <th className="px-4 py-2 border-b text-left">Lokasi</th>
-                                    <th className="px-4 py-2 border-b text-left">Status</th>
-                                    <th className="px-4 py-2 border-b text-left"></th>
+                                    <th className="px-4 py-2 border-b">ID Booth</th>
+                                    <th className="px-4 py-2 border-b">Penyewa</th>
+                                    <th className="px-4 py-2 border-b">Lokasi</th>
+                                    <th className="px-4 py-2 border-b">Status</th>
+                                    <th className="px-4 py-2 border-b"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -89,7 +95,7 @@ export default function PemantauanBisnis() {
                     </div>
                     <div className="md:hidden">
                         {boothData.map((booth) => (
-                            <BoothItem
+                            <PemantauanBoothCard
                                 key={booth.id}
                                 booth={booth}
                                 onDetailClick={() => handleDetailClick(booth)}

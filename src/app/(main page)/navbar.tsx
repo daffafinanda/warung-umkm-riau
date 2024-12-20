@@ -103,11 +103,17 @@ const Navbar: React.FC = () => {
             </>
           )}
           {/* Ikon akun, username, dan dropdown */}
-          {isLoggedIn && role === "PELANGGAN" && (
+          {isLoggedIn && (
             <div className="relative flex items-center space-x-2">
               <FaUserCircle className="w-6 h-6 text-primary" />
-              <span className="text-primary font-medium">{username}</span> {/* Tampilkan username hanya jika role "Pelanggan" */}
-              <span className="text-sm text-gray-500">({role})</span> {/* Tampilkan role */}
+              
+              {/* Tampilkan username hanya jika role adalah "PELANGGAN" */}
+              {role === "PELANGGAN" && (
+                <span className="text-primary font-medium">{username}</span>
+              )}
+              
+              <span className="text-sm text-gray-500">({role})</span> {/* Tampilkan role untuk semua role */}
+              
               <button
                 onClick={toggleDropdown}
                 className="flex items-center text-primary hover:text-primary ml-2"
@@ -146,6 +152,8 @@ const Navbar: React.FC = () => {
               )}
             </div>
           )}
+
+
           <button
             type="button"
             className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-primary rounded-lg md:hidden hover:bg-gray-200"

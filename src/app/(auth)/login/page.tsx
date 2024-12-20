@@ -56,41 +56,58 @@ export default function Login() {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-
+    
+        // Validasi nomor HP
         if (phoneNumber.length < 11 || phoneNumber.length > 13) {
             setError('Nomor HP Tidak Valid.');
             setIsLoading(false);
             return;
         }
-
+    
         try {
             const response = await axios.post('https://backend-umkm-riau.vercel.app/api/akun/login', {
                 no_hp: phoneNumber,
                 password: password
             });
-
+    
             if (response.data.success) {
                 // Menyimpan token dan role di localStorage
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('role', response.data.role);
                 localStorage.setItem('no_hp', response.data.no_hp);
                 localStorage.setItem('id_akun', response.data.id_akun);
-
+    
                 // Ambil biodata setelah login
                 fetchBiodata(response.data.id_akun, response.data.token);
-
+    
                 alert('Login berhasil!');
                 window.location.href = '/'; // Arahkan ke halaman utama
             } else {
+                // Menangani kesalahan login
                 setError(response.data.message || 'Login gagal.');
             }
-        } catch (err) {
-            setError('Terjadi kesalahan. Silakan coba lagi.');
+        } catch (err: unknown) {
+            // Memastikan error memiliki response dan status
+            if (axios.isAxiosError(err) && err.response) {
+                // Menangani kesalahan HTTP 401 Unauthorized
+                if (err.response.status === 401) {
+                    setError('Nomor HP atau password salah.');
+                } else {
+                    setError(err.response.data.message || 'Terjadi kesalahan. Silakan coba lagi.');
+                }
+            } else {
+                // Menangani kesalahan lainnya
+                setError('Terjadi kesalahan. Silakan coba lagi.');
+            }
             console.error(err);
         } finally {
             setIsLoading(false);
         }
     };
+    
+    
+    
+    
 
     return (
         <div className="min-h-screen bg-primary2 flex items-center justify-center p-6">
@@ -111,6 +128,7 @@ export default function Login() {
                             pattern="[0-9]*"
                             placeholder="Contoh: 081234567890"
                             value={phoneNumber}
+                            maxLength={13}
                             onChange={handlePhoneNumberChange}
                             className="w-full px-3 py-2 border text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                             required

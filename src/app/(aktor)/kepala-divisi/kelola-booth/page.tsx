@@ -1,66 +1,127 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BoothCard from "@/components/BoothCard";
+import { FaPlus } from "react-icons/fa";
+import TambahBoothModal from "@/components/TambahBooth";
 
-const dummyBooths = [
-    {
-        boothName: "Booth A",
-        initialPenyewa: "John Doe",
-        initialKerusakan: 2,
-        initialStatus: "terisi",
-        riwayat: [
-            { tanggal: "2024-02-02", deskripsi: "Kerusakan pada bagian dinding" },
-            { tanggal: "2024-03-15", deskripsi: "Kerusakan pada sistem listrik" },
-        ],
-    },
-    {
-        boothName: "Booth B",
-        initialPenyewa: "",
-        initialKerusakan: 3,
-        initialStatus: "rusak",
-        riwayat: [
-            { tanggal: "2024-01-12", deskripsi: "Kerusakan pada engsel pintu" },
-        ],
-    },
-    {
-        boothName: "Booth C",
-        initialPenyewa: "Jane Smith",
-        initialKerusakan: 0,
-        initialStatus: "terisi",
-        riwayat: [],
-    },
-    {
-        boothName: "Booth D",
-        initialPenyewa: "",
-        initialKerusakan: 0,
-        initialStatus: "kosong",
-        riwayat: [],
-    },
-];
+interface Booth {
+    id_booth: string;
+    ukuran: string;
+    status: string;
+    harga_sewa: string;
+    riwayat_kerusakan: string;
+}
 
 export default function Page() {
-    const [booths, setBooths] = useState(dummyBooths);
+    const [booths, setBooths] = useState<Booth[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isModalTambahBoothOpen, setIsModalTambahBoothOpen] = useState(false);
 
-    // Function to handle adding a new riwayat to a specific booth
+    // Fungsi untuk mengambil ulang data
+    const refetchBooths = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("https://backend-umkm-riau.vercel.app/api/booth");
+            const data = await response.json();
+
+            if (data.success) {
+                setBooths(data.data);
+            } else {
+                console.error("Error fetching booth data:", data.message);
+            }
+        } catch (error) {
+            console.error("Error fetching booth data:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        refetchBooths(); // Fetch data saat pertama kali
+    }, []);
+
+    const handleTambahBooth = () => {
+        setIsModalTambahBoothOpen(true);
+    };
+
+    const handleTambahBoothSubmit = async (data: BoothData) => {
+        try {
+            const response = await fetch("https://backend-umkm-riau.vercel.app/api/booth", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...data,
+                    status: "TIDAK DISEWA", // Status default
+                    riwayat_kerusakan: ""  // Riwayat kosong
+                }),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                refetchBooths(); // Refresh data booth setelah menambahkan
+            } else {
+                console.error("Gagal menambah booth:", result.message);
+            }
+        } catch (error) {
+            console.error("Error menambah booth:", error);
+        }
+    };
+
+
     const handleAddRiwayat = (boothIndex: number, newRiwayat: { tanggal: string; deskripsi: string }) => {
         const updatedBooths = [...booths];
-        updatedBooths[boothIndex].riwayat.push(newRiwayat); // Add the new riwayat to the correct booth
-        setBooths(updatedBooths); // Update state with the new riwayat
+        const booth = updatedBooths[boothIndex];
+
+        // Logika untuk update riwayat di sisi client
+        const existingRiwayat = Array.isArray(booth.riwayat_kerusakan)
+            ? booth.riwayat_kerusakan
+            : booth.riwayat_kerusakan !== "Tidak ada"
+                ? [{ tanggal: "", deskripsi: booth.riwayat_kerusakan }]
+                : [];
+
+        booth.riwayat_kerusakan = [...existingRiwayat, newRiwayat];
+        setBooths(updatedBooths);
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-            {booths.map((booth, index) => (
-                <BoothCard
-                    key={index}
-                    boothName={booth.boothName}
-                    initialPenyewa={booth.initialPenyewa}
-                    initialKerusakan={booth.initialKerusakan}
-                    initialStatus={booth.initialStatus}
-                    riwayat={booth.riwayat} // Pass riwayat to BoothCard
-                    onAddRiwayat={(newRiwayat) => handleAddRiwayat(index, newRiwayat)} // Pass handler to BoothCard
-                />
-            ))}
+        <div className="p-4">
+            <TambahBoothModal
+                isOpen={isModalTambahBoothOpen}
+                onClose={() => setIsModalTambahBoothOpen(false)}
+                onSubmit={handleTambahBoothSubmit} />
+            <button
+                onClick={handleTambahBooth}
+                className="bg-primary shadow-xl border-primary w-full md: flex items-center justify-center font-semibold text-lg text-white px-4 py-3 rounded-lg mb-6 hover:bg-primary hover:bg-opacity-80 hover:scale-95 transition-all duration-200 ease-in-out"
+            >
+                <FaPlus />
+                <span className="ml-2">Tambah Booth</span>
+            </button>
+            {isLoading ? (
+                <div className="text-center">Memuat data booth...</div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    {booths.map((booth, index) => (
+                        <BoothCard
+                            key={booth.id_booth}
+                            id={booth.id_booth}
+                            boothName={`Booth ${booth.id_booth}`}
+                            initialPenyewa=""
+                            initialKerusakan={0}
+                            initialStatus={booth.status.toLowerCase()}
+                            riwayat={
+                                Array.isArray(booth.riwayat_kerusakan)
+                                    ? booth.riwayat_kerusakan
+                                    : booth.riwayat_kerusakan !== "Tidak ada"
+                                        ? [{ tanggal: "", deskripsi: booth.riwayat_kerusakan }]
+                                        : []
+                            }
+                            onAddRiwayat={(newRiwayat) => handleAddRiwayat(index, newRiwayat)}
+                            refetchData={refetchBooths} // Pass refetch function
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

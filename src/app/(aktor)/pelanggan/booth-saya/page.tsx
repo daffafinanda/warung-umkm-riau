@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import PaymentHistoryPopup from "@/app/dashboard/pelanggan/booth-saya/RiwayatPembayaran"; // Pastikan import sesuai lokasi file
+import PaymentHistoryPopup from "@/app/(aktor)/pelanggan/booth-saya/RiwayatPembayaran"; // Pastikan import sesuai lokasi file
 
 const BoothPage: React.FC = () => {
   const [isPopupOpen, setPopupOpen] = useState(false);

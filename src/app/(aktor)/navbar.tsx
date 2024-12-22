@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FiMenu, FiChevronDown } from "react-icons/fi";
 import { usePathname } from "next/navigation";
 
@@ -7,13 +7,28 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
-  const [isDropdownOpen, setDropdownOpen] = React.useState(false);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [accountName, setAccountName] = useState<string | null>(""); // State untuk menyimpan nama akun
   const pathname = usePathname(); // Ensure usePathname is called at the top level
   const actorRoles = ["direktur", "kepala-divisi", "pelanggan"];
 
+  // Ambil nama akun dari localStorage
+  useEffect(() => {
+    const accountData = localStorage.getItem("accountData");
+    if (accountData) {
+      try {
+        const parsedData = JSON.parse(accountData);
+        setAccountName(parsedData.nama || "User"); // Gunakan "User" jika nama tidak tersedia
+      } catch (error) {
+        console.error("Failed to parse account data:", error);
+        setAccountName("User");
+      }
+    }
+  }, []);
+
   const getPageTitle = (path: string) => {
     const pathSegments = path.split("/").filter(Boolean); // Pisahkan path berdasarkan "/" dan hapus segmen kosong
-  
+
     // Case 1: Jika aktor ada di path segmen pertama, kembalikan "Dashboard"
     if (actorRoles.includes(pathSegments[0])) {
       // Jika ada segmen kedua, gunakan segmen kedua sebagai title
@@ -24,12 +39,10 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
       }
       return "Dashboard";
     }
-  
+
     // Default case: Jika tidak cocok, tampilkan "Loading..."
     return "Loading...";
   };
-  
-  
 
   const pageTitle = pathname ? getPageTitle(pathname) : "Loading...";
 
@@ -55,7 +68,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
             onClick={() => setDropdownOpen(!isDropdownOpen)}
             className="flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white"
           >
-            <span className="text-black font-medium">John Doe</span>
+            <span className="text-black font-medium">{accountName}</span>
             <FiChevronDown className="w-6 h-6 text-black ml-2" />
           </button>
 

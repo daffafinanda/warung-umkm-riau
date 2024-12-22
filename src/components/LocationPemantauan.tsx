@@ -91,7 +91,7 @@ export function LocationMap() {
                 <h2 className="text-xl font-semibold text-gray-900">Lokasi Barang di Sewa</h2>
             </div>
             <div className="p-4">
-                <div className="relative w-full h-[300px] md:h-[500px] rounded-lg overflow-hidden">
+                <div className="relative w-full h-[300px] md:h-[500px] rounded-lg overflow-hidden -z-0">
                     <div ref={mapRef} className="w-full h-full" />
                     {!mapInstanceRef.current && (
                         <div className="absolute inset-0 flex items-center justify-center bg-muted">

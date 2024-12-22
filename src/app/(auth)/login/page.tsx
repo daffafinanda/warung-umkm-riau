@@ -33,9 +33,18 @@ export default function Login() {
                 },
             });
     
-            if (response.data && Object.keys(response.data).length > 0) {
-                console.log('Biodata:', response.data);
-                localStorage.setItem('biodata', JSON.stringify(response.data)); // Store biodata in localStorage
+            if (response.data && response.data.data && Object.keys(response.data.data).length > 0) {
+                const biodata = {
+                    nik: response.data.data.nik,
+                    nama: response.data.data.nama,
+                    alamat: response.data.data.alamat,
+                    jenis_kelamin: response.data.data.jenis_kelamin,
+                    alamat_domisili: response.data.data.alamat_domisili,
+                    foto_ktp: response.data.data.foto_ktp,
+                    akun_id_akun: response.data.data.akun_id_akun,
+                };
+                console.log('Biodata:', biodata);
+                localStorage.setItem('biodata', JSON.stringify(biodata)); // Store filtered biodata in localStorage
             } else {
                 console.log('Biodata tidak ditemukan.');
                 localStorage.removeItem('biodata'); // Clear biodata if not found
@@ -45,6 +54,7 @@ export default function Login() {
             localStorage.removeItem('biodata'); // Clear biodata in case of error
         }
     };
+    
     
     
     const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {

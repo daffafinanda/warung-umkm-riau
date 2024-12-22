@@ -22,6 +22,7 @@ const Biodata: React.FC = () => {
   const mapRef = useRef<HTMLDivElement | null>(null); // Reference to the map container
   const [errorFields, setErrorFields] = useState<string[]>([]);
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const steps = [
     { name: "Login", status: "completed" as const },
@@ -68,7 +69,7 @@ const Biodata: React.FC = () => {
         setFormData({
           ...formData,
           coordinates: { lat, lng },
-          lokasi: `Lat: ${lat}, Lng: ${lng}`,
+          lokasi: `${lat}, ${lng}`,
         });
       });
     }
@@ -93,51 +94,61 @@ const Biodata: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validasi form sebelum melanjutkan
     if (!validateForm()) {
-      console.log("Form is invalid!");
-      return;
+        console.error("Form is invalid!");
+        return;
     }
 
+    // Ambil biodata dari localStorage
     const biodata = localStorage.getItem('biodata');
-
     if (!biodata) {
-      console.error("Biodata not found in localStorage");
-      return;
+        console.error("Biodata not found in localStorage");
+        return;
     }
 
     try {
-      const parsedBiodata = JSON.parse(biodata);
+      setIsSubmitting(true); // Set loading state menjadi true
+        const parsedBiodata = JSON.parse(biodata);
 
-      if (parsedBiodata.success && parsedBiodata.data && parsedBiodata.data.nik) {
-        const biodata_nik = parsedBiodata.data.nik;
+        // Periksa apakah data biodata valid
+        const { nik } = parsedBiodata; // Ambil NIK langsung dari parsedBiodata
+        if (!nik) {
+            console.error("NIK not found in biodata or biodata is invalid");
+            setIsSubmitting(false); // Reset loading state
+            return;
+        }
 
+        // Data yang akan dikirim
         const data = {
-          id_sewa: "Sewa001",
-          biodata_nik,
-          durasi: formData.durasi,
-          lokasi: formData.lokasi,
+            biodata_nik: nik,
+            durasi: formData.durasi,
+            lokasi: formData.lokasi,
+
         };
 
+        // Kirim permintaan PUT ke API
         const response = await fetch("https://backend-umkm-riau.vercel.app/api/penyewaan", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
         });
+
+        // Tangani respons
         if (response.ok) {
-          console.log("Permintaan penyewaan berhasil diajukan!");
-          router.push('/pelanggan/pengajuan-sewa');
+            console.log("Permintaan penyewaan berhasil diajukan!");
+            router.push('/pelanggan/pengajuan-sewa');
         } else {
-          console.error("Gagal mengajukan permintaan penyewaan");
+            console.error("Gagal mengajukan permintaan penyewaan");
         }
-      } else {
-        console.error("NIK not found in biodata or biodata is invalid");
-      }
     } catch (error) {
-      console.error("Terjadi kesalahan saat mengirim data:", error);
+        console.error("Terjadi kesalahan saat mengirim data:", error);
     }
-  };
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -162,8 +173,9 @@ const Biodata: React.FC = () => {
             <input
               type="text"
               id="lokasi"
+              readOnly
               value={formData.lokasi}
-              placeholder="Lokasi"
+              placeholder="Klik pada map untuk mengisi lokasi"
               onChange={(e) => setFormData({ ...formData, lokasi: e.target.value })}
               className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${
                 errorFields.includes("lokasi") ? "border-red-500" : "border-gray-300"
@@ -173,23 +185,27 @@ const Biodata: React.FC = () => {
               <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>
             )}
           </div>
-          <div className="flex gap-4">
+          <div className="flex justify-between gap-4">
             <div className="w-1/2">
               <label htmlFor="durasi" className="block text-sm font-medium text-gray-700 capitalize">
                 Durasi (bulan) <span className="text-red-500">*</span>
               </label>
+              <div className="flex justify-center items-center gap-2">
               <input
                 type="number"
                 id="durasi"
+                placeholder="Masukkan durasi sewa"
                 value={formData.durasi}
                 onChange={(e) => setFormData({ ...formData, durasi: e.target.value })}
                 className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${
                   errorFields.includes("durasi") ? "border-red-500" : "border-gray-300"
                 }`}
-              />
+                />
               {errorFields.includes("durasi") && (
                 <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>
               )}
+              <p>Bulan</p>
+              </div>
             </div>
             <div className="w-1/2">
               <label htmlFor="harga" className="block text-sm font-medium text-gray-700 capitalize">
@@ -205,11 +221,40 @@ const Biodata: React.FC = () => {
             </div>
           </div>
           <div className="text-center mt-6 w-full">
-            <button
+          <button
               type="submit"
-              className="px-4 py-2 bg-primary hover:opacity-40 text-white w-full font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-primary-300 focus:ring-opacity-50"
+              className={`px-4 py-2 text-white w-full font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-primary-300 focus:ring-opacity-50 ${
+                isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:opacity-40"
+              }`}
+              disabled={isSubmitting}
             >
-              Ajukan Sewa
+              {isSubmitting ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <svg
+                    className="w-5 h-5 text-white animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                  <span>Memproses...</span>
+                </div>
+              ) : (
+                "Ajukan Sewa"
+              )}
             </button>
           </div>
         </form>

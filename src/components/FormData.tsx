@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { FiLink } from "react-icons/fi"
 
 interface FormData {
   nik: string;
@@ -9,7 +12,7 @@ interface FormData {
   alamatKTP: string;
   fotoKTP: string;
   durasiPenyewaan: number;
-  lokasiBooth: string;
+  lokasiBooth: string; // Format: "latitude,longitude"
 }
 
 interface RentalFormProps {
@@ -17,6 +20,47 @@ interface RentalFormProps {
 }
 
 const RentalForm: React.FC<RentalFormProps> = ({ formData }) => {
+  useEffect(() => {
+    if (!formData.lokasiBooth) return; // Validate lokasiBooth
+  
+    // Parse lokasiBooth into coordinates
+    const coordinates = formData.lokasiBooth.split(",").map(Number) as [number, number];
+  
+    if (coordinates.length !== 2 || coordinates.some(isNaN)) {
+      console.error("Invalid lokasiBooth format");
+      return;
+    }
+  
+    // Initialize the map
+    const map = L.map("map").setView(coordinates, 13);
+  
+    // Add a tile layer
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    }).addTo(map);
+  
+    // Create a custom icon
+    const customIcon = L.icon({
+      iconUrl: "https://www.openstreetmap.org/assets/marker-green-2de0354ac458a358b9925a8b7f5746324122ff884605073e1ee602fe8006e060.png", // Replace with your icon file path
+      iconAnchor: [19, 38], // Point of the icon which will correspond to marker's location
+      popupAnchor: [0, -30], // Point from which the popup should open relative to the icon anchor
+    });
+  
+    // Add a marker with the custom icon
+    L.marker(coordinates, { icon: customIcon })
+      .addTo(map)
+      .bindPopup("Lokasi Booth")
+      .openPopup();
+  
+    // Cleanup function
+    return () => {
+      map.remove(); // Clean up the map instance on unmount
+    };
+  }, [formData.lokasiBooth]);
+  
+
+  const hargaSewa = formData.durasiPenyewaan * 300000;
+
   return (
     <>
       {/* NIK and No HP */}
@@ -66,39 +110,72 @@ const RentalForm: React.FC<RentalFormProps> = ({ formData }) => {
         </div>
       </div>
 
-      {/* Lokasi Booth and Durasi Penyewaan */}
-      <div className="grid sm:grid-cols-3 grid-cols-1 gap-4">
-        {/* Lokasi Booth - Menempati 2 kolom */}
-        <div className="sm:col-span-2">
-          <FormField
-            label="Lokasi Booth"
-            id="lokasiBooth"
-            value={formData.lokasiBooth}
-          />
-        </div>
+      {/* Lokasi Booth */}
+      <div>
+      <label
+        htmlFor="lokasiBooth"
+        className="block text-sm font-medium text-gray-700 capitalize"
+      >
+        Lokasi Booth
+      </label>
+      <div id="map" className=" w-full h-64 z-0 mt-4 border border-gray-300 rounded-md"></div>
+      <div className="mt-4 flex items-center">
+        <a
+          href={`https://www.google.co.id/maps/place/${formData.lokasiBooth}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-indigo-500 hover:underline flex items-center"
+        >
+          <FiLink className="mr-2" /> Lihat di Google Maps
+        </a>
+      </div>
+      <div>
+        <input
+          type="text"
+          id="lokasiBooth"
+          value={formData.lokasiBooth}
+          readOnly
+          className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+        />
+      </div>
+    </div>
 
-        {/* Durasi Penyewaan - Menempati 1 kolom */}
-        <div>
-          <label
-            htmlFor="durasiPenyewaan"
-            className="block text-sm font-medium text-gray-700 capitalize"
-          >
-            Durasi Penyewaan
-          </label>
-          <div className="flex items-center mt-1">
-            <input
-              type="text"
-              id="durasiPenyewaan"
-              value={formData.durasiPenyewaan}
-              readOnly
-              className="bg-background block w-full rounded-md border-gray-300 shadow-inner focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
-            />
-            <span className="mx-2 text-gray-900">Bulan</span>
-          </div>
+      {/* Durasi Penyewaan */}
+      <div>
+        <label
+          htmlFor="durasiPenyewaan"
+          className="block text-sm font-medium text-gray-700 capitalize"
+        >
+          Durasi Penyewaan
+        </label>
+        <div className="flex items-center mt-1">
+          <input
+            type="text"
+            id="durasiPenyewaan"
+            value={formData.durasiPenyewaan}
+            readOnly
+            className="bg-background block w-full rounded-md border-gray-300 shadow-inner focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+          />
+          <span className="mx-2 text-gray-900">Bulan</span>
         </div>
       </div>
 
-
+      {/* Harga Sewa */}
+      <div>
+        <label
+          htmlFor="hargaSewa"
+          className="block text-sm font-medium text-gray-700 capitalize"
+        >
+          Harga Sewa
+        </label>
+        <input
+          type="text"
+          id="hargaSewa"
+          value={hargaSewa}
+          readOnly
+          className="bg-background mt-1 block w-full rounded-md border-gray-300 shadow-inner focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black px-3 py-2"
+        />
+      </div>
     </>
   );
 };

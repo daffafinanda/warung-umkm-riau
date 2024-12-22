@@ -20,21 +20,23 @@ const Navbar: React.FC = () => {
     const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
-      // Ambil username dan role dari localStorage atau API
+      // Ambil biodata dari localStorage
       const biodata = JSON.parse(localStorage.getItem("biodata") || "{}");
-
-        if (biodata && biodata.data && biodata.data.nama) {
-          console.log("Biodata retrieved: ", biodata.data.nama);
-          setUsername(biodata.data.nama); // Set username jika biodata tersedia dan valid
-        } else {
-          console.log("Biodata not available or incomplete.");
-          setUsername(""); // Pastikan username tidak di-set jika biodata tidak valid
-        }
+  
+      if (biodata && biodata.nama) {
+        console.log("Biodata retrieved:", biodata);
+        setUsername(biodata.nama); // Set username sesuai dengan nama di biodata
+      } else {
+        console.log("Biodata not available or incomplete.");
+        setUsername(""); // Pastikan username tidak di-set jika biodata tidak valid
+      }
+  
       setRole(localStorage.getItem("role") || "User"); // Set role, misalnya "Pelanggan" atau "Admin"
     } else {
       setIsLoggedIn(false);
     }
   }, []);
+  
 
   // Close dropdown if click is outside of it
   useEffect(() => {

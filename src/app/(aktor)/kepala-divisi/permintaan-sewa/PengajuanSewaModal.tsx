@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FormData from "@/components/FormData";
 import ConfirmationPopup from "@/components/ConfirmationPopUp";
+
+import axios from "axios";
 
 interface RentalRequest {
   id: number;
@@ -14,6 +16,9 @@ interface RentalRequest {
   fotoKTP: string;
   durasiPenyewaan: number;
   lokasiBooth: string;
+  idbooth: string | null;
+  mulaiSewa: string | null;
+  akhirSewa: string | null;
 }
 
 interface PengajuanSewaModalProps {
@@ -37,9 +42,29 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
   });
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showBoothConfirmPopup, setShowBoothConfirmPopup] = useState(false);
-
+  const [boothOptions, setBoothOptions] = useState<{ id_booth: string }[]>([]);
+  
+  useEffect(() => {
+    // Fetch data booth saat komponen dimount
+    const fetchBoothData = async () => {
+      try {
+        const response = await axios.get(
+          "https://backend-umkm-riau.vercel.app/api/booth/ready"
+        );
+        if (response.data.success) {
+          setBoothOptions(response.data.data); // Simpan data booth
+        }
+      } catch (error) {
+        console.error("Error fetching booth data:", error);
+      }
+    };
+  
+    if (showBoothSelector) {
+      fetchBoothData(); // Panggil fetch hanya saat selector dibuka
+    }
+  }, [showBoothSelector]);
+  
   if (!request) return null;
-
   // Hitung tanggal akhir penyewaan
   const calculateEndDate = (startDate: string, duration: number) => {
     if (!startDate) return ""; // Jika tanggal awal kosong
@@ -48,20 +73,49 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
     return start.toISOString().split("T")[0]; // Format YYYY-MM-DD
   };
 
-  const handleBoothSelectionConfirm = () => {
-    if (request && selectedBooth) {
-      onSave(request.id, selectedBooth); // Simpan booth yang dipilih
-    }
-    setShowBoothConfirmPopup(false);
-    setShowBoothSelector(false);
-    onClose();
+
+
+const handleBoothSelectionConfirm = async () => {
+  if (!request || !selectedBooth) return;
+
+  // Siapkan payload
+  const payload = {
+    mulai_sewa: startDate,
+    akhir_sewa: endDate,
+    status: "DISETUJUI",
+    booth_id_booth: selectedBooth,
   };
+  console.log(payload);
+  try {
+    // Kirim data dengan metode PUT ke API
+    const response = await axios.put(
+      `https://backend-umkm-riau.vercel.app/api/penyewaan/${request.nik}`,
+      payload
+    );
+    console.log(request.nik);
+    console.log(response.data);
+    if (response.data.success) {
+      alert("Booth berhasil disimpan!");
+      onSave(request.id, selectedBooth); // Callback untuk menyimpan
+      setShowBoothConfirmPopup(false);
+      setShowBoothSelector(false);
+      onClose();
+    } else {
+      console.error("Error:", response.data);
+      alert("Terjadi kesalahan saat menyimpan data.");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Gagal menyimpan data. Silakan coba lagi.");
+  }
+};
 
   const handleDelete = () => {
     onDelete(request.id);
     setShowDeletePopup(false);
     onClose();
   };
+
   const formatDate = (date: string) => {
     const dateObj = new Date(date);
     const day = String(dateObj.getDate()).padStart(2, "0"); // Ensure two-digit day
@@ -71,7 +125,6 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
     return `${day}/${month}/${year}`;
   };
   
-
   const endDate = calculateEndDate(startDate, request.durasiPenyewaan);
 
   return (
@@ -123,9 +176,11 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
               className="w-full p-2 border text-gray-800 border-gray-300 rounded-lg mb-4"
             >
               <option value="">Pilih Booth</option>
-              <option value="Booth A">Booth 1</option>
-              <option value="Booth B">Booth 2</option>
-              <option value="Booth C">Booth 3</option>
+              {boothOptions.map((booth) => (
+                <option key={booth.id_booth} value={booth.id_booth}>
+                  {booth.id_booth}
+                </option>
+              ))}
             </select>
 
             <div>

@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import ModalCash from "@/components/CashModal";
+import React from "react";
+
 import { BsJournalPlus } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 
@@ -24,8 +24,7 @@ interface FormData {
 }
 
 const TransaksiCash: React.FC = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selectedData, setSelectedData] = useState<FormData | null>(null);
+
   const router = useRouter();
   const data: FormData[] = [
     {
@@ -60,32 +59,14 @@ const TransaksiCash: React.FC = () => {
     // Tambahkan data lainnya di sini
   ];
 
-  // const openModal = (item: FormData) => {
-  //   setSelectedData(item);
-  //   setIsOpen(true);
-  // };
 
-  const closeModal = () => {
-    setSelectedData(null);
-    setIsOpen(false);
-  };
-
-  // Define onEdit and onDelete functions
-  const onEdit = (data: FormData) => {
-    console.log("Editing item with data:", data);
- 
-  };
-
-  const onDelete = (id: string) => {
-    console.log(`Deleting item with ID: ${id}`);
-    // Implement delete functionality here
-  };
 
   return (
     <div className="relative bg-foreground min-h-full">
       <button className="absolute right-1 -top-16  text-white  bg-primary hover:bg-opacity-50 hover:text-black px-6 sm:px-4 py-2 rounded-lg flex items-center">
-            <BsJournalPlus className=" sm:mr-2 mr-0 text-lg sm:text-xl " /> <span className="text-white hidden md:inline">Tambah Riwayat</span>
-          </button>
+            <BsJournalPlus className=" sm:mr-2 mr-0 text-lg sm:text-xl " /> 
+            <span className="text-white hidden md:inline">Tambah Riwayat</span>
+      </button>
       {/* Wrapper to enable horizontal scroll only for the table */}
       <div className="overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left text-gray-500">
@@ -122,25 +103,7 @@ const TransaksiCash: React.FC = () => {
         </table>
       </div>
 
-      {/* Integrasi Modal */}
-      {isOpen && selectedData && (
-        <ModalCash
-          isOpen={isOpen}
-          onClose={closeModal}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          data={{
-            id: selectedData.id,
-            tanggal: selectedData.tanggal,
-            nama: selectedData.nama,
-            noHp: selectedData.noHp,
-            alamat: selectedData.alamat,
-            produk: selectedData.produk,
-            totalTransaksi: selectedData.totalTransaksi,
-            bukti: selectedData.bukti,
-          }}
-        />
-      )}
+      
     </div>
   );
 };

@@ -1,7 +1,8 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BsJournalPlus } from "react-icons/bs";
+import  TambahTransaksiKredit  from "@/components/TambahTransaksiKredit";
 
 interface Identitas {
   nama: string;
@@ -40,6 +41,15 @@ interface FormData {
 
 const TransaksiKredit: React.FC = () => {
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   const data: FormData[] = [
     {
       id: "001",
@@ -147,9 +157,17 @@ const TransaksiKredit: React.FC = () => {
 
   return (
     <div className="relative">
-      <button className="absolute right-1 -top-16  text-white  bg-primary hover:bg-opacity-50 hover:text-black px-6 sm:px-4 py-2 rounded-lg flex items-center">
-                  <BsJournalPlus className=" sm:mr-2 mr-0 text-lg sm:text-xl " /> <span className="text-white hidden md:inline">Tambah Riwayat</span>
-                </button>
+       <button
+        onClick={handleOpenModal}
+        className="absolute right-1 -top-16 text-white bg-primary hover:bg-opacity-50 hover:text-black px-6 sm:px-4 py-2 rounded-lg flex items-center"
+      >
+        <BsJournalPlus className="sm:mr-2 mr-0 text-lg sm:text-xl" />{" "}
+        <span className="text-white hidden md:inline">Tambah Riwayat</span>
+      </button>
+      {/* Modal */}
+      {isModalOpen && (
+        <TambahTransaksiKredit isOpen={isModalOpen} onClose={handleCloseModal} />
+      )}
       <div className="overflow-x-auto shadow-2xl shadow-primary rounded-lg">
         <table className="w-full text-sm text-left text-gray-500 ">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">

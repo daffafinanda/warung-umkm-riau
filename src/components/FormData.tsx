@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { FiLink } from "react-icons/fi"
+import Image from 'next/image';
 
 interface FormData {
   nik: string;
@@ -10,9 +11,9 @@ interface FormData {
   jenisKelamin: string;
   alamatDomisili: string;
   alamatKTP: string;
-  fotoKTP: string;
+  fotoKTP: string | null;
   durasiPenyewaan: number;
-  lokasiBooth: string; // Format: "latitude,longitude"
+  lokasiBooth: string; 
 }
 
 interface RentalFormProps {
@@ -93,8 +94,8 @@ const RentalForm: React.FC<RentalFormProps> = ({ formData }) => {
         value={formData.alamatKTP}
       />
 
-      {/* Foto KTP */}
-      <div>
+            {/* Foto KTP */}
+            <div>
         <label
           htmlFor="fileKTP"
           className="block text-sm font-medium text-gray-700"
@@ -102,11 +103,14 @@ const RentalForm: React.FC<RentalFormProps> = ({ formData }) => {
           Foto KTP
         </label>
         <div className="bg-background mt-2 w-full h-52 border-2 z-0 border-dashed border-gray-300 rounded-md flex items-center justify-center overflow-hidden bg-gray-50 shadow-inner">
-          <img
-            src={formData.fotoKTP}
-            alt="Foto KTP"
-            className="object-contain w-full h-full"
-          />
+          {formData.fotoKTP && (
+            <Image
+              src={formData.fotoKTP}
+              alt="Foto KTP"
+              layout="fill"
+              objectFit="contain"
+            />
+          )}
         </div>
       </div>
 

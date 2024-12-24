@@ -5,6 +5,7 @@ import ProgressBar from "@/components/ProgressBar";
 import { useRouter } from "next/navigation";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import NotificationPopup from "@/components/NotificationPopUp";
 
 const Biodata: React.FC = () => {
   const [formData, setFormData] = useState<{
@@ -23,6 +24,7 @@ const Biodata: React.FC = () => {
   const [errorFields, setErrorFields] = useState<string[]>([]);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPopupVisible, setPopupVisible] = useState(false);
 
   const steps = [
     { name: "Login", status: "completed" as const },
@@ -75,6 +77,41 @@ const Biodata: React.FC = () => {
     }
   }, [formData.coordinates]);
   
+  useEffect(() => {
+    const checkRentalRequest = async () => {
+      // Ambil biodata dari localStorage
+      const biodata = localStorage.getItem("biodata");
+      if (!biodata) {
+        console.error("Biodata not found in localStorage");
+        return;
+      }
+
+      const parsedBiodata = JSON.parse(biodata);
+      const { nik } = parsedBiodata;
+
+      try {
+        const response = await fetch(
+          `https://backend-umkm-riau.vercel.app/api/penyewaan/${nik}`
+        );
+        const result = await response.json();
+
+        if (result.success && result.data.length > 0) {
+          // Tampilkan pop-up notifikasi
+          setPopupVisible(true);
+
+          // Tunggu 3 detik sebelum berpindah halaman
+          setTimeout(() => {
+            setPopupVisible(false);
+            router.replace("/pelanggan");
+          }, 3000);
+        }
+      } catch (error) {
+        console.error("Error checking rental request:", error);
+      }
+    };
+
+    checkRentalRequest();
+  }, [router]);
 
   useEffect(() => {
     setFormData((prev) => ({
@@ -169,7 +206,7 @@ const Biodata: React.FC = () => {
             <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 capitalize">
               Lokasi <span className="text-red-500">*</span>
             </label>
-            <div style={{ height: "300px" }} ref={mapRef}></div>
+            <div style={{ height: "300px" }} ref={mapRef} className="z-0"></div>
             <input
               type="text"
               id="lokasi"
@@ -259,6 +296,11 @@ const Biodata: React.FC = () => {
           </div>
         </form>
       </div>
+      <NotificationPopup
+        message="Anda sudah mengajukan permintaan sewa."
+        isVisible={isPopupVisible}
+        onClose={() => setPopupVisible(false)}
+      />
     </div>
   );
 };

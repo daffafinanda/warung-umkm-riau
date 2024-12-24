@@ -1,25 +1,91 @@
 "use client";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import FormData from "@/components/FormData";
+import { useRouter } from "next/navigation";
+
+
 
 const PengajuanSewa: React.FC = () => {
-  // Mendefinisikan tipe status yang bisa ada
   type Status = "Disetujui" | "Menunggu" | "Diproses" | "Ditolak";
 
-  // Data untuk form dengan statusProses yang didefinisikan dengan tipe Status
-  const formData = {
-    nama: "John Doe",
-    jenisKelamin: "Laki-laki",
-    alamatDomisili: "Jl. Kebon Kacang No. 12, Jakarta",
-    alamatKTP: "Jl. Kebon Melati No. 5, Jakarta",
-    fotoKTP: "https://about.lovia.id/wp-content/uploads/2020/05/150067.jpg", // URL gambar KTP
-    durasiPenyewaan: 2,
-    lokasiBooth: "Mall Senayan",
-    statusProses: "Diproses" as Status, // Cast statusProses ke tipe Status
-    nik: "1234567890123456", // NIK
-    noHp: "081234567890", // No HP
-  };
 
-  // Fungsi untuk menentukan kelas status berdasarkan status proses
+  interface RentalRequest {
+    nama: string;
+    jenisKelamin: string;
+    alamatDomisili: string;
+    alamatKTP: string;
+    fotoKTP: string | null; 
+    durasiPenyewaan: number;
+    lokasiBooth: string;
+    statusProses: Status;
+    nik: string;
+    noHp: string;
+  }
+  
+  const [formData, setFormData] = useState<RentalRequest>({
+    nama: "",
+    jenisKelamin: "",
+    alamatDomisili: "",
+    alamatKTP: "",
+    fotoKTP: null,
+    durasiPenyewaan: 0,
+    lokasiBooth: "",
+    statusProses: "Menunggu" as Status,
+    nik: "",
+    noHp: "",
+  });
+
+  const router = useRouter();
+
+  useEffect(() => {
+    // Ambil data biodata dari localStorage
+    const biodata = JSON.parse(localStorage.getItem("biodata") || "{}");
+    const noHp = localStorage.getItem("no_hp");
+
+    if (biodata && biodata.nik) {
+      // Perbarui formData dengan data dari localStorage
+      setFormData((prevData: RentalRequest) => ({
+        ...prevData,
+        nama: biodata.nama || "",
+        jenisKelamin: biodata.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan",
+        alamatDomisili: biodata.alamat_domisili || "",
+        alamatKTP: biodata.alamat || "",
+        fotoKTP: biodata.foto_ktp,
+        nik: biodata.nik || "",
+        noHp: noHp || "",
+      }));
+
+      // Ambil data penyewaan dari API
+      axios
+        .get(
+          `https://backend-umkm-riau.vercel.app/api/penyewaan/${biodata.nik}`
+        )
+        .then((response) => {
+          const penyewaan = response.data.data[0];
+          if (penyewaan) {
+            setFormData((prevData: RentalRequest) => ({
+              ...prevData,
+              durasiPenyewaan: penyewaan.durasi || 0,
+              lokasiBooth: penyewaan.lokasi || "",
+              statusProses:
+                penyewaan.status === "DISETUJUI"
+                  ? "Disetujui"
+                  : penyewaan.status === "MENUNGGU"
+                  ? "Menunggu"
+                  : penyewaan.status === "DITOLAK"
+                  ? "Ditolak"
+                  : "Diproses",
+              hargaSewa: (penyewaan.durasi || 0) * 300000, // Durasi x 300000
+            }));
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching penyewaan data:", error);
+        });
+    }
+  }, []);
+
   const getStatusClass = (status: Status): string => {
     switch (status) {
       case "Disetujui":
@@ -31,11 +97,10 @@ const PengajuanSewa: React.FC = () => {
       case "Ditolak":
         return "bg-red-400 ";
       default:
-        return "bg-gray-300 "; // default jika status tidak dikenali
+        return "bg-gray-300 ";
     }
   };
 
-  // Fungsi untuk menampilkan tombol berdasarkan status
   const renderButtons = (status: Status) => {
     switch (status) {
       case "Menunggu":
@@ -51,6 +116,7 @@ const PengajuanSewa: React.FC = () => {
         return (
           <button
             type="button"
+            onClick={() => router.push('/pelanggan/booth-saya')}
             className="w-full bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-70 focus:outline-none"
           >
             Lihat Booth
@@ -86,6 +152,8 @@ const PengajuanSewa: React.FC = () => {
       <form className="space-y-4">
         <FormData formData={formData} />
 
+
+
         {/* Status Proses */}
         <div className="flex flex-row items-center gap-4">
           <label
@@ -96,7 +164,9 @@ const PengajuanSewa: React.FC = () => {
           </label>
           <div
             id="statusProses"
-            className={`bg-background w-fit  px-4 py-2 rounded-lg text-left font-medium ${getStatusClass(formData.statusProses)}`}
+            className={`bg-background w-fit px-4 py-2 rounded-lg text-left font-medium ${getStatusClass(
+              formData.statusProses
+            )}`}
           >
             {formData.statusProses}
           </div>

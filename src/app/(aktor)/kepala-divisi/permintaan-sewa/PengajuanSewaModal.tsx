@@ -192,7 +192,7 @@ const handleBoothSelectionConfirm = async () => {
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 className="w-full p-2 border text-gray-800 border-gray-300 rounded-lg"
-                min={new Date().toISOString().split("T")[0]} // Validasi agar tidak memilih tanggal sebelum hari ini
+                min={new Date().toISOString().split("T")[0]} 
               />
             </div>
             <div className="mt-4">

@@ -40,10 +40,10 @@ export default function Home() {
           const rentalData = rentalResponse.data.data;
     
           const requests = await Promise.all(
-            rentalData.map(async (rental: any) => {
+            rentalData.map(async (rental: RentalRequest) => {
               try {
                 const biodataResponse = await axios.get(
-                  `https://backend-umkm-riau.vercel.app/api/biodata/nik/${rental.biodata_nik}`
+                  `https://backend-umkm-riau.vercel.app/api/biodata/nik/${rental.nik}`
                 );
     
                 const biodata = biodataResponse.data.data;
@@ -57,24 +57,24 @@ export default function Home() {
                 }
     
                 return {
-                  id: rental.id_sewa,
+                  id: rental.id,
                   nama: biodata.nama,
-                  tanggalPermintaan: formatDate(rental.permintaan_dibuat),
+                  tanggalPermintaan: formatDate(rental.tanggalPermintaan),
                   noHp: noHp,
                   nik: biodata.nik,
                   jenisKelamin: formatGender(biodata.jenis_kelamin),
                   alamatDomisili: biodata.alamat_domisili,
                   alamatKTP: biodata.alamat,
                   fotoKTP: biodata.foto_ktp,
-                  durasiPenyewaan: rental.durasi,
-                  lokasiBooth: rental.lokasi,
-                  idbooth: rental.booth_id_booth,
-                  mulaiSewa: rental.mulai_sewa,
-                  akhirSewa: rental.akhir_sewa,
+                  durasiPenyewaan: rental.durasiPenyewaan,
+                  lokasiBooth: rental.lokasiBooth,
+                  idbooth: rental.idbooth,
+                  mulaiSewa: rental.mulaiSewa,
+                  akhirSewa: rental.akhirSewa,
                 };
               } catch (error) {
                 console.error(
-                  `Error fetching biodata or akun for rental ID ${rental.id_sewa}:`,
+                  `Error fetching biodata or akun for rental ID ${rental.id}:`,
                   error
                 );
                 return null;

@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 interface PemantauanBoothProps {
     isOpen: boolean;
     onClose: () => void;
@@ -18,16 +20,44 @@ interface PemantauanBoothProps {
     };
 }
 
-
 const DataItem = ({ label, value }: { label: string; value: string }) => (
     <p className="mb-1">
         <span className="font-semibold">{label}:</span>{" "}
         <span>{value}</span>
     </p>
-)
+);
 
 export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothProps) {
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
     if (!isOpen) return null;
+
+    const handleImageClick = (image: string) => {
+        setSelectedImage(image);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedImage(null);
+    };
+
+    // Make sure riwayat_pembayaran is not undefined and is a string
+    const paymentHistoryLinks = (boothData.riwayat_pembayaran || "").split(" | ").map((item, index) => {
+        const parts = item.split(", ");
+        const buktiLink = parts[2]?.split(": ")[1]; // Check if parts[2] is defined
+        return (
+            <div key={index} className="mb-2">
+                <p>{item.split(", ")[0]}, {item.split(", ")[1]}</p>
+                {buktiLink && (
+                    <button
+                        onClick={() => handleImageClick(buktiLink)}
+                        className="text-blue-500 hover:underline"
+                    >
+                        Lihat Disini untuk melihat bukti
+                    </button>
+                )}
+            </div>
+        );
+    });
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -72,7 +102,8 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                             <h3 className="text-base md:text-lg">Riwayat Pembayaran</h3>
                         </div>
                         <div className="p-4">
-                            <p>{boothData.riwayat_pembayaran}</p>
+                            {/* Only render the payment history if it's valid */}
+                            {paymentHistoryLinks}
                         </div>
                     </div>
 
@@ -86,6 +117,25 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                     </div>
                 </div>
             </div>
+
+            {/* Modal to display selected image */}
+            {selectedImage && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                    <div className="bg-white p-4 rounded-xl shadow-xl max-w-xl w-full relative">
+                        <button
+                            onClick={handleCloseModal}
+                            className="absolute top-3 right-3 text-black font-bold"
+                        >
+                            X
+                        </button>
+                        <img
+                            src={selectedImage}
+                            alt="Bukti Pembayaran"
+                            className="w-full h-auto rounded-lg"
+                        />
+                    </div>
+                </div>
+            )}
         </div>
-    )
+    );
 }

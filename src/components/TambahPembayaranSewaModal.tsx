@@ -1,144 +1,170 @@
-"use client";
-import React, { useState } from "react";
+  // app/components/AddBayarSewaModal.tsx
+  'use client';
 
-interface SewaModalProps {
-  isVisible: boolean;
-  onClose: () => void;
-  onSave: (data: {
-    idSewa: string;
+  import React, { useState } from 'react';
+  import axios from 'axios';
+
+  interface AddBayarSewaModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+  }
+
+  interface BayarSewa {
+    id_sewa: string;
     tanggal: string;
-    buktiPembayaran: File | null;
-  }) => void;
-}
+    jumlah: number;
+    bukti: File | null;
+  }
 
-const TambahPembayaranSewa: React.FC<SewaModalProps> = ({ isVisible, onClose, onSave }) => {
-  const [formData, setFormData] = useState({
-    idSewa: "",
-    tanggal: new Date().toISOString().split("T")[0], // Format tanggal hari ini (YYYY-MM-DD)
-    buktiPembayaran: null as File | null,
-  });
-  const [errors, setErrors] = useState({
-    idSewa: false,
-    tanggal: false,
-    buktiPembayaran: false,
-  });
-
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: false }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setFormData((prevData) => ({ ...prevData, buktiPembayaran: file }));
-    setErrors((prevErrors) => ({ ...prevErrors, buktiPembayaran: false }));
-  };
-
-  const validateForm = () => {
-    const newErrors = {
-      idSewa: formData.idSewa.trim() === "",
-      tanggal: formData.tanggal.trim() === "",
-      buktiPembayaran: formData.buktiPembayaran === null,
+  const AddBayarSewaModal: React.FC<AddBayarSewaModalProps> = ({ isOpen, onClose }) => {
+    const getFormattedDate = () => {
+      const today = new Date();
+      return today.toISOString().split('T')[0]; // Format 'YYYY-MM-DD'
     };
-    setErrors(newErrors);
-    return !Object.values(newErrors).includes(true);
-  };
 
-  const handleSubmit = () => {
-    if (!validateForm()) {
-      console.log("Validasi gagal, semua input harus diisi.");
-      return;
-    }
-    onSave(formData);
-    onClose();
-  };
+    const [formData, setFormData] = useState<BayarSewa>({
+      id_sewa: '',
+      tanggal: getFormattedDate(), // Tanggal hari ini
+      jumlah: 0,
+      bukti: null,
+    });
 
-  if (!isVisible) return null;
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg p-6 text-black max-w-md shadow-lg">
-        <h2 className="text-xl font-bold mb-4">Tambah Pembayaran Sewa</h2>
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="idSewa" className="block text-sm font-medium">
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setFormData({ ...formData, [name]: name === 'jumlah' ? Number(value) : value });
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0] || null;
+      setFormData({ ...formData, bukti: file });
+    };
+
+    const handleSubmit = async () => {
+      if (!formData.id_sewa || !formData.jumlah || !formData.bukti) {
+        alert('Semua field harus diisi!');
+        return;
+      }
+    
+      setIsSubmitting(true);
+    
+      const form = new FormData();
+      form.append('id_sewa', formData.id_sewa);
+      form.append('tanggal', formData.tanggal);
+      form.append('jumlah', formData.jumlah.toString());
+      form.append('bukti', formData.bukti);
+    
+      console.log('Data yang dikirim:', {
+        id_sewa: formData.id_sewa,
+        tanggal: formData.tanggal,
+        jumlah: formData.jumlah,
+        bukti: formData.bukti,
+      });
+    
+      try {
+        const response = await axios.post(
+          'https://backend-umkm-riau.vercel.app/api/sewa/add',
+          form,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+    
+        // Memeriksa status response dan success dari data yang diterima
+        if (response.data.success) {
+          alert('Data berhasil ditambahkan!');
+          onClose();
+        } else {
+          // Jika 'success' di response data false atau tidak ada
+          alert('Terjadi kesalahan: ' + (response.data.message || 'Coba lagi!'));
+        }
+      } catch (error) {
+        console.error('Error adding bayar sewa:', error);
+        alert('Terjadi kesalahan, coba lagi!');
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+    
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center text-black justify-center bg-black bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+          <h2 className="text-lg font-semibold mb-4">Tambah Riwayat Bayar Sewa</h2>
+          <div className="mb-4">
+            <label htmlFor="id_sewa" className="block text-sm font-medium mb-1">
               ID Sewa
             </label>
             <input
               type="text"
-              id="idSewa"
-              name="idSewa"
-              value={formData.idSewa}
+              id="id_sewa"
+              name="id_sewa"
+              value={formData.id_sewa}
               onChange={handleInputChange}
-              className={`w-full border rounded-lg p-2 ${
-                errors.idSewa ? "border-red-500" : ""
-              }`}
-              placeholder="Masukkan ID Sewa"
+              className="w-full border border-gray-300 rounded-lg p-2"
             />
-            {errors.idSewa && (
-              <p className="text-red-500 text-sm mt-1">ID Sewa harus diisi.</p>
-            )}
           </div>
-          <div>
-            <label htmlFor="tanggal" className="block text-sm font-medium">
+          <div className="mb-4">
+            <label htmlFor="tanggal" className="block text-sm font-medium mb-1">
               Tanggal
             </label>
             <input
-              type="date"
+              type="text"
               id="tanggal"
               name="tanggal"
               value={formData.tanggal}
-              onChange={handleInputChange}
-              className={`w-full border rounded-lg p-2 ${
-                errors.tanggal ? "border-red-500" : ""
-              }`}
+              readOnly
+              className="w-full border border-gray-300 rounded-lg p-2 bg-gray-100"
             />
-            {errors.tanggal && (
-              <p className="text-red-500 text-sm mt-1">Tanggal harus diisi.</p>
-            )}
           </div>
-          <div>
-            <label htmlFor="buktiPembayaran" className="block text-sm font-medium">
+          <div className="mb-4">
+            <label htmlFor="jumlah" className="block text-sm font-medium mb-1">
+              Jumlah
+            </label>
+            <input
+              type="number"
+              id="jumlah"
+              name="jumlah"
+              value={formData.jumlah}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-lg p-2"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="bukti" className="block text-sm font-medium mb-1">
               Bukti Pembayaran
             </label>
             <input
               type="file"
-              id="buktiPembayaran"
-              name="buktiPembayaran"
+              id="bukti"
+              name="bukti"
               accept="image/*"
               onChange={handleFileChange}
-              className={`w-full border rounded-lg p-2 ${
-                errors.buktiPembayaran ? "border-red-500" : ""
-              }`}
+              className="w-full border border-gray-300 rounded-lg p-2"
             />
-            {errors.buktiPembayaran && (
-              <p className="text-red-500 text-sm mt-1">
-                Bukti pembayaran harus diunggah.
-              </p>
-            )}
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg mr-2"
+            >
+              Batal
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+            >
+              {isSubmitting ? 'Menyimpan...' : 'Konfirmasi'}
+            </button>
           </div>
         </div>
-        <div className="flex justify-end mt-6 space-x-4">
-          <button
-            onClick={onClose}
-            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
-          >
-            Batal
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-80"
-          >
-            Simpan
-          </button>
-        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
-export default TambahPembayaranSewa;
+  export default AddBayarSewaModal;

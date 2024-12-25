@@ -4,6 +4,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MdOutlineArrowBackIos } from "react-icons/md"; // Import tombol Back dari React Icons
 import ImageModal from "@/components/ImageModal";
+import axios from "axios";
+
+
 
 // Simulasi data untuk penyewaan
 interface Pembayaran {
@@ -24,51 +27,6 @@ interface PenyewaanDetail {
   sisa: number;
 }
 
-const dummyDetail: PenyewaanDetail[] = [
-  {
-    id_sewa: "001",
-    id_booth: "Booth001",
-    nama_penyewa: "John Doe",
-    lokasi: "Lokasi A",
-    durasi: 6,
-    harga: 600000,
-    pembayaran: [
-      { tanggal: "2024-01-01", jumlah: 200000, bukti: "https://i.pinimg.com/736x/fd/dd/9f/fddd9fb4dd5e11c8ad0c27e2d416ee6f.jpg" },
-      { tanggal: "2024-02-01", jumlah: 200000, bukti: "https://i.pinimg.com/736x/fd/dd/9f/fddd9fb4dd5e11c8ad0c27e2d416ee6f.jpg" },
-    ],
-    jumlah_dibayar: 400000,
-    sisa: 200000,
-  },
-  {
-    id_sewa: "002",
-    id_booth: "Booth002",
-    nama_penyewa: "Jane Smith",
-    lokasi: "Lokasi B",
-    durasi: 3,
-    harga: 600000,
-    pembayaran: [
-      { tanggal: "2024-01-01", jumlah: 200000, bukti: "https://i.pinimg.com/736x/fd/dd/9f/fddd9fb4dd5e11c8ad0c27e2d416ee6f.jpg" },
-      { tanggal: "2024-02-01", jumlah: 200000, bukti: "https://i.pinimg.com/736x/fd/dd/9f/fddd9fb4dd5e11c8ad0c27e2d416ee6f.jpg" },
-    ],
-    jumlah_dibayar: 400000,
-    sisa: 200000,
-  },
-  {
-    id_sewa: "003",
-    id_booth: "Booth003",
-    nama_penyewa: "Michael Lee",
-    lokasi: "Lokasi C",
-    durasi: 1,
-    harga: 600000,
-    pembayaran: [
-      { tanggal: "2024-01-01", jumlah: 200000, bukti: "https://i.pinimg.com/736x/fd/dd/9f/fddd9fb4dd5e11c8ad0c27e2d416ee6f.jpg" },
-      { tanggal: "2024-02-01", jumlah: 200000, bukti: "https://i.pinimg.com/736x/fd/dd/9f/fddd9fb4dd5e11c8ad0c27e2d416ee6f.jpg" },
-    ],
-    jumlah_dibayar: 400000,
-    sisa: 200000,
-  },
-];
-
 const SewaDetail = () => {
   const params = useParams();
   const slug = params.slug as string[]; // Ambil array slug
@@ -79,11 +37,75 @@ const SewaDetail = () => {
   const router = useRouter(); // Untuk navigasi kembali
 
   useEffect(() => {
-    if (id) {
-      const data = dummyDetail.find((item) => item.id_sewa === id);
-      setDetail(data || null);
-    }
+    const fetchData = async () => {
+      try {
+        // Fetch data penyewaan
+        const resPenyewaan = await axios.get("https://backend-umkm-riau.vercel.app/api/penyewaan");
+        const penyewaanData = resPenyewaan.data.data.find((item : PenyewaanDetail) => item.id_sewa.toString() === id);
+  
+        if (!penyewaanData) {
+          setDetail(null);
+          return;
+        }
+  
+        // Fetch data nama penyewa
+        const resBiodata = await axios.get(
+          `https://backend-umkm-riau.vercel.app/api/biodata/nik/${penyewaanData.biodata_nik}`
+        );
+        const namaPenyewa = resBiodata.data.data.nama;
+  
+        // Fetch data pembayaran
+        let pembayaranData = null;
+        try {
+          const resPembayaran = await axios.get(
+            `https://backend-umkm-riau.vercel.app/api/sewa/${penyewaanData.id_sewa}`
+          );
+          if (resPembayaran.data.success) {
+            pembayaranData = resPembayaran.data.data.map((pay : Pembayaran) => ({
+              tanggal: new Date(pay.tanggal).toLocaleDateString(),
+              jumlah: pay.jumlah,
+              bukti: pay.bukti,
+            }));
+          }
+        } catch (error: unknown) {
+          if (axios.isAxiosError(error)) {
+            // Cek jika error adalah instance AxiosError
+            if (error.response && error.response.status === 404) {
+              // Jika status 404, set pembayaran menjadi null
+              pembayaranData = null;
+            } else {
+              console.error("Error fetching pembayaran data:", error);
+            }
+          } else {
+            console.error("Unexpected error:", error);
+          }
+        }
+  
+        // Hitung total pembayaran dan sisa
+        const jumlahDibayar = pembayaranData ? pembayaranData.reduce((acc : number, cur  : Pembayaran) => acc + cur.jumlah, 0) : 0;
+        const sisa = penyewaanData.durasi * 600000 - jumlahDibayar;
+  
+        // Set data detail
+        setDetail({
+          id_sewa: penyewaanData.id_sewa.toString(),
+          id_booth: penyewaanData.booth_id_booth,
+          nama_penyewa: namaPenyewa,
+          lokasi: penyewaanData.lokasi,
+          durasi: penyewaanData.durasi,
+          harga: penyewaanData.durasi * 600000, // Contoh perhitungan harga
+          pembayaran: pembayaranData,
+          jumlah_dibayar: jumlahDibayar,
+          sisa,
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
   }, [id]);
+  
+  
 
   const openModal = (imageSrc: string) => {
     setSelectedImage(imageSrc);
@@ -101,7 +123,7 @@ const SewaDetail = () => {
 
   if (!detail) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-white">
+      <div className="fixed inset-0 z-0 flex flex-col items-center justify-center bg-white">
         <h1 className="text-3xl font-bold text-gray-800">
           Penyewa Tidak Ditemukan
         </h1>
@@ -172,45 +194,45 @@ const SewaDetail = () => {
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">
             Detail Pembayaran
           </h2>
-          {detail.pembayaran.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border border-gray-200">
-                <thead>
-                  <tr className="bg-gray-100 text-gray-600 text-left">
-                    <th className="py-3 px-4 border-b">No</th>
-                    <th className="py-3 px-4 border-b">Tanggal</th>
-                    <th className="py-3 px-4 border-b">Jumlah</th>
-                    <th className="py-3 px-4 border-b">Bukti</th>
+          {detail?.pembayaran?.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead>
+                <tr className="bg-gray-100 text-gray-600 text-left">
+                  <th className="py-3 px-4 border-b">No</th>
+                  <th className="py-3 px-4 border-b">Tanggal</th>
+                  <th className="py-3 px-4 border-b">Jumlah</th>
+                  <th className="py-3 px-4 border-b">Bukti</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detail.pembayaran.map((pay, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="py-3 px-4 border-b text-gray-700">
+                      {index + 1}
+                    </td>
+                    <td className="py-3 px-4 border-b text-gray-700">
+                      {pay.tanggal}
+                    </td>
+                    <td className="py-3 px-4 border-b text-gray-700">
+                      Rp {pay.jumlah.toLocaleString()}
+                    </td>
+                    <td className="py-3 px-4 border-b">
+                      <button
+                        onClick={() => openModal(pay.bukti)}
+                        className="text-primary underline hover:text-primary-dark"
+                      >
+                        Lihat Bukti
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {detail.pembayaran.map((pay, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="py-3 px-4 border-b text-gray-700">
-                        {index + 1}
-                      </td>
-                      <td className="py-3 px-4 border-b text-gray-700">
-                        {pay.tanggal}
-                      </td>
-                      <td className="py-3 px-4 border-b text-gray-700">
-                        Rp {pay.jumlah.toLocaleString()}
-                      </td>
-                      <td className="py-3 px-4 border-b">
-                        <button
-                          onClick={() => openModal(pay.bukti)}
-                          className="text-primary underline hover:text-primary-dark"
-                        >
-                          Lihat Bukti
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-gray-500">Belum ada pembayaran.</p>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
+  ) : (
+    <p className="text-gray-500">Belum ada pembayaran.</p>
+  )}
         </div>
       </div>
 

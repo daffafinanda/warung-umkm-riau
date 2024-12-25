@@ -56,9 +56,10 @@ const BoothSaya = () => {
       }).addTo(map);
 
       const markerIcon = L.icon({
-        iconUrl: "https://cdn-icons-png.flaticon.com/512/854/854866.png",
-        iconSize: [32, 32],
+        iconUrl: "https://www.openstreetmap.org/assets/marker-green-2de0354ac458a358b9925a8b7f5746324122ff884605073e1ee602fe8006e060.png",
+
         iconAnchor: [16, 32],
+        popupAnchor: [0, -32],
       });
 
       const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(map);
@@ -122,7 +123,7 @@ const BoothSaya = () => {
           <div className="flex flex-col border p-4 rounded-lg">
             <label className="font-semibold text-gray-700">Lokasi</label>
             <p className="text-gray-600">{data.lokasi}</p>
-            <div id="map" className="w-full h-64 sm:h-96 mt-4 rounded-lg"></div>
+            <div id="map" className="w-full z-0 h-64 sm:h-96 mt-4 rounded-lg"></div>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">

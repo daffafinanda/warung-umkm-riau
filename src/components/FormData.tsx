@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { FiLink } from "react-icons/fi"
-import Image from 'next/image';
+
 
 interface FormData {
   nik: string;
@@ -104,12 +104,11 @@ const RentalForm: React.FC<RentalFormProps> = ({ formData }) => {
         </label>
         <div className="bg-background mt-2 w-full h-52 border-2 z-0 border-dashed border-gray-300 rounded-md flex items-center justify-center overflow-hidden bg-gray-50 shadow-inner">
           {formData.fotoKTP && (
-            <Image
-              src={formData.fotoKTP}
-              alt="Foto KTP"
-              layout="fill"
-              objectFit="contain"
-            />
+            <img
+            src={formData.fotoKTP || ""}
+            alt="Foto KTP"
+            className="object-contain w-full h-full"
+          />
           )}
         </div>
       </div>

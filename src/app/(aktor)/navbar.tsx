@@ -47,8 +47,8 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const pageTitle = pathname ? getPageTitle(pathname) : "Loading...";
 
   return (
-    <nav className="top-0">
-      <div className="fixed right-0 left-0 lg:left-64 bg-foreground text-primary shadow-md px-4 py-6 flex justify-between items-center">
+    <nav className="top-0 ">
+      <div className="fixed right-0 left-0 z-30 lg:left-64 bg-foreground text-primary border-b px-4 py-6 flex justify-between items-center">
         {/* Menu Icon */}
         <div className="flex items-center">
           <button

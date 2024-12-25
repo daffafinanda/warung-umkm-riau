@@ -1,26 +1,15 @@
-'use client';
-import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FiLoader } from 'react-icons/fi';
+import dynamic from 'next/dynamic';
 import L from 'leaflet';
 
 interface Location {
-    id: string;
+    boothId: string;
     name: string;
     lat: number;
     lng: number;
-    status: 'Aktif' | 'Menunggak';
 }
-
-// Data lokasi booth
-const boothLocations: Location[] = [
-    { id: '1', name: 'Bu Warni', lat: 0.4547, lng: 101.3824, status: 'Aktif' },
-    { id: '2', name: 'Booth 2', lat: 0.4637, lng: 101.3900, status: 'Menunggak' },
-    { id: '3', name: 'Booth 3', lat: 0.4727, lng: 101.3850, status: 'Aktif' },
-    { id: '4', name: 'Booth 4', lat: 0.4547, lng: 101.3924, status: 'Aktif' },
-    { id: '5', name: 'Booth 5', lat: 0.4637, lng: 101.3800, status: 'Aktif' },
-];
 
 // Properly set custom icon URLs without modifying _getIconUrl
 L.Icon.Default.mergeOptions({
@@ -32,9 +21,41 @@ L.Icon.Default.mergeOptions({
 export function LocationMap() {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
+    const [locations, setLocations] = useState<Location[] | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!mapRef.current) return;
+
+        // Fetch data from the API
+        const fetchLocations = async () => {
+            try {
+                const response = await fetch('https://backend-umkm-riau.vercel.app/api/penyewaan/lokasi');
+                const data = await response.json();
+                if (data.success && Array.isArray(data.data)) {
+                    const formattedLocations = data.data.map((item: any) => {
+                        const [lat, lng] = item.lokasi.split(',').map(Number);
+                        return {
+                            boothId: item.booth_id_booth,
+                            name: item.nama,
+                            lat,
+                            lng,
+                        };
+                    });
+                    setLocations(formattedLocations);
+                }
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchLocations();
+    }, []);
+
+    useEffect(() => {
+        if (!mapRef.current || !locations) return;
 
         // Initialize map
         const map = L.map(mapRef.current).setView([0.4547, 101.3824], 14);
@@ -45,29 +66,17 @@ export function LocationMap() {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
 
-        // Add marker for each location with custom icons
-        boothLocations.forEach((location) => {
-            const iconUrl = location.status === 'Aktif'
-                ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDgwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1tYXAtcGluLWNoZWNrIj48cGF0aCBkPSJNMTkuNDMgMTIuOTM1Yy4zNTctLjk2Ny41Ny0xLjk1NS41Ny0yLjkzNWE4IDggMCAwIDAtMTYgMGMwIDQuOTkzIDUuNTM5IDEwLjE5MyA3LjM5OSAxMS43OTlhMSAxIDAgMCAwIDEuMjAyIDAgMzIuMTk3IDMyLjE5NyAwIDAgMCAuODEzLS43MjgiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEwIiByPSIzIi8+PHBhdGggZD0ibTE2IDE4IDIgMiA0LTR2MSIvPjwvc3ZnPg=='
-                : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM4QjAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1tYXAtcGluLXgiPjxwYXRoIGQ9Ik0xOS43NTIgMTEuOTAxQTcuNzggNy43OCAwIDAgMCAyMCAxMGE4IDggMCAwIDAtMTYgMGMwIDQuOTkzIDUuNTM5IDEwLjE5MyA3LjM5OSAxMS43OTlhMSAxIDAgMCAwIDEuMjAyIDAgMTkgMTkgMCAwIDAgLjA5LS4wNzcgIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMyIvPjxwYXRoIGQ9Im0yMS41IDE1LjUtNSA1Ii8+PHBhdGggZD0ibTIxLjUgMjAuNS01LTUiLz48L3N2Zz4='
-            const customIcon = L.icon({
-                iconUrl,
-                iconSize: [30, 30], // Adjust size as needed
-                iconAnchor: [15, 30], // Center the icon
-                popupAnchor: [0, -30], // Adjust popup position
-            });
-
-            const marker = L.marker([location.lat, location.lng], {
-                icon: customIcon,
-            }).addTo(map);
+        // Add markers to the map
+        locations.forEach((location) => {
+            const marker = L.marker([location.lat, location.lng]).addTo(map);
 
             // Add popup to marker
             marker.bindPopup(`
-                <div class="p-2">
-                    <h3 class="font-semibold">${location.name}</h3>
-                    <p class="text-sm">Status: ${location.status}</p>
-                </div>
-            `);
+       
+        <h3 class="text-lg font-semibold text-primary text-gray-800">Booth ID: ${location.boothId}</h3>
+        <p class="text-sm text-gray-600">Penyewa: ${location.name}</p>
+    
+      `);
         });
 
         // Resize map when window is resized
@@ -79,11 +88,11 @@ export function LocationMap() {
         window.addEventListener('resize', handleResize);
 
         return () => {
-            // Clean up the map instance and event listeners
+            // Clean up map instance and event listeners
             map.remove();
             window.removeEventListener('resize', handleResize);
         };
-    }, []);
+    }, [locations]);
 
     return (
         <div className="w-full bg-white rounded-lg shadow-md">
@@ -91,9 +100,9 @@ export function LocationMap() {
                 <h2 className="text-xl font-semibold text-gray-900">Lokasi Barang di Sewa</h2>
             </div>
             <div className="p-4">
-                <div className="relative w-full h-[300px] md:h-[500px] rounded-lg overflow-hidden -z-0">
+                <div className="relative w-full h-[300px] md:h-[500px] rounded-lg overflow-hidden">
                     <div ref={mapRef} className="w-full h-full" />
-                    {!mapInstanceRef.current && (
+                    {loading && (
                         <div className="absolute inset-0 flex items-center justify-center bg-muted">
                             <FiLoader className="w-6 h-6 animate-spin" />
                         </div>

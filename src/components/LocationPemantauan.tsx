@@ -96,11 +96,11 @@ export function LocationMap() {
 
     return (
         <div className="w-full bg-white rounded-lg shadow-md">
-            <div className="px-6 py-4 border-b">
+            <div className=" px-6 py-4 border-b">
                 <h2 className="text-xl font-semibold text-gray-900">Lokasi Barang di Sewa</h2>
             </div>
             <div className="p-4">
-                <div className="relative w-full h-[300px] md:h-[500px] rounded-lg overflow-hidden">
+                <div className="relative z-0 w-full h-[300px] md:h-[500px] rounded-lg overflow-hidden">
                     <div ref={mapRef} className="w-full h-full" />
                     {loading && (
                         <div className="absolute inset-0 flex items-center justify-center bg-muted">

@@ -15,6 +15,7 @@ interface RentalRequest {
   alamatKTP: string;
   fotoKTP: string;
   durasiPenyewaan: number;
+  status : string;
   lokasiBooth: string;
   idbooth: string | null;
   mulaiSewa: string | null;
@@ -141,18 +142,22 @@ const handleBoothSelectionConfirm = async () => {
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-2">
-          <button
-            onClick={() => setShowDeletePopup(true)}
-            className="py-2 bg-red-600 text-white rounded-xl hover:bg-opacity-75"
-          >
-            Tolak pengajuan
-          </button>
-          <button
-            onClick={() => setShowBoothSelector(true)}
-            className="py-2 bg-primary text-white rounded-xl hover:bg-opacity-75"
-          >
-            Pilih Booth
-          </button>
+          {request.status !== "DISETUJUI" && (
+            <>
+              <button
+                onClick={() => setShowDeletePopup(true)}
+                className="py-2 bg-red-600 text-white rounded-xl hover:bg-opacity-75"
+              >
+                Tolak pengajuan
+              </button>
+              <button
+                onClick={() => setShowBoothSelector(true)}
+                className="py-2 bg-primary text-white rounded-xl hover:bg-opacity-75"
+              >
+                Pilih Booth
+              </button>
+            </>
+          )}
         </div>
 
         <div className="mt-4 text-end border-t-2 pt-2">

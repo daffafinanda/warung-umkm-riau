@@ -8,6 +8,7 @@ interface RentalRequestCardProps {
   name: string;
   tanggalPermintaan: string;
   noHp: string;
+  status: string;
   onDetailClick?: () => void;
 }
 
@@ -15,7 +16,9 @@ const RentalRequestCard: React.FC<RentalRequestCardProps> = ({
   name,
   tanggalPermintaan,
   noHp,
+  status,
   onDetailClick,
+
 }) => {
   return (
     <div className="max-w-sm p-4 border w-full rounded-lg shadow-md bg-white">
@@ -33,6 +36,9 @@ const RentalRequestCard: React.FC<RentalRequestCardProps> = ({
             <p className="flex items-center text-base text-gray-600">
               <FiPhone className="mr-2 text-gray-500" />
               {noHp}
+            </p>
+            <p className="flex items-center font-medium text-sm w-fit px-2 py-1 text-primary bg-primary rounded-xl bg-opacity-15">
+              {status}
             </p>
           </div>
         </div>

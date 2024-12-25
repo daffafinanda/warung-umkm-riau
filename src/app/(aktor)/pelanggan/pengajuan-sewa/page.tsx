@@ -75,7 +75,9 @@ const PengajuanSewa: React.FC = () => {
                   ? "Menunggu"
                   : penyewaan.status === "DITOLAK"
                   ? "Ditolak"
-                  : "Diproses",
+                  : penyewaan.status === "DIPROSES"
+                  ? "Diproses"
+                  : "Menunggu",
               hargaSewa: (penyewaan.durasi || 0) * 300000, // Durasi x 300000
             }));
           }

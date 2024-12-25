@@ -10,8 +10,8 @@ const Biodata: React.FC = () => {
     noHp: string;
     nama: string;
     jenisKelamin: string;
-    alamatDomisili: string;
-    alamatKTP: string;
+    alamat_domisili: string;
+    alamat_ktp: string;
     fotoKTP: File | null;
 
   };
@@ -21,8 +21,8 @@ const Biodata: React.FC = () => {
     noHp: "",
     nama: "",
     jenisKelamin: "",
-    alamatDomisili: "",
-    alamatKTP: "",
+    alamat_domisili: "",
+    alamat_ktp: "",
     fotoKTP: null,
 
   });
@@ -123,9 +123,9 @@ const Biodata: React.FC = () => {
     // Menambahkan field data lainnya
     formDataToSend.append("nik", formData.nik);
     formDataToSend.append("nama", formData.nama);
-    formDataToSend.append("alamat", formData.alamatKTP);
+    formDataToSend.append("alamat", formData.alamat_ktp);
     formDataToSend.append("jenis_kelamin", formData.jenisKelamin === "Laki-Laki" ? "L" : "P");
-    formDataToSend.append("alamat_domisili", formData.alamatDomisili);
+    formDataToSend.append("alamat_domisili", formData.alamat_domisili);
     if (formData.fotoKTP) {
       formDataToSend.append("foto_ktp", formData.fotoKTP); // Mengirim file foto KTP
     }
@@ -263,37 +263,37 @@ const Biodata: React.FC = () => {
 
           {/* Alamat Domisili */}
           <div>
-            <label htmlFor="alamatDomisili" className="block text-sm font-medium text-gray-700 capitalize">Alamat Domisili <span className="text-red-500">*</span></label>
+            <label htmlFor="alamat_domisili" className="block text-sm font-medium text-gray-700 capitalize">Alamat Domisili <span className="text-red-500">*</span></label>
             <input
               type="text"
-              id="alamatDomisili"
-              value={formData.alamatDomisili}
+              id="alamat_domisili"
+              value={formData.alamat_domisili}
               placeholder="Masukkan alamat tempat tinggal anda saat ini"
               maxLength={40}
-              onChange={(e) => setFormData({ ...formData, alamatDomisili: e.target.value })}
-              className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('alamatDomisili') ? 'border-red-500' : 'border-gray-300'}`}
+              onChange={(e) => setFormData({ ...formData, alamat_domisili: e.target.value })}
+              className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('alamat_domisili') ? 'border-red-500' : 'border-gray-300'}`}
             />
             <div className="flex flex-row justify-between">
-              <p className="text-gray-500 text-xs mt-1">{formData.alamatDomisili.length}/40 karakter</p>
-              {errorFields.includes('alamatDomisili') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
+              <p className="text-gray-500 text-xs mt-1">{formData.alamat_domisili.length}/40 karakter</p>
+              {errorFields.includes('alamat_domisili') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
             </div>
           </div>
 
           {/* Alamat KTP */}
           <div>
-            <label htmlFor="alamatKTP" className="block text-sm font-medium text-gray-700 capitalize">Alamat Sesuai KTP <span className="text-red-500">*</span></label>
+            <label htmlFor="alamat_ktp" className="block text-sm font-medium text-gray-700 capitalize">Alamat Sesuai KTP <span className="text-red-500">*</span></label>
             <input
               type="text"
-              id="alamatKTP"
-              value={formData.alamatKTP}
+              id="alamat_ktp"
+              value={formData.alamat_ktp}
               placeholder="Masukkan alamat yang tertera pada KTP"
               maxLength={40}
-              onChange={(e) => setFormData({ ...formData, alamatKTP: e.target.value })}
-              className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('alamatKTP') ? 'border-red-500' : 'border-gray-300'}`}
+              onChange={(e) => setFormData({ ...formData, alamat_ktp: e.target.value })}
+              className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('alamat_ktp') ? 'border-red-500' : 'border-gray-300'}`}
             />
             <div className="flex flex-row justify-between">
-              <p className="text-gray-500 text-xs mt-1">{formData.alamatKTP.length}/40 karakter</p>
-              {errorFields.includes('alamatKTP') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
+              <p className="text-gray-500 text-xs mt-1">{formData.alamat_ktp.length}/40 karakter</p>
+              {errorFields.includes('alamat_ktp') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
             </div>
           </div>
 

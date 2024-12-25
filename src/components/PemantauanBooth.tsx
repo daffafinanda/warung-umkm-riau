@@ -15,8 +15,8 @@ interface PemantauanBoothProps {
         jenis_kelamin: string;
         awal_penyewaan: string;
         akhir_penyewaan: string;
-        riwayat_pembayaran: string;
-        riwayat_kerusakan: string;
+        riwayat_pembayaran: string | null;
+        riwayat_kerusakan: string | null;
     };
 }
 
@@ -58,6 +58,17 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
             </div>
         );
     });
+
+    // Split kerusakan data into list
+    // Mengatur manual dengan index untuk penomoran
+    const kerusakanItems = boothData.riwayat_kerusakan
+        ? boothData.riwayat_kerusakan.split(" | ").map((item, index) => (
+            <p key={index} className="mb-1">
+                {index + 1}. {item}
+            </p>
+        ))
+        : <p>Tidak ada riwayat kerusakan</p>;
+
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -112,7 +123,10 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                             <h3 className="text-base md:text-lg">Riwayat Kerusakan</h3>
                         </div>
                         <div className="p-4">
-                            <p>{boothData.riwayat_kerusakan}</p>
+                            {/* Render kerusakanItems as a numbered list */}
+                            <ul className="list-decimal pl-6">
+                                {kerusakanItems}
+                            </ul>
                         </div>
                     </div>
                 </div>

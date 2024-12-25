@@ -30,17 +30,104 @@ export default function BoothCard({
     const [newRiwayat, setNewRiwayat] = useState({ tanggal: "", deskripsi: "" });
 
 
+
     // Modal Hapus Penyewa
     const [isModalHapusPenyewa, setIsModalHapusPenyewa] = useState(false);
     const openModalHapusPenyewa = () => setIsModalHapusPenyewa(true);
     const closeModalHapusPenyewa = () => setIsModalHapusPenyewa(false);
 
+    const [riwayatKerusakan, setRiwayatKerusakan] = useState([]);
+    const [isLoadingRiwayat, setIsLoadingRiwayat] = useState(false);
+
+
     // Modal Riwayat Kerusakan
     const [isModalRiwayatKerusakanOpen, setIsModalRiwayatKerusakanOpen] = useState(false);
-    const openModalRiwayatKerusakan = () => setIsModalRiwayatKerusakanOpen(true);
-    const closeModalRiwayatKerusakan = () => setIsModalRiwayatKerusakanOpen(false);
+    // Modal Riwayat Kerusakan
+    const openModalRiwayatKerusakan = async () => {
+        setIsLoadingRiwayat(true);
+        try {
+            const response = await fetch(`https://backend-umkm-riau.vercel.app/api/booth/riwayat/kerusakan/${id}`);
+            if (!response.ok) {
+                throw new Error("Gagal mengambil data riwayat kerusakan");
+            }
+            const data = await response.json();
+            if (data.success) {
+                const riwayatKerusakan = data.data.map((item) => ({
+                    id: item.id,
+                    tanggal: item.tanggal_kerusakan.split("T")[0],
+                    deskripsi: item.riwayat_kerusakan,
+                }));
+                setRiwayatKerusakan(riwayatKerusakan);
+            } else {
+                console.error("Response tidak berhasil:", data);
+            }
+        } catch (error) {
+            console.error("Terjadi kesalahan:", error.message);
+        } finally {
+            setIsLoadingRiwayat(false);
+            setIsModalRiwayatKerusakanOpen(true);
+        }
+    };
 
-    // Modal Tambah Riwayat Kerusakan
+    useEffect(() => {
+        // Ambil riwayat kerusakan saat komponen pertama kali dimuat
+        const fetchRiwayatKerusakan = async () => {
+            setIsLoadingRiwayat(true);
+            try {
+                const response = await fetch(`https://backend-umkm-riau.vercel.app/api/booth/riwayat/kerusakan/${id}`);
+                if (!response.ok) {
+                    throw new Error("Gagal mengambil data riwayat kerusakan");
+                }
+                const data = await response.json();
+                if (data.success) {
+                    const riwayatKerusakan = data.data.map((item) => ({
+                        id: item.id,
+                        tanggal: item.tanggal_kerusakan.split("T")[0],
+                        deskripsi: item.riwayat_kerusakan,
+                    }));
+                    setRiwayatKerusakan(riwayatKerusakan);
+                } else {
+                    console.error("Response tidak berhasil:", data);
+                }
+            } catch (error) {
+                console.error("Terjadi kesalahan:", error.message);
+            } finally {
+                setIsLoadingRiwayat(false);
+            }
+        };
+
+        fetchRiwayatKerusakan();
+    }, [id]); // Menjalankan sekali saat pertama kali komponen di-render
+
+    const handleDeleteRiwayat = async (idKerusakan: string) => {  // Pastikan parameter adalah ID kerusakan
+        if (!idKerusakan) {
+            console.error("ID:" + idKerusakan);
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://backend-umkm-riau.vercel.app/api/booth/riwayat/kerusakan/${idKerusakan}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error:', errorData);
+                throw new Error('Gagal menghapus riwayat kerusakan');
+            }
+
+            console.log('Riwayat kerusakan berhasil dihapus');
+            refetchData(); // Refetch untuk memperbarui UI
+        } catch (error) {
+            console.error('Terjadi kesalahan:', error.message);
+        }
+    };
+
+
+    const closeModalRiwayatKerusakan = () => setIsModalRiwayatKerusakanOpen(false);
     const [isModalTambahRiwayatKerusakanOpen, setIsModalTambahRiwayatKerusakanOpen] = useState(false);
     const openModalTambahRiwayatKerusakan = () => setIsModalTambahRiwayatKerusakanOpen(true);
     const closeModalTambahRiwayatKerusakan = () => setIsModalTambahRiwayatKerusakanOpen(false);
@@ -67,46 +154,36 @@ export default function BoothCard({
 
     const handleTambahRiwayat = async () => {
         try {
-            // Tambahkan riwayat baru ke array yang sudah ada
-            const updatedRiwayat = [
-                ...riwayat,
-                {
-                    tanggal: new Date().toISOString(), // Set tanggal sekarang
-                    deskripsi: newRiwayat.deskripsi,
-                },
-            ];
-
-            // Gabungkan riwayat menjadi format string sesuai kebutuhan backend
-            const riwayatString = updatedRiwayat
-                .map((item, index) => `${index + 1}. ${item.deskripsi}`)
-                .join(" ");
-
-            // Siapkan payload data
+            // Siapkan payload untuk POST request
             const payload = {
-                id_booth: id, // Menggunakan ID dari props
-                ukuran: "3x4 meter",
-                status: status.toUpperCase(),
-                harga_sewa: "50000",
-                riwayat_kerusakan: riwayatString,
+                id_booth: id, // Tambahkan id_booth ke payload
+                tanggal_kerusakan: new Date().toISOString().split("T")[0], // Tanggal saat ini dalam format YYYY-MM-DD
+                riwayat_kerusakan: newRiwayat.deskripsi, // Deskripsi dari input
             };
 
-            // Kirim PUT request ke backend
-            const response = await fetch(`https://backend-umkm-riau.vercel.app/api/booth/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
+            // Kirim data ke endpoint backend
+            const response = await fetch(
+                `https://backend-umkm-riau.vercel.app/api/booth/kerusakan`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Error dari backend:", errorData);
-                throw new Error("Gagal menambahkan riwayat kerusakan.");
+                const textResponse = await response.text();
+                console.error("Error respons backend:", textResponse);
+                if (textResponse.startsWith("<!DOCTYPE")) {
+                    throw new Error("Server mengembalikan HTML, bukan JSON. Periksa URL atau konfigurasi backend.");
+                }
+                throw new Error(`Gagal menambahkan riwayat kerusakan. Status: ${response.status}`);
             }
 
             const data = await response.json();
-            console.log("Riwayat kerusakan berhasil diperbarui:", data);
+            console.log("Riwayat kerusakan berhasil ditambahkan:", data);
 
             // Reset input riwayat baru
             setNewRiwayat({ tanggal: "", deskripsi: "" });
@@ -118,8 +195,13 @@ export default function BoothCard({
             refetchData();
         } catch (error) {
             console.error("Terjadi kesalahan:", error.message);
+            alert(error.message); // Tampilkan pesan error ke pengguna
         }
     };
+
+
+
+
 
 
     // Penentuan warna berdasarkan status
@@ -137,6 +219,8 @@ export default function BoothCard({
         await updateStatus(newStatus);
     };
 
+
+
     // Fungsi untuk menandai rusak
     const handleTandaiRusak = async () => {
         const newStatus = mapStatus["rusak"];
@@ -150,6 +234,8 @@ export default function BoothCard({
         setStatus(newStatus);
         await updateStatus(newStatus);
     };
+
+
 
     const updateStatus = async (newStatus) => {
         const payload = {
@@ -191,8 +277,11 @@ export default function BoothCard({
             <ModalRiwayatKerusakanBooth
                 isOpen={isModalRiwayatKerusakanOpen}
                 onClose={closeModalRiwayatKerusakan}
-                riwayat={riwayat} // Pass riwayat to Modal
+                riwayat={riwayatKerusakan} // Kirim data riwayat ke modal
+                isLoading={isLoadingRiwayat} // Opsional: Untuk menampilkan spinner jika data sedang dimuat
+                onDelete={handleDeleteRiwayat} // Fungsi untuk menghapus riwayat
             />
+
             <ModalTambahRiwayatKerusakanBooth
                 isOpen={isModalTambahRiwayatKerusakanOpen}
                 onClose={closeModalTambahRiwayatKerusakan}
@@ -200,7 +289,7 @@ export default function BoothCard({
                 setNewRiwayat={setNewRiwayat}
                 onTambahRiwayat={handleTambahRiwayat}
             />
-            
+
 
             <div className={`${divColor} rounded-t-lg w-full justify-between flex px-4 py-2`}>
                 <h3 className="text-lg font-bold">{boothName}</h3>
@@ -212,7 +301,7 @@ export default function BoothCard({
             </div>
             <div className="gap-2 ml-4">
                 <p className="text-black">{penyewa ? `Penyewa: ${penyewa}` : "Tidak ada penyewa"}</p>
-                <p className="text-black">Riwayat Kerusakan: {initialKerusakan}</p>
+                <p className="text-black">Riwayat Kerusakan: {riwayatKerusakan.length}</p>
             </div>
             <div className="mt-4 ml-3 gap-3 w-full flex flex-col items-start">
                 <button

@@ -136,15 +136,15 @@ export default function PemantauanBisnis() {
             <div className="grid gap-4 md:grid-cols-3">
                 <div className="bg-white p-4 rounded-lg shadow-md">
                     <h2 className="text-sm font-bold text-gray-800">Total Pendapatan</h2>
-                    <p className="text-2xl font-bold text-gray-800">Rp 5.300.000</p>
+                    <p className="text-2xl font-bold text-primary">Rp 5.300.000</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                     <h2 className="text-sm font-bold text-gray-800">Booth Disewakan</h2>
-                    <p className="text-2xl font-bold text-gray-800">{rentedBoothCount}</p>
+                    <p className="text-2xl font-bold text-primary">{rentedBoothCount}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                     <h2 className="text-sm font-bold text-gray-800">Barang Terjual</h2>
-                    <p className="text-2xl font-bold text-gray-800">{soldItemsCount}</p>
+                    <p className="text-2xl font-bold text-primary">{soldItemsCount}</p>
                 </div>
             </div>
             <LocationPemantauan />
@@ -186,11 +186,17 @@ export default function PemantauanBisnis() {
                         {boothData.map((booth) => (
                             <PemantauanBoothCard
                                 key={booth.id_sewa}
-                                booth={booth}
+                                booth={{
+                                    id: booth.booth_id_booth || 'Unknown',
+                                    penyewa: booth.penyewa_nama || 'Unknown',
+                                    lokasi: booth.kecamatan || 'Unknown',
+
+                                }}
                                 onDetailClick={() => handleDetailClick(booth)}
                             />
                         ))}
                     </div>
+
                 </div>
             </div>
             {selectedBooth && (

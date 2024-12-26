@@ -3,7 +3,7 @@ import React, { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Login() {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -12,18 +12,20 @@ export default function Login() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get('redirect') || '/';
 
     // Periksa apakah sudah login
     useEffect(() => {
         const token = localStorage.getItem('token');
         const id_akun = localStorage.getItem('id_akun');
-        
+
         if (token && id_akun) {
             // Jika token ada, ambil biodata
             fetchBiodata(id_akun, token);
-            router.push('/');
+            router.push(redirectTo);
         }
-    }, []);
+    }, [redirectTo, router]);
 
     const fetchBiodata = async (id_akun: string, token: string) => {
         try {
@@ -32,7 +34,7 @@ export default function Login() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             if (response.data && response.data.data && Object.keys(response.data.data).length > 0) {
                 const biodata = {
                     nik: response.data.data.nik,
@@ -43,20 +45,16 @@ export default function Login() {
                     foto_ktp: response.data.data.foto_ktp,
                     akun_id_akun: response.data.data.akun_id_akun,
                 };
-                console.log('Biodata:', biodata);
-                localStorage.setItem('biodata', JSON.stringify(biodata)); // Store filtered biodata in localStorage
+                localStorage.setItem('biodata', JSON.stringify(biodata));
             } else {
-                console.log('Biodata tidak ditemukan.');
-                localStorage.removeItem('biodata'); // Clear biodata if not found
+                localStorage.removeItem('biodata');
             }
         } catch (err) {
             console.error('Gagal mengambil biodata:', err);
-            localStorage.removeItem('biodata'); // Clear biodata in case of error
+            localStorage.removeItem('biodata');
         }
     };
-    
-    
-    
+
     const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\D/g, ''); // Hanya angka
         setPhoneNumber(value);
@@ -66,47 +64,40 @@ export default function Login() {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-    
-        // Validasi nomor HP
+
         if (phoneNumber.length < 11 || phoneNumber.length > 13) {
             setError('Nomor HP Tidak Valid.');
             setIsLoading(false);
             return;
         }
-    
+
         try {
             const response = await axios.post('https://backend-umkm-riau.vercel.app/api/akun/login', {
                 no_hp: phoneNumber,
-                password: password
+                password: password,
             });
-    
+
             if (response.data.success) {
-                // Menyimpan token dan role di localStorage
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('role', response.data.role);
                 localStorage.setItem('no_hp', response.data.no_hp);
                 localStorage.setItem('id_akun', response.data.id_akun);
-    
-                // Ambil biodata setelah login
+
                 fetchBiodata(response.data.id_akun, response.data.token);
-    
+
                 alert('Login berhasil!');
-                window.location.href = '/'; // Arahkan ke halaman utama
+                router.push(redirectTo); // Redirect ke halaman yang diminta
             } else {
-                // Menangani kesalahan login
                 setError(response.data.message || 'Login gagal.');
             }
         } catch (err: unknown) {
-            // Memastikan error memiliki response dan status
             if (axios.isAxiosError(err) && err.response) {
-                // Menangani kesalahan HTTP 401 Unauthorized
                 if (err.response.status === 401) {
                     setError('Nomor HP atau password salah.');
                 } else {
                     setError(err.response.data.message || 'Terjadi kesalahan. Silakan coba lagi.');
                 }
             } else {
-                // Menangani kesalahan lainnya
                 setError('Terjadi kesalahan. Silakan coba lagi.');
             }
             console.error(err);
@@ -114,10 +105,6 @@ export default function Login() {
             setIsLoading(false);
         }
     };
-    
-    
-    
-    
 
     return (
         <div className="min-h-screen bg-primary2 flex items-center justify-center p-6">

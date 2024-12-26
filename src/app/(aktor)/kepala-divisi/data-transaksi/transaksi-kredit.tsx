@@ -1,8 +1,7 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BsJournalPlus } from "react-icons/bs";
-import  TambahTransaksiKredit  from "@/components/TambahTransaksiKredit";
+import MultiStepForm from "@/components/ModalKredit";
 import axios from "axios";
 
 interface Pembelian {
@@ -10,46 +9,36 @@ interface Pembelian {
   tanggal_transaksi: string;
   nama: string;
   tenor: number;
-  jenis_produk : string,
+  jenis_produk: string;
   jumlah_bukti: number;
 }
 
 const TransaksiKredit: React.FC = () => {
-  const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State untuk visibilitas modal
   const [transaksi, setTransaksi] = useState<Pembelian[]>([]);
+  const [selectedTransaksi, setSelectedTransaksi] = useState<Pembelian | null>(null); // Data transaksi yang dipilih
+  const router = useRouter();
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
   useEffect(() => {
     const fetchTransaksi = async () => {
       try {
-        // Fetch pembelian data
         const pembelianResponse = await axios.get(
           "https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT"
         );
         const pembelianData = pembelianResponse.data.data;
 
-        // Process each pembelian item
         const transaksiData = await Promise.all(
           pembelianData.map(async (item: Pembelian) => {
-            // Fetch jumlah_bukti
             const buktiResponse = await axios.get(
               `https://backend-umkm-riau.vercel.app/api/bukti/${item.id}`
             );
-            const jumlah_bukti = buktiResponse.data.data.length -1;
+            const jumlah_bukti = buktiResponse.data.data.length - 1;
 
-            // Fetch produk
             const produkResponse = await axios.get(
               `https://backend-umkm-riau.vercel.app/api/produk/${item.id}`
             );
             const jenis_produk = produkResponse.data.data[0]?.jenis_produk || "N/A";
-            console.log(produkResponse.data);
+
             return {
               id: item.id,
               tanggal_transaksi: item.tanggal_transaksi.split("T")[0],
@@ -70,20 +59,35 @@ const TransaksiKredit: React.FC = () => {
     fetchTransaksi();
   }, []);
 
+  const handleOpenModal = (transaksi: Pembelian | null = null) => {
+    setSelectedTransaksi(transaksi); // Atur data transaksi yang dipilih
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false); // Tutup modal
+    setSelectedTransaksi(null); // Reset data transaksi
+  };
 
   return (
     <div className="relative">
-       <button
-        onClick={handleOpenModal}
+      {/* Tombol untuk membuka modal */}
+      <button
+        onClick={() => handleOpenModal()}
         className="absolute right-1 -top-16 text-white bg-primary hover:bg-opacity-50 hover:text-black px-6 sm:px-4 py-2 rounded-lg flex items-center"
       >
-        <BsJournalPlus className="sm:mr-2 mr-0 text-lg sm:text-xl" />{" "}
+        <BsJournalPlus className="sm:mr-2 mr-0 text-lg sm:text-xl" />
         <span className="text-white hidden md:inline">Tambah Riwayat</span>
       </button>
+
       {/* Modal */}
-      {isModalOpen && (
-        <TambahTransaksiKredit isOpen={isModalOpen} onClose={handleCloseModal} />
-      )}
+      <MultiStepForm
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        selectedTransaksi={selectedTransaksi}
+      />
+
+      {/* Tabel Transaksi */}
       <div className="overflow-x-auto shadow-2xl shadow-primary rounded-lg">
         <table className="w-full text-sm text-left text-gray-500 ">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
@@ -98,10 +102,7 @@ const TransaksiKredit: React.FC = () => {
           </thead>
           <tbody>
             {transaksi.map((item, index) => (
-              <tr
-              key={index}
-              className="bg-white border-b hover:bg-gray-50 "
-              >
+              <tr key={index} className="bg-white border-b hover:bg-gray-50">
                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                   {item.tanggal_transaksi}
                 </td>
@@ -111,22 +112,20 @@ const TransaksiKredit: React.FC = () => {
                   {item.jumlah_bukti} / {item.tenor}
                 </td>
                 <td className="px-6 py-4">
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded ${
-                    item.jumlah_bukti == item.tenor
+                  <span
+                    className={`px-2 py-1 text-xs font-medium rounded ${item.jumlah_bukti === item.tenor
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {item.jumlah_bukti == item.tenor ? "Lunas" : "Belum Lunas"}
-                </span>
-
+                      }`}
+                  >
+                    {item.jumlah_bukti === item.tenor ? "Lunas" : "Belum Lunas"}
+                  </span>
                 </td>
                 <td className="px-6 py-4 text-right">
-                <button
-                    onClick={() => router.push(`data-transaksi/kredit/${item.id}`)}
+                  <button
+                    onClick={() => handleOpenModal(item)} // Buka modal dengan data transaksi
                     className="font-medium text-blue-600 hover:underline"
-                    >
+                  >
                     Detail
                   </button>
                 </td>
@@ -136,7 +135,6 @@ const TransaksiKredit: React.FC = () => {
         </table>
       </div>
     </div>
-
   );
 };
 

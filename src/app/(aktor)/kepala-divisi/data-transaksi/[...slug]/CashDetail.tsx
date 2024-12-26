@@ -3,77 +3,104 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import ImageModal from "@/components/ImageModal";
+import axios from "axios";
 
 interface Produk {
-  nama: string;
   ukuran: string;
   harga: number;
   jumlah: number;
+  subtotal: number;
+  jenis_produk: string;
 }
 
-interface FormData {
+interface Pembayaran {
   id: string;
   tanggal: string;
+  bukti: string;
+  jumlah: number;
+}
+
+interface Transaksi {
+  id: string;
+  tanggal_transaksi: string;
   nama: string;
-  noHp: string;
   alamat: string;
+  no_hp: string;
+  jenis_kelamin: string;
   produk: Produk[];
   totalTransaksi: number;
-  bukti: string;
+  pembayaran: Pembayaran[];
 }
 
 // Data transaksi diletakkan di luar fungsi CashDetail
-const data: FormData[] = [
-  {
-    id: "001",
-    tanggal: "2024-11-28",
-    nama: "John Doe",
-    noHp: "123-456-7890",
-    alamat: "123 Apple Street",
-    produk: [
-      {
-        nama: "Booth Container",
-        ukuran: "4x2x3 meter",
-        harga: 3000000,
-        jumlah: 1,
-      },
-      {
-        nama: "Booth Container",
-        ukuran: "4x2x3 meter",
-        harga: 3000000,
-        jumlah: 1,
-      },
-      {
-        nama: "Booth Container",
-        ukuran: "4x2x3 meter",
-        harga: 3000000,
-        jumlah: 1,
-      },
-    ],
-    totalTransaksi: 3000000 * 3,
-    bukti: "https://i.pinimg.com/736x/fd/dd/9f/fddd9fb4dd5e11c8ad0c27e2d416ee6f.jpg",
-  },
-  // Data lainnya
-];
+
 
 const CashDetail: React.FC = () => {
   const params = useParams();
   const slug = params.slug as string[]; // Ambil array slug
   const id = slug[slug.length - 1]; // Ambil ID dari bagian terakhir slug
-  const [transaksi, setTransaksi] = useState<FormData | null>(null);
+  const [transaksi, setTransaksi] = useState<Transaksi | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string>("");
 
   useEffect(() => {
-    // Mencari transaksi berdasarkan slug dan update state
-    const foundTransaksi = data.find((item) => item.id === id);
-    setTransaksi(foundTransaksi || null);
-  }, [slug]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  if (!transaksi) {
-    return <div>Transaksi tidak ditemukan</div>;
-  }
+        // Fetch data pembelian
+        const pembelianRes = await axios.get(
+          `https://backend-umkm-riau.vercel.app/api/pembelian/id/${id}`
+        );
+
+        // Fetch data produk
+        const produkRes = await axios.get(
+          `https://backend-umkm-riau.vercel.app/api/produk/${id}`
+        );
+
+        // Fetch data bukti
+        const buktiRes = await axios.get(
+          `https://backend-umkm-riau.vercel.app/api/bukti/${id}`
+        );
+
+        // Ambil dan filter data
+        const pembelian = pembelianRes.data.data[0];
+        const produk = produkRes.data.data;
+        const pembayaran = buktiRes.data.data;
+        
+        const totalTransaksi = produkRes.data.totalTransaksi;
+        // Buat objek transaksi tanpa properti null
+        setTransaksi({
+          id: pembelian.id,
+          tanggal_transaksi: pembelian.tanggal_transaksi,
+          nama: pembelian.nama,
+          alamat: pembelian.alamat,
+          no_hp: pembelian.no_hp,
+          jenis_kelamin: pembelian.jenis_kelamin,
+          produk,
+          pembayaran,
+          totalTransaksi,
+        });
+        console.log(pembayaran)
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message || "Terjadi kesalahan saat memuat data.");
+        } else {
+          setError("Terjadi kesalahan yang tidak diketahui.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   const openModal = (imageSrc: string) => {
     setSelectedImage(imageSrc);
@@ -101,7 +128,7 @@ const CashDetail: React.FC = () => {
             Data Transaksi
           </span>{" "}
           /{" "}
-          <span className="text-gray-900 font-semibold">Detail Transaksi Cash</span>
+          <span className="text-primary font-semibold">Detail Transaksi Cash</span>
         </nav>
 
         {/* Tombol Kembali */}
@@ -122,7 +149,7 @@ const CashDetail: React.FC = () => {
         {/* Data Transaksi */}
         <div className="mb-6">
           <div className="grid mb-4 grid-cols-1 md:grid-cols-2 gap-4">
-            {[{ label: "ID Transaksi", value: transaksi.id }, { label: "Tanggal Transaksi", value: transaksi.tanggal }].map(
+            {[{ label: "ID Transaksi", value: transaksi?.id }, { label: "Tanggal Transaksi", value: transaksi?.tanggal_transaksi }].map(
               (item, index) => (
                 <div key={index} className="flex flex-col border p-4 rounded-lg">
                   <label className="font-semibold text-gray-700">{item.label}</label>
@@ -134,7 +161,7 @@ const CashDetail: React.FC = () => {
           {/* Identitas Pembeli */}
           <h3 className="font-semibold text-lg text-black mb-2">Pembeli</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {[{ label: "Nama Pembeli", value: transaksi.nama }, { label: "No. HP", value: transaksi.noHp }, { label: "Alamat", value: transaksi.alamat }].map(
+            {[{ label: "Nama Pembeli", value: transaksi?.nama }, { label: "No. HP", value: transaksi?.no_hp }, { label: "Alamat", value: transaksi?.alamat }].map(
               (item, index) => (
                 <div key={index} className="flex flex-col border p-4 rounded-lg">
                   <label className="font-semibold text-gray-700">{item.label}</label>
@@ -146,12 +173,16 @@ const CashDetail: React.FC = () => {
             {/* Foto Bukti Pembayaran */}
             <div className="flex flex-col border p-4 rounded-lg">
               <label className="font-semibold text-gray-700">Bukti Pembayaran</label>
+              {transaksi?.pembayaran[0]?.bukti ? (
               <button
-                onClick={() => openModal(transaksi.bukti)}
+                onClick={() => openModal( transaksi?.pembayaran[0]?.bukti)}
                 className="text-primary text-left underline hover:text-primary-dark"
               >
                 Lihat Bukti Pembayaran
               </button>
+            ) : (
+              <p className="text-gray-500">Tidak ada bukti pembayaran</p>
+            )}
             </div>
           </div>
 
@@ -169,9 +200,9 @@ const CashDetail: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {transaksi.produk.map((produk, index) => (
+                {transaksi?.produk.map((produk, index) => (
                   <tr key={index}>
-                    <td className="px-4 py-2 border border-gray-300">{produk.nama}</td>
+                    <td className="px-4 py-2 border border-gray-300">{produk.jenis_produk}</td>
                     <td className="px-4 py-2 border border-gray-300">{produk.ukuran}</td>
                     <td className="px-4 py-2 border border-gray-300">Rp {produk.harga.toLocaleString()}</td>
                     <td className="px-4 py-2 border border-gray-300">{produk.jumlah}</td>
@@ -189,7 +220,7 @@ const CashDetail: React.FC = () => {
             <h3 className="font-semibold text-lg text-black mb-2">Total Transaksi</h3>
             <div className="flex flex-col border p-4 rounded-lg">
               <label className="font-semibold text-gray-700">Total</label>
-              <p className="text-gray-600">Rp {transaksi.totalTransaksi.toLocaleString()}</p>
+              <p className="text-gray-600">Rp {transaksi?.totalTransaksi.toLocaleString()}</p>
             </div>
           </div>
         </div>

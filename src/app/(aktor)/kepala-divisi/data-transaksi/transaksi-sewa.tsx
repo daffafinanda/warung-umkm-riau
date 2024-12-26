@@ -7,8 +7,9 @@ import { BsJournalPlus } from "react-icons/bs";
 import AddBayarSewaModal from "@/components/TambahPembayaranSewaModal"; // Impor komponen modal
 
 interface PenyewaanData {
+  biodata_nik: string;
   id_sewa: string;
-  id_booth: string;
+  booth_id_booth: string;
   nama_penyewa: string;
   durasi: string;
 }
@@ -30,14 +31,14 @@ const RiwayatPenyewaan = () => {
         console.log(penyewaanData);
 
         const updatedData = await Promise.all(
-          penyewaanData.map(async (item: any) => {
+          penyewaanData.map(async (item: PenyewaanData) => {
             const biodataResponse = await axios.get(
               `https://backend-umkm-riau.vercel.app/api/biodata/nik/${item.biodata_nik}`
             );
             const namaPenyewa = biodataResponse.data.data.nama;
             return {
               id_sewa: item.id_sewa.toString(),
-              id_booth: item.booth_id_booth,
+              booth_id_booth: item.booth_id_booth,
               nama_penyewa: namaPenyewa,
               durasi: `${item.durasi} Bulan`,
             };
@@ -92,7 +93,7 @@ const RiwayatPenyewaan = () => {
                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                   {item.id_sewa}
                 </td>
-                <td className="px-6 py-4">{item.id_booth}</td>
+                <td className="px-6 py-4">{item.booth_id_booth}</td>
                 <td className="px-6 py-4">{item.nama_penyewa}</td>
                 <td className="px-6 py-4">{item.durasi}</td>
                 <td className="px-6 py-4 text-right">

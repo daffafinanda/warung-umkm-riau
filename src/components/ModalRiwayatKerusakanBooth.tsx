@@ -1,5 +1,7 @@
 import React from 'react';
-import { Trash2, X } from 'lucide-react';
+
+import { LuTrash2 } from "react-icons/lu";
+import { IoCloseSharp } from "react-icons/io5";
 
 interface ModalRiwayatKerusakanBoothProps {
     isOpen: boolean;
@@ -24,7 +26,7 @@ const ModalRiwayatKerusakanBooth: React.FC<ModalRiwayatKerusakanBoothProps> = ({
                     onClick={onClose}
                     aria-label="Close modal"
                 >
-                    <X className="w-5 h-5" />
+                    <IoCloseSharp className="w-5 h-5" />
                 </button>
                 <h2 className="text-xl font-semibold text-center text-black">Riwayat Kerusakan</h2>
                 <div className="flex flex-col gap-4 mt-4">
@@ -39,7 +41,7 @@ const ModalRiwayatKerusakanBooth: React.FC<ModalRiwayatKerusakanBoothProps> = ({
                                 className="text-red-500 hover:text-red-700 hover:bg-red-100 p-1 rounded-full transition-colors"
                                 aria-label={`Delete riwayat from ${item.tanggal}`}
                             >
-                                <Trash2 className="w-5 h-5" />
+                                <LuTrash2 className="w-5 h-5" />
                             </button>
                         </div>
                     ))}

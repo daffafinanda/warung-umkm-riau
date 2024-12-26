@@ -1,43 +1,24 @@
 "use client";
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 interface ProtectedPageProps {
-    children: React.ReactNode;
-  }
-  
-  const ProtectedPage: React.FC<ProtectedPageProps> = ({ children }) => {
+  children: React.ReactNode;
+}
+
+const ProtectedPage: React.FC<ProtectedPageProps> = ({ children }) => {
   const router = useRouter();
+  const pathname = usePathname(); // Mendapatkan URL saat ini
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      // Jika token tidak ada, arahkan ke halaman login
-      router.replace('/login');
-    } else {
-      // Opsional: Validasi token dengan server
-    //   validateToken(token).catch(() => {
-    //     // Jika validasi gagal, hapus token dan arahkan ke halaman login
-    //     localStorage.removeItem('token');
-    //     router.replace('/login');
-    //   });
+      // Simpan halaman tujuan sebelum diarahkan ke login
+      const loginUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
+      router.replace(loginUrl);
     }
-  }, [router]);
-
-//   const validateToken = async (token: string) => {
-//     const response = await fetch('https://your-api-url.com/validate-token', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-
-//     if (!response.ok) {
-//       throw new Error('Invalid token');
-//     }
-//   };
+  }, [router, pathname]);
 
   return <>{children}</>;
 };

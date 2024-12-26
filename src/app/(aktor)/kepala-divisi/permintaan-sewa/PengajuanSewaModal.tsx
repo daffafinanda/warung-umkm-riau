@@ -142,8 +142,6 @@ const handleBoothSelectionConfirm = async () => {
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-2">
-          {request.status !== "DISETUJUI" && (
-            <>
               <button
                 onClick={() => setShowDeletePopup(true)}
                 className="py-2 bg-red-600 text-white rounded-xl hover:bg-opacity-75"
@@ -156,8 +154,6 @@ const handleBoothSelectionConfirm = async () => {
               >
                 Pilih Booth
               </button>
-            </>
-          )}
         </div>
 
         <div className="mt-4 text-end border-t-2 pt-2">

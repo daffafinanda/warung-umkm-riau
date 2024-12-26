@@ -12,7 +12,7 @@
   interface BayarSewa {
     id_sewa: string;
     tanggal: string;
-    jumlah: number;
+    jumlah: number | null;
     bukti: File | null;
   }
 
@@ -25,7 +25,7 @@
     const [formData, setFormData] = useState<BayarSewa>({
       id_sewa: '',
       tanggal: getFormattedDate(), // Tanggal hari ini
-      jumlah: 0,
+      jumlah: 0 || null,
       bukti: null,
     });
 
@@ -129,7 +129,7 @@
               type="number"
               id="jumlah"
               name="jumlah"
-              value={formData.jumlah}
+              value={formData.jumlah || ''}
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded-lg p-2"
             />
@@ -157,7 +157,7 @@
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              className="bg-primary text-white px-4 py-2 rounded-lg disabled:opacity-50"
             >
               {isSubmitting ? 'Menyimpan...' : 'Konfirmasi'}
             </button>

@@ -52,7 +52,7 @@ const TransaksiKredit: React.FC = () => {
             console.log(produkResponse.data);
             return {
               id: item.id,
-              tanggal_transaksi: item.tanggal_transaksi,
+              tanggal_transaksi: item.tanggal_transaksi.split("T")[0],
               nama: item.nama,
               tenor: item.tenor,
               jenis_produk,
@@ -70,22 +70,6 @@ const TransaksiKredit: React.FC = () => {
     fetchTransaksi();
   }, []);
 
-  // const transaksi : Pembelian[] = [
-  //   { 
-  //     id: 1,
-  //     tanggal: "2024-11-30",
-  //     nama: "John Doe",
-  //     tenor: 5,
-  //     produk: [
-  //       {
-  //         jenis_produk: "Booth",
-  //       },
-  //     ],
-  //     jumlah_bukti: 1
- 
-  //   }
-  // ]
-  
 
   return (
     <div className="relative">

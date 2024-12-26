@@ -3,113 +3,119 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import ImageModal from "@/components/ImageModal";
-
-interface Identitas {
-  nama: string;
-  noHp: string;
-  alamat: string;
-  fotoKtp: string;
-}
+import axios from "axios";
 
 interface Produk {
-  nama: string;
+  jenis_produk: string;
   ukuran: string;
   harga: number;
-}
-
-interface Pembayaran {
-  tanggal: string;
-  pembayaranKe: number;
   jumlah: number;
-  buktiPembayaran: string;
+  
 }
 
-interface FormData {
-  id: string;
+interface Pembayaran{
   tanggal: string;
-  identitas: Identitas;
+  bukti: string;
+  jumlah: number;
+}
+
+interface Transaksi {
+  id: string;
+  tanggal_transaksi: string;
+  nama: string;
+  alamat: string;
+  no_hp: string;
+  foto_ktp: string;
+  nik : string;
+  alamat_domisili: string;
+
   produk: Produk;
+  totalTransaksi: number;
   dp: number;
   tenor: number;
-  jumlahCicilan: number;
-  cicilanPerBulan: number;
-  sisaCicilan: number;
-  prosesCicilan: string;
-  statusCicilan: "Lunas" | "Belum Lunas";
-  pembayaran: Pembayaran[];
+
+  bukti: Pembayaran[];
 }
 
 // Data transaksi diletakkan di luar fungsi KreditDetail
-const data: FormData[] = [
-  {
-    id: "001",
-    tanggal: "2024-11-30",
-    identitas: {
-      nama: "John Doe",
-      noHp: "08123456789",
-      alamat: "Jl. Merdeka No. 10, Jakarta",
-      fotoKtp: "https://example.com/ktp-johndoe.jpg",
-    },
-    produk: {
-      nama: "Booth Container",
-      ukuran: "4x2x3 meter",
-      harga: 5000000,
-    },
-    dp: 1000000,
-    tenor: 5,
-    jumlahCicilan: 4000000,
-    cicilanPerBulan: 800000,
-    sisaCicilan: 1600000,
-    prosesCicilan: "3/5",
-    statusCicilan: "Belum Lunas",
-    pembayaran: [
-      {
-        tanggal: "2024-12-01",
-        pembayaranKe: 0,
-        jumlah: 1000000,
-        buktiPembayaran: "https://example.com/bukti-pembayaran-0.jpg",
-      },
-      {
-        tanggal: "2024-12-01",
-        pembayaranKe: 1,
-        jumlah: 800000,
-        buktiPembayaran: "https://example.com/bukti-pembayaran-1.jpg",
-      },
-      {
-        tanggal: "2025-01-01",
-        pembayaranKe: 2,
-        jumlah: 800000,
-        buktiPembayaran: "https://example.com/bukti-pembayaran-2.jpg",
-      },
-      {
-        tanggal: "2025-02-01",
-        pembayaranKe: 3,
-        jumlah: 800000,
-        buktiPembayaran: "https://example.com/bukti-pembayaran-3.jpg",
-      },
-    ],
-  },
-  // Data lainnya
-];
 
 const KreditDetail: React.FC = () => {
   const params = useParams();
   const slug = params.slug as string[]; // Ambil array slug
   const id = slug[slug.length - 1]; // Ambil ID dari bagian terakhir slug
-  const [transaksi, setTransaksi] = useState<FormData | null>(null);
+  const [transaksi, setTransaksi] = useState<Transaksi | null>(null);
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string>("");
+    const [loading, setLoading] = useState(true);
+      const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Mencari transaksi berdasarkan slug dan update state
-    const foundTransaksi = data.find((item) => item.id === id);
-    setTransaksi(foundTransaksi || null);
-  }, [slug]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  if (!transaksi) {
-    return <div>Transaksi tidak ditemukan</div>;
-  }
+        // Fetch data pembelian
+        const pembelianRes = await axios.get(
+          `https://backend-umkm-riau.vercel.app/api/pembelian/id/${id}`
+        );
+
+        // Fetch data produk
+        const produkRes = await axios.get(
+          `https://backend-umkm-riau.vercel.app/api/produk/${id}`
+        );
+
+        // Fetch data bukti
+        const buktiRes = await axios.get(
+          `https://backend-umkm-riau.vercel.app/api/bukti/${id}`
+        );
+
+        // Ambil dan filter data
+        const pembelian = pembelianRes.data.data[0];
+        const produk = produkRes.data.data;
+        const bukti = buktiRes.data.data;
+        const dp = buktiRes.data.data[0].jumlah;
+        
+        console.log(bukti);
+        console.log(pembelian);
+        console.log(produk);
+        console.log(dp);
+        
+        const totalTransaksi = produkRes.data.totalTransaksi;
+        // Buat objek transaksi tanpa properti null
+        setTransaksi({
+          id: id,
+          tanggal_transaksi: pembelian.tanggal_transaksisplit("T")[0],
+          nama: pembelian.nama,
+          alamat: pembelian.alamat,
+          no_hp: pembelian.no_hp,
+          foto_ktp: pembelian.foto_ktp,
+          nik: pembelian.nik,
+          alamat_domisili: pembelian.alamat_domisili,
+
+          dp: dp,
+          tenor: pembelian.tenor,
+          produk,
+          bukti,
+          totalTransaksi,
+        });
+        console.log("Produk:", produk)
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message || "Terjadi kesalahan saat memuat data.");
+        } else {
+          setError("Terjadi kesalahan yang tidak diketahui.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  
 
   const openModal = (imageSrc: string) => {
     setSelectedImage(imageSrc);
@@ -127,154 +133,157 @@ const KreditDetail: React.FC = () => {
 
   return (
     <div className="p-6">
-  <div className="mb-6">
-    {/* Breadcrumb */}
-    <nav className="text-sm text-gray-600 mb-4">
-      <span
-        className="cursor-pointer hover:underline"
-        onClick={() => router.push("../")}
-      >
-        Data Transaksi
-      </span>{" "}
-      /{" "}
-      <span className="text-gray-900 font-semibold">Detail Transaksi Kredit</span>
-    </nav>
-    
-    {/* Tombol Kembali */}
-    <button
-      onClick={handleBack}
-      className="flex items-center text-primary hover:underline mb-4"
-    >
-      <MdOutlineArrowBackIos className="mr-2" />
-      Kembali
-    </button>
-  </div>
+      <div className="mb-6">
+        {/* Breadcrumb */}
+        <nav className="text-sm text-gray-600 mb-4">
+          <span
+            className="cursor-pointer hover:underline"
+            onClick={() => router.push("../")}
+          >
+            Data Transaksi
+          </span>{" "}
+          /{" "}
+          <span className="text-gray-900 font-semibold">Detail Transaksi Kredit</span>
+        </nav>
 
-  <div className="mx-auto p-6 bg-foreground rounded-lg shadow-md">
-    <h1 className="text-3xl font-bold text-gray-800 mb-6">
-      Detail Transaksi Kredit
-    </h1>
+        {/* Tombol Kembali */}
+        <button
+          onClick={handleBack}
+          className="flex items-center text-primary hover:underline mb-4"
+        >
+          <MdOutlineArrowBackIos className="mr-2" />
+          Kembali
+        </button>
+      </div>
 
-    {/* Data Transaksi */}
-    <div className="mb-6">
-    <div className="grid mb-4 grid-cols-1 md:grid-cols-2 gap-4">
-      {[
-        { label: "ID Transaksi", value: transaksi.id },
-        { label: "Tanggal Transaksi", value: transaksi.tanggal },
-      ].map((item, index) => (
-        <div key={index} className="flex flex-col border p-4 rounded-lg">
-          <label className="font-semibold text-gray-700">{item.label}</label>
-          <p className="text-gray-600">{item.value}</p>
-        </div>
-      ))}
-    </div>
-  {/* Identitas Pembeli */}
-  <h3 className="font-semibold text-lg text-black mb-2">Pembeli</h3>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-    {[
-      { label: "Nama Pembeli", value: transaksi.identitas.nama },
-      { label: "No. HP", value: transaksi.identitas.noHp },
-      { label: "Alamat", value: transaksi.identitas.alamat },
+      <div className="mx-auto p-6 bg-foreground rounded-lg shadow-md">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+          Detail Transaksi Kredit
+        </h1>
+
+        {/* Data Transaksi */}
+        <div className="mb-6">
+          <div className="grid mb-4 grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { label: "ID Transaksi", value: transaksi?.id },
+              { label: "Tanggal Transaksi", value: transaksi?.tanggal_transaksi },
+            ].map((item, index) => (
+              <div key={index} className="flex flex-col border p-4 rounded-lg">
+                <label className="font-semibold text-gray-700">{item.label}</label>
+                <p className="text-gray-600">{item.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Identitas Pembeli */}
+          <h3 className="font-semibold text-lg text-black mb-2">Pembeli</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {[
+              { label: "Nama Pembeli", value: transaksi?.nama },
+              { label: "No. HP", value: transaksi?.no_hp },
+              { label: "Alamat", value: transaksi?.alamat },
+            ].map((item, index) => (
+              <div key={index} className="flex flex-col border p-4 rounded-lg">
+                <label className="font-semibold text-gray-700">{item.label}</label>
+                <p className="text-gray-600">{item.value}</p>
+              </div>
+            ))}
+
+            {/* Foto KTP */}
+            <div className="flex flex-col border p-4 rounded-lg">
+              <label className="font-semibold text-gray-700">Foto KTP</label>
+              <button
+                onClick={() => openModal(transaksi?.foto_ktp ?? "")}
+                className="text-primary text-left underline hover:text-primary-dark"
+              >
+                Lihat Foto KTP
+              </button>
+            </div>
+          </div>
+
+          {/* Produk */}
+<div className="mb-4">
+  <h3 className="font-semibold text-lg text-black mb-2">Produk</h3>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {[ 
+      { label: "Nama Barang", value: transaksi?.produk?.[0]?.jenis_produk }, // Access product at index 0
+      { label: "Ukuran", value: transaksi?.produk?.[0]?.ukuran }, // Access product at index 0
+      { label: "Harga", value: transaksi?.produk?.[0]?.harga ? `Rp ${transaksi.produk[0].harga.toLocaleString()}` : "Rp 0" } // Access price at index 0
     ].map((item, index) => (
       <div key={index} className="flex flex-col border p-4 rounded-lg">
         <label className="font-semibold text-gray-700">{item.label}</label>
         <p className="text-gray-600">{item.value}</p>
       </div>
     ))}
-
-    {/* Foto KTP */}
-    <div className="flex flex-col border p-4 rounded-lg">
-        <label className="font-semibold text-gray-700">Foto KTP</label>
-        <button
-            onClick={() => openModal(transaksi.identitas.fotoKtp)}
-            className="text-primary text-left underline hover:text-primary-dark"
-            >
-            Lihat Foto KTP
-        </button>
-        </div>
-  </div>
-
-  {/* Produk */}
-  <div className="mb-4">
-    <h3 className="font-semibold text-lg text-black mb-2">Produk</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {[
-        { label: "Nama Barang", value: transaksi.produk.nama },
-        { label: "Ukuran", value: transaksi.produk.ukuran },
-        { label: "Harga", value: `Rp ${transaksi.produk.harga.toLocaleString()}` },
-      ].map((item, index) => (
-        <div key={index} className="flex flex-col border p-4 rounded-lg">
-          <label className="font-semibold text-gray-700">{item.label}</label>
-          <p className="text-gray-600">{item.value}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-
-  {/* Cicilan */}
-  <div className="mb-4">
-    <h3 className="font-semibold text-lg text-black mb-2">Cicilan</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {[
-        { label: "Tenor", value: `${transaksi.tenor} kali cicilan` },
-        { label: "DP", value: `Rp ${transaksi.dp.toLocaleString()}` },
-        { label: "Status Cicilan", value: transaksi.statusCicilan },
-        { label: "Cicilan", value: `Rp ${transaksi.cicilanPerBulan.toLocaleString()} per bulan` },
-        { label: "Total Cicilan", value: `Rp ${transaksi.jumlahCicilan.toLocaleString()}` },
-        
-        { label: "Sisa Cicilan", value: `Rp ${transaksi.sisaCicilan.toLocaleString()}` },
-      ].map((item, index) => (
-        <div key={index} className="flex flex-col border p-4 rounded-lg">
-          <label className="font-semibold text-gray-700">{item.label}</label>
-          <p className="text-gray-600">{item.value}</p>
-        </div>
-      ))}
-    </div>
   </div>
 </div>
 
 
+          {/* Cicilan */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {[
+              { label: "Total Pembelian", value: transaksi?.totalTransaksi ? `Rp ${transaksi.totalTransaksi.toLocaleString()}` : "Rp 0" },
+              { label: "DP", value: transaksi?.dp ? `Rp ${transaksi.dp.toLocaleString()}` : "Rp 0" },
+              { label: "Tenor (Bulan)", value: transaksi?.tenor },
+              { label: "Cicilan Per Bulan", value: transaksi && transaksi.totalTransaksi && transaksi.tenor
+                  ? `Rp ${(transaksi.totalTransaksi - transaksi.dp) / transaksi.tenor}` : "Rp 0" },
+            ].map((item, index) => (
+              <div key={index} className="flex flex-col border p-4 rounded-lg">
+                <label className="font-semibold text-gray-700">{item.label}</label>
+                <p className="text-gray-600">{item.value}</p>
+              </div>
+            ))}
+          </div>
+
+</div>
+
+
     {/* Riwayat Pembayaran */}
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-700 mb-4">Riwayat Pembayaran</h2>
-      <div className="flex flex-row-fit border py-2 px-4 rounded-lg mb-6">
-          <label className="font-semibold mr-2 text-gray-700">Proses Cicilan : </label>
-          <p className="text-gray-600">{transaksi.prosesCicilan}</p>
-        </div>
-      {transaksi.pembayaran.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-200">
-            <thead>
-              <tr className="bg-gray-100 text-gray-600 text-left">
-                <th className="py-3 px-4 border-b">Tanggal</th>
-                <th className="py-3 px-4 border-b">Pembayaran Ke</th>
-                <th className="py-3 px-4 border-b">Jumlah</th>
-                <th className="py-3 px-4 border-b">Bukti Pembayaran</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transaksi.pembayaran.map((pay, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="py-3 px-4 border-b text-gray-700">{pay.tanggal}</td>
-                  <td className="py-3 px-4 border-b text-gray-700">{pay.pembayaranKe}</td>
-                  <td className="py-3 px-4 border-b text-gray-700">Rp {pay.jumlah.toLocaleString()}</td>
-                  <td className="py-3 px-4 border-b">
-                    <button
-                      onClick={() => openModal(pay.buktiPembayaran)}
-                      className="text-primary underline hover:text-primary-dark"
-                    >
-                      Lihat Bukti
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-gray-500">Belum ada pembayaran.</p>
-      )}
+<div>
+  <h2 className="text-2xl font-semibold text-gray-700 mb-4">Riwayat Pembayaran</h2>
+  <div className="flex flex-row-fit border py-2 px-4 rounded-lg mb-6">
+    <label className="font-semibold mr-2 text-gray-700">Proses Cicilan : </label>
+    <p className="text-gray-600">Proses Cicilan</p>
+  </div>
+  
+  {transaksi?.bukti && transaksi.bukti.length > 0 ?  (
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white border border-gray-200">
+        <thead>
+          <tr className="bg-gray-100 text-gray-600 text-left">
+            <th className="py-3 px-4 border-b">Tanggal</th>
+            <th className="py-3 px-4 border-b">Pembayaran Ke</th>
+            <th className="py-3 px-4 border-b">Jumlah</th>
+            <th className="py-3 px-4 border-b">Bukti Pembayaran</th>
+          </tr>
+        </thead>
+        <tbody>
+  {transaksi?.bukti.map((pay, index) => (
+    <tr key={index} className="hover:bg-gray-50">
+      <td className="py-3 px-4 border-b text-gray-700">{pay.tanggal}</td>
+      <td className="py-3 px-4 border-b text-gray-700">{index}</td>
+      <td className="py-3 px-4 border-b text-gray-700">
+        Rp {pay.jumlah ? pay.jumlah.toLocaleString() : '0'}
+      </td>
+      <td className="py-3 px-4 border-b">
+        <button
+          onClick={() => openModal(pay.bukti)}
+          className="text-primary underline hover:text-primary-dark"
+        >
+          Lihat Bukti
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
+      </table>
     </div>
+  ) : (
+    <p className="text-gray-500">Belum ada pembayaran.</p>
+  )}
+</div>
+
   </div>
 
   {/* Modal Gambar */}

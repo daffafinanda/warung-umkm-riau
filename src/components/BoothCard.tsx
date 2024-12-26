@@ -300,7 +300,7 @@ export default function BoothCard({
                 </div>
             </div>
             <div className="gap-2 ml-4">
-                <p className="text-black">{penyewa ? `Penyewa: ${penyewa}` : "Tidak ada penyewa"}</p>
+                <p className="text-black">Status: {status}</p>
                 <p className="text-black">Riwayat Kerusakan: {riwayatKerusakan.length}</p>
             </div>
             <div className="mt-4 ml-3 gap-3 w-full flex flex-col items-start">
@@ -321,7 +321,7 @@ export default function BoothCard({
                         Tambah Riwayat
                     </button>
 
-                    {(status === "tidak disewa" || status === "disewa") && (
+                    {(status === "tidak disewa" || status === "") && (
                         <button
                             className="bg-yellow-500 text-white flex flex-row items-center py-1 px-3 rounded-lg hover:bg-yellow-600"
                             onClick={handleTandaiRusak}

@@ -25,6 +25,7 @@ export default function PemantauanBisnis() {
     const [boothData, setBoothData] = useState<Booth[]>([])
     const [rentedBoothCount, setRentedBoothCount] = useState(0)
     const [soldItemsCount, setSoldItemsCount] = useState(0)
+    const [totalPendapatan, setTotalPendapatan] = useState(0)
 
     const fetchBiodataName = async (biodata_nik: string) => {
         try {
@@ -48,6 +49,19 @@ export default function PemantauanBisnis() {
             return 'Unknown District'
         }
     }
+    const fetchTotalPendapatan = async () => {
+        try {
+            const response = await axios.get('https://backend-umkm-riau.vercel.app/api/pemantauan-bisnis/pendapatan')
+
+            // Ambil langsung dari response JSON
+            if (response.data.success && response.data.totalPendapatan !== undefined) {
+                setTotalPendapatan(response.data.totalPendapatan) // Set total pendapatan dari response JSON
+            }
+        } catch (error) {
+            console.error("Error fetching total pendapatan:", error)
+        }
+    }
+
 
     const handleDetailClick = async (booth: Booth) => {
         setSelectedBooth(null); // Reset state
@@ -129,6 +143,7 @@ export default function PemantauanBisnis() {
 
         fetchBoothData()
         fetchSoldItemsData()
+        fetchTotalPendapatan()
     }, [])
 
     return (
@@ -136,7 +151,7 @@ export default function PemantauanBisnis() {
             <div className="grid gap-4 md:grid-cols-3">
                 <div className="bg-white p-4 rounded-lg shadow-md">
                     <h2 className="text-sm font-bold text-gray-800">Total Pendapatan</h2>
-                    <p className="text-2xl font-bold text-primary">Rp 5.300.000</p>
+                    <p className="text-2xl font-bold text-primary">Rp {totalPendapatan.toLocaleString('id-ID')}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                     <h2 className="text-sm font-bold text-gray-800">Booth Disewakan</h2>

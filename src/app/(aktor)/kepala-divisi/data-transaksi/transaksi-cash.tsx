@@ -3,12 +3,12 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BsJournalPlus } from "react-icons/bs";
 import { useRouter } from "next/navigation";
+import MultiStepForm from "@/components/ModalCash";
 
 interface Product {
   jumlah: number;
   subtotal: number;
 }
-// Define the type for each order item
 interface FormData {
   id: string;
   tanggal_transaksi: string;
@@ -21,35 +21,32 @@ const TransaksiCash: React.FC = () => {
   const router = useRouter();
   const [data, setData] = useState<FormData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  
-  useEffect(() => {
-    // Fetch the transaksi data from the first API
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // State untuk modal
 
+  useEffect(() => {
     const fetchTransaksiData = async () => {
       try {
         const transaksiResponse = await axios.get("https://backend-umkm-riau.vercel.app/api/pembelian/CASH");
         const transaksiData = transaksiResponse.data.data;
-        
-        // Fetch product data based on each transaksi id
+
         const updatedData = await Promise.all(
           transaksiData.map(async (transaksi: FormData) => {
             const productResponse = await axios.get(`https://backend-umkm-riau.vercel.app/api/produk/${transaksi.id}`);
             const productData = productResponse.data.data;
 
-            // Calculate jumlah_produk and totalTransaksi
-            const jumlahProduk = productData.reduce((total: number, item: Product ) => total + item.jumlah, 0);
+            const jumlahProduk = productData.reduce((total: number, item: Product) => total + item.jumlah, 0);
             const totalTransaksi = productData.reduce((total: number, item: Product) => total + item.subtotal, 0);
 
             return {
               id: transaksi.id.toString(),
-              tanggal_transaksi: transaksi.tanggal_transaksi.split("T")[0], // Formatting date
+              tanggal_transaksi: transaksi.tanggal_transaksi.split("T")[0],
               nama: transaksi.nama,
               jumlah_produk: jumlahProduk,
               totalTransaksi: totalTransaksi,
             };
           })
         );
-        
+
         setData(updatedData);
         setLoading(false);
       } catch (error) {
@@ -60,16 +57,45 @@ const TransaksiCash: React.FC = () => {
 
     fetchTransaksiData();
   }, []);
+
   if (loading) {
     return <p className="text-primary">Loading...</p>;
   }
 
+  // Fungsi untuk membuka modal
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // Fungsi untuk menutup modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="relative">
-      <button className="absolute right-1 -top-16 text-white bg-primary hover:bg-opacity-50 hover:text-black px-6 sm:px-4 py-2 rounded-lg flex items-center">
+      <button
+        onClick={openModal}
+        className="absolute right-1 -top-16 text-white bg-primary hover:bg-opacity-50 hover:text-black px-6 sm:px-4 py-2 rounded-lg flex items-center"
+      >
         <BsJournalPlus className="sm:mr-2 mr-0 text-white text-lg sm:text-xl" />
         <span className="text-white hidden md:inline">Transaksi Cash</span>
       </button>
+
+      {/* Modal untuk MultiStepForm */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <button
+              onClick={closeModal}
+              className="text-red-500 absolute top-3 right-3 hover:text-red-700"
+            >
+              ✕
+            </button>
+            <MultiStepForm />
+          </div>
+        </div>
+      )}
 
       {/* Wrapper to enable horizontal scroll only for the table */}
       <div className="overflow-x-auto shadow-2xl shadow-primary rounded-lg">

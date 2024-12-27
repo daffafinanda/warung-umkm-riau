@@ -1,354 +1,149 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { FiUpload } from "react-icons/fi";
-import ProgressBar from "@/components/ProgressBar";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { MdOutlineArrowBackIos } from "react-icons/md";
 
-const Biodata: React.FC = () => {
-  type FormData = {
-    nik: string;
-    noHp: string;
-    nama: string;
-    jenisKelamin: string;
-    alamat_domisili: string;
-    alamat_ktp: string;
-    fotoKTP: File | null;
+interface User {
+  nik: string;
+  nama: string;
+  alamat: string;
+  jenis_kelamin: string;
+  alamat_domisili: string;
+  foto_ktp: string;
+}
 
-  };
-
-  const [formData, setFormData] = useState<FormData>({
-    nik: "",
-    noHp: "",
-    nama: "",
-    jenisKelamin: "",
-    alamat_domisili: "",
-    alamat_ktp: "",
-    fotoKTP: null,
-
-  });
-
-
-  const router = useRouter();
-
-  const [errorFields, setErrorFields] = useState<string[]>([]);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-
-  const steps = [
-    { name: 'Login', status: 'completed' as const },
-    { name: 'Data Diri', status: 'current' as const },
-    { name: 'Pengajuan', status: 'upcoming' as const },
-    { name: 'Proses Survey', status: 'upcoming' as const },
-    { name: 'Pembayaran', status: 'upcoming' as const },
-  ];
-
-  
+export default function ProfilePage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isRented, setIsRented] = useState<boolean>(false);
+  const router = useRouter(); // Initialize useRouter for navigation
 
   useEffect(() => {
-      const biodata = localStorage.getItem("biodata");
-      if (biodata) {
-        // Redirect to the specific page if biodata exists
-        router.replace("/biodata/pengajuan-sewa");
-      }
-  }, [ router]);
+    // Retrieve user ID from local storage
+    const id = localStorage.getItem('id_akun');
+    console.log(id);
 
-
-  // Validation function
-  const validateForm = () => {
-    const emptyFields: string[] = [];
-    for (const key in formData) {
-      if (formData[key as keyof typeof formData] === "" && key !== "fotoKTP") {
-        emptyFields.push(key);
-      }
+    if (!id) {
+      setError('ID not found in local storage');
+      setLoading(false);
+      return;
     }
 
-    if (!formData.fotoKTP) {
-      emptyFields.push("fotoKTP");
-    }
+    // Fetch user data from API
+    axios
+      .get(`https://backend-umkm-riau.vercel.app/api/biodata/${id}`)
+      .then((response) => {
+        console.log(response.data.data);
+        setUser(response.data.data);
+        setLoading(false);
+        axios
+          .get(`https://backend-umkm-riau.vercel.app/api/penyewaan/${response.data.data.nik}`)
+          .then((penyewaanResponse) => {
+            if (penyewaanResponse.data) {
+              setIsRented(true); // If user has penyewaan, set isRented to true
+            }
+          })
+          .catch(() => {
+            console.log("No penyewaan record found");
+          });
+      })
+      .catch(() => {
+        setError('Error fetching data');
+        setLoading(false);
+      });
+  }, []);
 
-    setErrorFields(emptyFields); // Make sure to update the errorFields state
-    return emptyFields.length === 0;
+  const handleBackClick = () => {
+    router.push('/pelanggan'); // Navigate to /pelanggan when back button is clicked
   };
 
-  if (uploadError) {
-    console.error(uploadError);
-    // or display an error message to the user
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const allowedTypes = ["image/png", "image/jpeg"];
-      const maxSize = 2 * 1024 * 1024; // 2MB
-  
-      // Validasi tipe file
-      if (!allowedTypes.includes(file.type)) {
-        setUploadError("Hanya file JPG atau PNG yang diperbolehkan.");
-        return;
-      }
-  
-      // Validasi ukuran file
-      if (file.size > maxSize) {
-        setUploadError("Ukuran file tidak boleh lebih dari 2MB.");
-        return;
-      }
-  
-      // Reset pesan error dan simpan file
-      setUploadError(null);
-      setFormData({
-        ...formData,
-        fotoKTP: file, // Simpan file yang dipilih ke state
-      });
-    }
-  };
+  if (error) {
+    return <div>{error}</div>;
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      console.log("Form is invalid!");
-      return;
-    }
-    console.log("Form submitted:", formData);
-
-    const id_akun = localStorage.getItem("id_akun");
-
-    if (!id_akun) {
-      console.error("ID Akun tidak ada");
-      return;
-    }
-
-    // Membuat FormData untuk mengirim file
-    const formDataToSend = new FormData();
-    
-    // Menambahkan field data lainnya
-    formDataToSend.append("nik", formData.nik);
-    formDataToSend.append("nama", formData.nama);
-    formDataToSend.append("alamat", formData.alamat_ktp);
-    formDataToSend.append("jenis_kelamin", formData.jenisKelamin === "Laki-Laki" ? "L" : "P");
-    formDataToSend.append("alamat_domisili", formData.alamat_domisili);
-    if (formData.fotoKTP) {
-      formDataToSend.append("foto_ktp", formData.fotoKTP); // Mengirim file foto KTP
-    }
-    formDataToSend.append("akun_id_akun", id_akun as string); // Mengirim ID Akun sebagai string, namun akan diproses sebagai number di backend
-    
-    console.log("Data yang akan dikirim ke server:");
-    for (const [key, value] of formDataToSend.entries()) {
-      console.log(`${key}:`, value);
-    }
-
-    try {
-      const response = await fetch(
-        "https://backend-umkm-riau.vercel.app/api/biodata",
-        {
-          method: "POST",
-          body: formDataToSend, // Mengirim data sebagai FormData
-        }
-      );
-
-      const responseData = await response.json();
-      if (response.ok) {
-        console.log("Form submitted successfully:", responseData);
-        localStorage.setItem("biodata", JSON.stringify(formData));
-        router.push("/biodata/pengajuan-sewa");
-      } else {
-        console.log("Error:", responseData.message);
-      }
-    } catch (error) {
-      console.log("Error submitting form:", error);
-    }
-  };
+  if (!user) {
+    return <div>User not found</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      {/* Breadcrumb */}
-      <nav className="text-sm mb-4 max-w-4xl mx-auto text-black" aria-label="Breadcrumb">
-        <ol className="list-none p-0 inline-flex">
-          <li className="text-primary">/ Data Penyewa</li>
-        </ol>
-      </nav>
+    <div className="min-h-screen bg-background shadow-lg  px-4 sm:px-6 lg:px-8">
+        <div className="p-4 max-w-3xl mx-auto ">
+          {/* Breadcrumb */}
+          <div className="mb-4 flex flex-col">
+              <span className="text-gray-800 font-semibold">/Biodata</span>
+            <button
+              onClick={handleBackClick}
+              className="flex items-center text-primary hover:underline mb-4"
+                      >
+                        <MdOutlineArrowBackIos className="mr-2" />
+                        Kembali
+            </button> 
+        </div>
+      <div className="max-w-3xl mx-auto bg-foreground rounded-2xl shadow-xl overflow-hidden">
+          <div className='p-8'>
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">Biodata Penyewa</h1>
 
-      {/* Step Progress */}
-      <div className="max-w-4xl p-4 md:p-0 mx-auto justify-center items-center">
-        <ProgressBar steps={steps}/>
-      </div>
-
-      <div className="max-w-4xl h-fit mx-auto bg-white shadow-lg rounded-lg text-black p-6">
-        <h1 className="text-2xl font-bold text-primary text-center mb-4">Data Diri Calon Penyewa</h1>
-        <form className="space-y-4 h-full" onSubmit={handleSubmit}>
-          <div className="flex flex-row overflow-auto gap-4 ">
-            {/* NIK */}
-            <div className="w-full">
-              <label htmlFor="nik" className="block text-sm font-medium text-gray-700 capitalize">NIK <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                id="nik"
-                value={formData.nik}
-                placeholder="Masukkan 16 karakter NIK"
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d*$/.test(value)) {
-                    setFormData({ ...formData, nik: value });
-                  }
-                }}
-                maxLength={16}
-                className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('nik') ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              <div className="flex flex-row justify-between">
-                <p className="text-gray-500 text-xs mt-1">{formData.nik.length}/16 karakter</p>
-                {errorFields.includes('nik') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-700 mb-2">Data Pribadi</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InfoItem label="Nama" value={user.nama} />
+                <InfoItem label="NIK" value={user.nik} />
+                <InfoItem label="Jenis Kelamin" value={user.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'} />
               </div>
             </div>
 
-            {/* No HP */}
-            <div className="w-full">
-              <label htmlFor="noHp" className="block text-sm font-medium text-gray-700 capitalize">No HP <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                id="noHp"
-                value={formData.noHp}
-                placeholder="Masukkan No HP Anda"
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d*$/.test(value)) {
-                    setFormData({ ...formData, noHp: value });
-                  }
-                }}
-                maxLength={13}
-                className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('noHp') ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              <div className="flex flex-row justify-between">
-                <p className="text-gray-500 text-xs mt-1">{formData.noHp.length}/13 karakter</p>
-                {errorFields.includes('noHp') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-row gap-4">
-            {/* Nama */}
-            <div className="w-full">
-              <label htmlFor="nama" className="block text-sm font-medium text-gray-700 capitalize">Nama <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                id="nama"
-                value={formData.nama}
-                placeholder="Masukkan nama anda"
-                onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                maxLength={40}
-                className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('nama') ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              <div className="flex flex-row justify-between">
-                <p className="text-gray-500 text-xs mt-1">{formData.nama.length}/40 karakter</p>
-                {errorFields.includes('nama') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-700 mb-2">Alamat</h2>
+              <div className="grid grid-cols-1 gap-4">
+                <InfoItem label="Alamat KTP" value={user.alamat} />
+                <InfoItem label="Alamat Domisili" value={user.alamat_domisili} />
               </div>
             </div>
 
-            {/* Jenis Kelamin */}
-            <div className="w-full">
-              <label htmlFor="jenisKelamin" className="block text-sm font-medium text-gray-700 capitalize">Jenis Kelamin <span className="text-red-500">*</span></label>
-              <select
-                id="jenisKelamin"
-                value={formData.jenisKelamin}
-                onChange={(e) => setFormData({ ...formData, jenisKelamin: e.target.value })}
-                className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('jenisKelamin') ? 'border-red-500' : 'border-gray-300'}`}
-              >
-                <option value="" disabled>Pilih jenis kelamin</option>
-                <option value="Laki-Laki">Laki-Laki</option>
-                <option value="Perempuan">Perempuan</option>
-              </select>
-              <div className="flex flex-row justify-end">
-                {errorFields.includes('jenisKelamin') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
-              </div> 
-             </div>
-          </div>
-
-          {/* Alamat Domisili */}
-          <div>
-            <label htmlFor="alamat_domisili" className="block text-sm font-medium text-gray-700 capitalize">Alamat Domisili <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              id="alamat_domisili"
-              value={formData.alamat_domisili}
-              placeholder="Masukkan alamat tempat tinggal anda saat ini"
-              maxLength={40}
-              onChange={(e) => setFormData({ ...formData, alamat_domisili: e.target.value })}
-              className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('alamat_domisili') ? 'border-red-500' : 'border-gray-300'}`}
-            />
-            <div className="flex flex-row justify-between">
-              <p className="text-gray-500 text-xs mt-1">{formData.alamat_domisili.length}/40 karakter</p>
-              {errorFields.includes('alamat_domisili') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
-            </div>
-          </div>
-
-          {/* Alamat KTP */}
-          <div>
-            <label htmlFor="alamat_ktp" className="block text-sm font-medium text-gray-700 capitalize">Alamat Sesuai KTP <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              id="alamat_ktp"
-              value={formData.alamat_ktp}
-              placeholder="Masukkan alamat yang tertera pada KTP"
-              maxLength={40}
-              onChange={(e) => setFormData({ ...formData, alamat_ktp: e.target.value })}
-              className={`bg-gray-50 mt-1 block w-full rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${errorFields.includes('alamat_ktp') ? 'border-red-500' : 'border-gray-300'}`}
-            />
-            <div className="flex flex-row justify-between">
-              <p className="text-gray-500 text-xs mt-1">{formData.alamat_ktp.length}/40 karakter</p>
-              {errorFields.includes('alamat_ktp') && <p className="text-red-500 text-xs mt-1">Field ini harus diisi!</p>}
-            </div>
-          </div>
-
-          {/* Foto KTP */}
-          <div>
-            <label htmlFor="fileKTP" className="block text-sm font-medium text-gray-700">
-              Foto KTP <span className="text-red-500">*</span>
-            </label>
-            <div
-              className={`bg-gray-50 mt-2 w-full h-52 border-2 ${
-                errorFields.includes('fotoKTP') ? 'border-red-500' : 'border-dashed border-primary-300'
-              } rounded-md flex items-center justify-center overflow-hidden shadow-inner cursor-pointer`}
-              onClick={() => document.getElementById('fileKTP')?.click()}
-            >
-              {formData.fotoKTP ? (
+            <div>
+              <h2 className="text-xl font-semibold text-gray-700 mb-2">Foto KTP</h2>
+              <div className="mt-2 border-2 flex items-center justify-center border-gray-300 border-dashed rounded-lg p-2">
                 <img
-                src={URL.createObjectURL(formData.fotoKTP)}
-                alt="Foto KTP"
-                className="object-contain w-full h-full"
-              />
-              ) : (
-                <div className="flex flex-col items-center justify-center">
-                  <FiUpload className="text-4xl text-gray-400" />
-                  <p className="text-gray-500 mt-2 text-sm">Klik untuk upload foto KTP</p>
-                </div>
-              )}
+                  src={user.foto_ktp}
+                  alt="KTP"
+                  width={600}
+                  height={400}
+                  className="rounded-lg justify-center"
+                  />
+                  </div>
+              </div>
             </div>
-            <input
-              type="file"
-              id="fileKTP"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            {errorFields.includes('fotoKTP') && (
-              <p className="text-red-500 text-xs mt-2">Field ini harus diisi!</p>
+
+            {!isRented && (
+              <div className="mt-8 border-t pt-6">
+                <p className="text-lg text-gray-700 mb-4">Anda sudah tidak ingin menyewa lagi? Anda dapat menghapus biodata.</p>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-300"
+                >
+                  Hapus Biodata
+                </button>
+              </div>
             )}
           </div>
-
-
-
-          {/* Submit Button */}
-          <div className="text-center mt-6 w-full">
-            <button
-              type="submit"
-
-              className="px-4 py-2 bg-primary text-white w-full font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-primary-300 focus:ring-opacity-50"
-            >
-              Selanjutnya
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   );
-};
+}
 
-export default Biodata;
+function InfoItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-gray-50 px-4 py-3 rounded-lg">
+      <p className="text-sm font-medium text-gray-500">{label}</p>
+      <p className="mt-1 text-lg text-gray-900">{value}</p>
+    </div>
+  );
+}

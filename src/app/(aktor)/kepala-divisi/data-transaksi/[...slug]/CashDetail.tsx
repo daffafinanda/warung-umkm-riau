@@ -50,29 +50,40 @@ const CashDetail: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
+    
         // Fetch data pembelian
         const pembelianRes = await axios.get(
           `https://backend-umkm-riau.vercel.app/api/pembelian/id/${id}`
         );
-
-        // Fetch data produk
-        const produkRes = await axios.get(
-          `https://backend-umkm-riau.vercel.app/api/produk/${id}`
-        );
-
-        // Fetch data bukti
-        const buktiRes = await axios.get(
-          `https://backend-umkm-riau.vercel.app/api/bukti/${id}`
-        );
-
-        // Ambil dan filter data
+    
+        // Default values in case of error
+        let produk = [];
+        let pembayaran = [];
+    
+        try {
+          // Fetch data produk
+          const produkRes = await axios.get(
+            `https://backend-umkm-riau.vercel.app/api/produk/${id}`
+          );
+          produk = produkRes.data.data;
+        } catch (produkError) {
+          console.error('Error fetching produk:', produkError);
+        }
+    
+        try {
+          // Fetch data bukti
+          const buktiRes = await axios.get(
+            `https://backend-umkm-riau.vercel.app/api/bukti/${id}`
+          );
+          pembayaran = buktiRes.data.data;
+        } catch (buktiError) {
+          console.error('Error fetching bukti:', buktiError);
+        }
+    
         const pembelian = pembelianRes.data.data[0];
-        const produk = produkRes.data.data;
-        const pembayaran = buktiRes.data.data;
-        
-        const totalTransaksi = produkRes.data.totalTransaksi;
-        // Buat objek transaksi tanpa properti null
+        const totalTransaksi = produk.reduce((total: number, item : Produk) => total + item.subtotal, 0);
+    
+        // Set transaksi state with the fetched data
         setTransaksi({
           id: pembelian.id,
           tanggal_transaksi: pembelian.tanggal_transaksi.split("T")[0],
@@ -84,7 +95,6 @@ const CashDetail: React.FC = () => {
           pembayaran,
           totalTransaksi,
         });
-        console.log(pembayaran)
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message || "Terjadi kesalahan saat memuat data.");
@@ -95,7 +105,7 @@ const CashDetail: React.FC = () => {
         setLoading(false);
       }
     };
-
+    
     fetchData();
   }, [id]);
 

@@ -26,19 +26,34 @@ const TransaksiKredit: React.FC = () => {
           "https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT"
         );
         const pembelianData = pembelianResponse.data.data;
-
+  
         const transaksiData = await Promise.all(
           pembelianData.map(async (item: Pembelian) => {
-            const buktiResponse = await axios.get(
-              `https://backend-umkm-riau.vercel.app/api/bukti/${item.id}`
-            );
-            const jumlah_bukti = buktiResponse.data.data.length - 1;
-
-            const produkResponse = await axios.get(
-              `https://backend-umkm-riau.vercel.app/api/produk/${item.id}`
-            );
-            const jenis_produk = produkResponse.data.data[0]?.jenis_produk || "N/A";
-
+            let jumlah_bukti = 0;
+            let jenis_produk = "N/A"; // Default value
+  
+            try {
+              const buktiResponse = await axios.get(
+                `https://backend-umkm-riau.vercel.app/api/bukti/${item.id}`
+              );
+              jumlah_bukti = buktiResponse.data.data.length - 1; // Subtract 1 to account for 0-based index
+            } catch (error) {
+              console.error("Error fetching bukti data:", error);
+              jumlah_bukti = 0; // Set to 0 if failed
+            }
+  
+            try {
+              const produkResponse = await axios.get(
+                `https://backend-umkm-riau.vercel.app/api/produk/${item.id}`
+              );
+              if (produkResponse.data.data.length > 0) {
+                jenis_produk = produkResponse.data.data[0]?.jenis_produk || "N/A"; // Default to "N/A" if not found
+              }
+            } catch (error) {
+              console.error("Error fetching produk data:", error);
+              jenis_produk = "N/A"; // Set to "N/A" if failed
+            }
+  
             return {
               id: item.id,
               tanggal_transaksi: item.tanggal_transaksi.split("T")[0],
@@ -49,15 +64,16 @@ const TransaksiKredit: React.FC = () => {
             };
           })
         );
-
+  
         setTransaksi(transaksiData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
+  
     fetchTransaksi();
   }, []);
+  
 
   const handleOpenModal = (transaksi: Pembelian | null = null) => {
     setSelectedTransaksi(transaksi); // Atur data transaksi yang dipilih

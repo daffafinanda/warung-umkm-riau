@@ -236,8 +236,6 @@ const KreditDetail: React.FC = () => {
           </div>
 
 </div>
-
-
     {/* Riwayat Pembayaran */}
 <div>
   <h2 className="text-2xl font-semibold text-gray-700 mb-4">Riwayat Pembayaran</h2>

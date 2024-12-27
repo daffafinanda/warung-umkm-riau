@@ -123,7 +123,7 @@ const TransaksiKredit: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <button
-                    onClick={() => handleOpenModal(item)} // Buka modal dengan data transaksi
+                     onClick={() => router.push(`data-transaksi/kredit/${item.id}`)}// Buka modal dengan data transaksi
                     className="font-medium text-blue-600 hover:underline"
                   >
                     Detail

@@ -17,6 +17,7 @@ interface FormData {
     tanggal: string;
     bukti: File | null;
     id_pembelian?: number;
+    subtotal: number;
 }
 
 interface MultiStepFormProps {
@@ -26,7 +27,7 @@ interface MultiStepFormProps {
 }
 
 const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selectedTransaksi }) => {
-   
+    
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState<FormData>({
         nama: selectedTransaksi?.nama || '',
@@ -43,15 +44,19 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
         nik: '',
         tenor: selectedTransaksi?.tenor?.toString() || '',
         foto_ktp: null,
+        subtotal: 0,
     });
     if (!isOpen) return null;
-
+    
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prevData => ({
-            ...prevData,
-            [name]: value,
-        }));
+        setFormData(prevData => {
+            const updatedData = { ...prevData, [name]: value };
+            if (name === 'harga' || name === 'jumlah') {
+                updatedData.subtotal = updatedData.harga * updatedData.jumlah;
+            }
+            return updatedData;
+        });
     };
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -65,39 +70,63 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        console.log('Form submitted, current step:', currentStep); // Tambahkan log ini
         try {
             if (currentStep === 1) {
+                const genderCode = formData.jenis_kelamin === 'Laki-Laki' ? 'L' : 'P';
+                const formattedDate = new Date().toLocaleDateString('en-CA');
                 const pembelianData = {
+                    tanggal_transaksi: formattedDate,
+                    jenis_pembayaran: 'CREDIT',
                     nama: formData.nama,
                     alamat: formData.alamat,
                     no_hp: formData.no_hp,
-                    jenis_kelamin: formData.jenis_kelamin,
+                    jenis_kelamin: genderCode,
                     alamat_domisili: formData.alamat_domisili,
                     nik: formData.nik,
                     tenor: formData.tenor,
+                    foto_ktp: formData.foto_ktp,
                 };
+
+                console.log('Data yang akan dikirim ke endpoint tahap 1:', pembelianData);
                 const pembelianResponse = await axios.post(
-                    'https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT',
-                    pembelianData
+                    'https://backend-umkm-riau.vercel.app/api/pembelian/credit',
+                    pembelianData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                }
                 );
-                const { id } = pembelianResponse.data;
-                setFormData(prevData => ({ ...prevData, id_pembelian: id }));
-                setCurrentStep(2);
+
+                // Mengambil 'id' dari respons yang diterima
+                const { id } = pembelianResponse.data.data;  // Akses data.id untuk mendapatkan id pembelian
+
+                console.log('ID Pembelian:', id); // Menampilkan id yang diterima
+
+                setFormData(prevData => ({ ...prevData, id_pembelian: id })); // Menyimpan id_pembelian di formData
+                setCurrentStep(2); // Melanjutkan ke langkah 2
             } else if (currentStep === 2) {
                 const produkData = {
-                    id_pembelian: formData.id_pembelian,
+                    id_pembelian: formData.id_pembelian, // Menggunakan id_pembelian dari tahap 1
                     jenis_produk: formData.jenis_produk,
                     ukuran: formData.ukuran,
                     harga: formData.harga,
                     jumlah: formData.jumlah,
                 };
-                await axios.post('https://backend-umkm-riau.vercel.app/api/produk', produkData);
-                setCurrentStep(3);
+
+                console.log('Data yang akan dikirim ke endpoint tahap 2:', produkData);
+                await axios.post('https://backend-umkm-riau.vercel.app/api/produk', produkData, {
+
+                });
+                setCurrentStep(3); // Melanjutkan ke langkah 3
             } else if (currentStep === 3) {
                 const formDataToSend = new FormData();
                 formDataToSend.append('id_pembelian', formData.id_pembelian!.toString());
                 formDataToSend.append('tanggal', formData.tanggal);
-                if (formData.bukti) formDataToSend.append('bukti', formData.bukti);
+                if (formData.bukti) {
+                    formDataToSend.append('bukti', formData.bukti);
+                }
+                formDataToSend.append('jumlah', formData.subtotal.toString());
 
                 await axios.post('https://backend-umkm-riau.vercel.app/api/bukti', formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -111,6 +140,8 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
             alert('An error occurred while submitting the form. Please try again.');
         }
     };
+
+
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
@@ -127,7 +158,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
                             'Step 3: Bukti Bayar'}
                 </h2>
                 <form onSubmit={handleSubmit} className='space-y-4'>
-                    {/* Form Step 1 */}
                     {currentStep === 1 && (
                         <div className="space-y-4 max-h-80 overflow-y-auto">
                             <label className="block text-sm font-medium text-gray-700">Nama:</label>
@@ -210,14 +240,21 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
                     {currentStep === 2 && (
                         <div className="space-y-4">
                             <label className="block text-sm font-medium text-gray-700">Jenis Produk:</label>
-                            <input
-                                type="text"
+                            <select
+                                id="jenis_produk"
                                 name="jenis_produk"
                                 value={formData.jenis_produk}
                                 onChange={handleChange}
                                 required
                                 className="mt-1 p-1 text-black block w-full rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
-                            />
+                            >
+                                <option value="">Pilih Jenis Produk</option>
+                                <option value="MEJA">MEJA</option>
+                                <option value="ETALASE">ETALASE</option>
+                                <option value="GEROBAK">GEROBAK</option>
+                                <option value="KURSI">KURSI</option>
+                                <option value="BOOTH">BOOTH</option>
+                            </select>
                             <label className="block text-sm font-medium text-gray-700">Ukuran:</label>
                             <input
                                 type="text"
@@ -245,6 +282,9 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
                                 required
                                 className="mt-1 p-1 text-black block w-full rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
                             />
+                            <div className="mt-4">
+                                <label className="block text-sm font-medium text-gray-700">Subtotal: {formData.subtotal}</label>
+                            </div>
                         </div>
                     )}
 
@@ -275,7 +315,8 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
                         )}
                         <button
                             type="submit"
-                            className={`px-4 py-2 ${currentStep === 3 ? 'bg-green-500' : 'bg-blue-500'} text-white rounded-md`}>
+                            className={`px-4 py-2 ${currentStep === 3 ? 'bg-green-500' : 'bg-blue-500'} text-white rounded-md`}
+                        >
                             {currentStep === 3 ? 'Selesaikan' : 'Selanjutnya'}
                         </button>
                     </div>

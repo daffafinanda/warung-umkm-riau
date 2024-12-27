@@ -4,6 +4,7 @@ import { FiHome, FiPackage, FiBook } from "react-icons/fi";
 import { MdOutlineSpaceDashboard, MdOutlineBusinessCenter } from "react-icons/md";
 import { BsPersonFillDown, BsShop } from "react-icons/bs";
 import { PiShippingContainerDuotone } from "react-icons/pi";
+import { ImProfile } from "react-icons/im";
 
 interface SidebarProps {
   role: "direktur" | "kepala-divisi" | "pelanggan";
@@ -81,6 +82,27 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, toggleSidebar }) => {
           ))}
         </ul>
       </div>
+        {role === "pelanggan" && (
+          <div className="relative bottom-48 p-4 border-t border-gray-200">
+            <span className="text-black">User Biodata</span>
+            <Link
+              href={`/biodata`}
+              onClick={toggleSidebar}
+              className={`flex items-center p-2 mt-2 rounded-lg ${
+                isActive(`/biodata`)
+                  ? "bg-[#2f68351b] text-primary font-bold"
+                  : "text-gray-900 hover:bg-gray-100"
+              }`}
+            >
+              <ImProfile
+                className={`w-5 h-5 ${
+                  isActive(`/biodata`) ? "text-primary" : "text-gray-500"
+                }`}
+              />
+              <span className="ms-3">Biodata</span>
+            </Link>
+          </div>
+        )}
     </aside>
   );
 };

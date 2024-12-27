@@ -22,7 +22,7 @@ const Layout = ({ children }: LayoutProps) => {
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       {/* Sidebar */}
       <Sidebar role={userRole} isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       

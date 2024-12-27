@@ -4,25 +4,22 @@ import axios from "axios";
 import FormData from "@/components/FormData";
 import { useRouter } from "next/navigation";
 
-
-
 const PengajuanSewa: React.FC = () => {
   type Status = "Disetujui" | "Menunggu" | "Diproses" | "Ditolak";
-
 
   interface RentalRequest {
     nama: string;
     jenisKelamin: string;
     alamatDomisili: string;
     alamatKTP: string;
-    fotoKTP: string | null; 
+    fotoKTP: string | null;
     durasiPenyewaan: number;
     lokasiBooth: string;
-    statusProses: Status;
+    statusProses: string;
     nik: string;
     noHp: string;
   }
-  
+
   const [formData, setFormData] = useState<RentalRequest>({
     nama: "",
     jenisKelamin: "",
@@ -31,20 +28,23 @@ const PengajuanSewa: React.FC = () => {
     fotoKTP: null,
     durasiPenyewaan: 0,
     lokasiBooth: "",
-    statusProses: "Menunggu" as Status,
+    statusProses: "",
     nik: "",
     noHp: "",
   });
 
+  const [rentalId, setRentalId] = useState<string | null>(null);  // Store rental id
   const router = useRouter();
+  const [isDataEmpty, setIsDataEmpty] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Ambil data biodata dari localStorage
     const biodata = JSON.parse(localStorage.getItem("biodata") || "{}");
     const noHp = localStorage.getItem("no_hp");
+    setIsLoading(true);
 
     if (biodata && biodata.nik) {
-      // Perbarui formData dengan data dari localStorage
+      setIsLoading(false);
       setFormData((prevData: RentalRequest) => ({
         ...prevData,
         nama: biodata.nama || "",
@@ -56,14 +56,12 @@ const PengajuanSewa: React.FC = () => {
         noHp: noHp || "",
       }));
 
-      // Ambil data penyewaan dari API
       axios
-        .get(
-          `https://backend-umkm-riau.vercel.app/api/penyewaan/${biodata.nik}`
-        )
+        .get(`https://backend-umkm-riau.vercel.app/api/penyewaan/${biodata.nik}`)
         .then((response) => {
           const penyewaan = response.data.data[0];
           if (penyewaan) {
+            setRentalId(penyewaan.id_sewa);  // Store the rental ID
             setFormData((prevData: RentalRequest) => ({
               ...prevData,
               durasiPenyewaan: penyewaan.durasi || 0,
@@ -78,12 +76,16 @@ const PengajuanSewa: React.FC = () => {
                   : penyewaan.status === "DIPROSES"
                   ? "Diproses"
                   : "Menunggu",
-              hargaSewa: (penyewaan.durasi || 0) * 300000, // Durasi x 300000
             }));
+          } else {
+            setIsLoading(false);
+            setIsDataEmpty(true);
           }
         })
         .catch((error) => {
+          setIsLoading(false);
           console.error("Error fetching penyewaan data:", error);
+          setIsDataEmpty(true);
         });
     }
   }, []);
@@ -109,6 +111,7 @@ const PengajuanSewa: React.FC = () => {
         return (
           <button
             type="button"
+            onClick={handleDelete}  // Call the handleDelete function
             className="w-full bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 focus:outline-none"
           >
             Batalkan Pengajuan
@@ -135,6 +138,7 @@ const PengajuanSewa: React.FC = () => {
             </button>
             <button
               type="button"
+              onClick={handleDelete}  // Call the handleDelete function
               className="w-full bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 focus:outline-none"
             >
               Batalkan Pengajuan
@@ -146,6 +150,49 @@ const PengajuanSewa: React.FC = () => {
     }
   };
 
+  const handleDelete = () => {
+    if (!rentalId) {
+      console.error("Rental ID is missing.");
+      return;
+    }
+
+    axios
+      .delete(`https://backend-umkm-riau.vercel.app/api/penyewaan/${rentalId}`)
+      .then(() => {
+        // Redirect or update state after deletion
+        alert("Pengajuan penyewaan berhasil dibatalkan.");
+        router.push('/pelanggan'); // Redirect to a relevant page
+      })
+      .catch((error) => {
+        console.error("Error deleting rental request:", error);
+        alert("Gagal membatalkan pengajuan.");
+      });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="fixed mt-12 ml-64 inset-0 z-0 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">Memuat data...</h1>
+        </div>
+      </div>
+    );
+  }
+
+  if (isDataEmpty) {
+    return (
+      <div className="max-w-3xl sm:mx-auto mx-3 mt-8 bg-white p-6 rounded-lg shadow-2xl text-center">
+        <h1 className="text-2xl font-bold text-primary mb-6">Anda belum mengajukan penyewaan</h1>
+        <button
+          onClick={() => router.push('/biodata-baru/pengajuan')}
+          className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-70"
+        >
+          Ajukan penyewaan disini
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl sm:mx-auto mx-3 mt-8 bg-white p-6 rounded-lg shadow-2xl">
       <h1 className="text-2xl font-bold text-primary mb-6 text-center">
@@ -153,9 +200,6 @@ const PengajuanSewa: React.FC = () => {
       </h1>
       <form className="space-y-4">
         <FormData formData={formData} />
-
-
-
         {/* Status Proses */}
         <div className="flex flex-row items-center gap-4">
           <label
@@ -167,7 +211,7 @@ const PengajuanSewa: React.FC = () => {
           <div
             id="statusProses"
             className={`bg-background w-fit px-4 py-2 rounded-lg text-left font-medium ${getStatusClass(
-              formData.statusProses
+              formData.statusProses as Status
             )}`}
           >
             {formData.statusProses}
@@ -176,7 +220,7 @@ const PengajuanSewa: React.FC = () => {
 
         {/* Tombol Aksi */}
         <div className="flex justify-center">
-          {renderButtons(formData.statusProses)}
+          {renderButtons(formData.statusProses as Status)}
         </div>
       </form>
     </div>

@@ -69,7 +69,7 @@ const LayananSewa: React.FC = () => {
             className={`px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-75 ${
               isAgreed ? 'bg-primary text-white hover:bg-opacity-90' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
-            onClick={() => {router.push('/biodata');}}
+            onClick={() => {router.push('/biodata-baru');}}
             disabled={!isAgreed}
           >
             {isAgreed ? <FaCheck className="inline-block mr-2" /> : null} Isi formulir penyewaan

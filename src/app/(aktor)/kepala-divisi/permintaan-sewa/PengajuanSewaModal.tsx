@@ -46,6 +46,15 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
   const [boothOptions, setBoothOptions] = useState<{ id_booth: string }[]>([]);
   
   useEffect(() => {
+    if (request?.idbooth) {
+      setSelectedBooth(request.idbooth); // Set default value if idbooth exists
+    } else {
+      setSelectedBooth(""); // Default to empty string if idbooth is null
+    }
+  }, [request]);
+  
+
+  useEffect(() => {
     // Fetch data booth saat komponen dimount
     const fetchBoothData = async () => {
       try {
@@ -66,6 +75,31 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
   }, [showBoothSelector]);
   
   if (!request) return null;
+
+  const handleDelete = async () => {
+    if (!request) return;
+  
+    try {
+      // Panggil API DELETE
+      const response = await axios.delete(
+        `https://backend-umkm-riau.vercel.app/api/penyewaan/${request.id}`
+      );
+  
+      if (response.data.success) {
+        alert("Pengajuan berhasil dihapus.");
+        onDelete(request.id); // Callback untuk memperbarui UI
+        setShowDeletePopup(false);
+        onClose();
+      } else {
+        console.error("Error deleting request:", response.data);
+        alert("Terjadi kesalahan saat menghapus pengajuan.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Gagal menghapus pengajuan. Silakan coba lagi.");
+    }
+  };
+  
   // Hitung tanggal akhir penyewaan
   const calculateEndDate = (startDate: string, duration: number) => {
     if (!startDate) return ""; // Jika tanggal awal kosong
@@ -111,12 +145,6 @@ const handleBoothSelectionConfirm = async () => {
   }
 };
 
-  const handleDelete = () => {
-    onDelete(request.id);
-    setShowDeletePopup(false);
-    onClose();
-  };
-
   const formatDate = (date: string) => {
     const dateObj = new Date(date);
     const day = String(dateObj.getDate()).padStart(2, "0"); // Ensure two-digit day
@@ -141,16 +169,20 @@ const handleBoothSelectionConfirm = async () => {
           </form>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-2">
+        <div className="mt-6 flex gap-2">
+          {request.status !== "DISETUJUI" && (
+            <>
               <button
                 onClick={() => setShowDeletePopup(true)}
-                className="py-2 bg-red-600 text-white rounded-xl hover:bg-opacity-75"
+                className="w-full py-2 bg-red-600 text-white rounded-xl hover:bg-opacity-75"
               >
                 Tolak pengajuan
               </button>
+              </>
+            )}
               <button
                 onClick={() => setShowBoothSelector(true)}
-                className="py-2 bg-primary text-white rounded-xl hover:bg-opacity-75"
+                className="w-full py-2 bg-primary text-white rounded-xl hover:bg-opacity-75"
               >
                 Pilih Booth
               </button>
@@ -249,6 +281,15 @@ const handleBoothSelectionConfirm = async () => {
           onCancel={() => setShowBoothConfirmPopup(false)}
         />
       )}
+      {showDeletePopup && (
+        <ConfirmationPopup
+          title="Konfirmasi Penolakan"
+          message="Apakah Anda yakin ingin menolak pengajuan ini?"
+          onConfirm={handleDelete}
+          onCancel={() => setShowDeletePopup(false)}
+        />
+      )}
+
     </div>
   );
 };

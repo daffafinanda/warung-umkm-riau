@@ -5,6 +5,7 @@ import ImageModal from "@/components/ImageModal";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface BoothData {
   id_sewa: number;
@@ -17,24 +18,31 @@ interface BoothData {
 
 const BoothSaya = () => {
   const [data, setData] = useState<BoothData | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // Tambahkan state isLoading
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string>("");
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
       const biodata = localStorage.getItem("biodata");
       if (!biodata) return;
 
+      setIsLoading(true);
       try {
         const { nik } = JSON.parse(biodata); // Parse localStorage
         const response = await axios.get(`https://backend-umkm-riau.vercel.app/api/penyewaan/${nik}`);
 
         if (response.data.success && response.data.data.length > 0) {
           setData(response.data.data[0]);
+          setIsLoading(false);
         } else {
+          setIsLoading(false);
           setData(null);
         }
       } catch (error) {
+        setIsLoading(false);
         console.error("Error fetching data:", error);
         setData(null);
       }
@@ -85,20 +93,27 @@ const BoothSaya = () => {
     setSelectedImage("");
   };
 
-  if (!data) {
+  if (isLoading) {
     return (
       <div className="fixed mt-12 ml-64 inset-0 z-0 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">Anda tidak sedang melakukan penyewaan</h1>
-          <a
-            href="/biodata/pengajuan-sewa"
-            className="text-primary underline hover:text-primary-dark text-lg"
-          >
-            Ajukan Sewa Disini
-          </a>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">Memuat data...</h1>
         </div>
       </div>
     );
+  }
+  if (!data) {
+    return (
+      <div className="max-w-3xl sm:mx-auto mx-3 mt-8 bg-white p-6 rounded-lg shadow-2xl text-center">
+      <h1 className="text-2xl font-bold text-primary mb-6">Anda belum mengajukan penyewaan</h1>
+      <button
+        onClick={() => router.push('/biodata-baru/pengajuan')}
+        className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-70"
+      >
+        Ajukan penyewaan disini
+      </button>
+    </div>
+   );
   }
 
   return (

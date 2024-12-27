@@ -14,10 +14,8 @@ interface FormData {
     alamat: string;
     no_hp: string;
     jenis_kelamin: string;
-
     // Produk Pembelian
     produk: Product[];
-
     // Bukti Bayar
     tanggal: string;
     bukti: File | null;
@@ -35,11 +33,15 @@ const MultiStepForm: React.FC = () => {
         bukti: null,
     });
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, index?: number) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, index?: number) => {
         const { name, value } = e.target;
+
         if (index !== undefined) {
             const updatedProduk = [...formData.produk];
-            updatedProduk[index] = { ...updatedProduk[index], [name]: value };
+            updatedProduk[index] = {
+                ...updatedProduk[index],
+                [name]: name === 'harga' || name === 'jumlah' ? (value === '' ? value : +value) : value
+            };
             setFormData(prevData => ({ ...prevData, produk: updatedProduk }));
         } else {
             setFormData(prevData => ({
@@ -48,6 +50,7 @@ const MultiStepForm: React.FC = () => {
             }));
         }
     };
+
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -58,11 +61,21 @@ const MultiStepForm: React.FC = () => {
         }
     };
 
-    const addProduct = () => {
+/*************  ✨ Codeium Command ⭐  *************/
+/**
+ * Adds a new product entry to the formData state.
+ * The new product has default values for jenis_produk, ukuran, harga, and jumlah.
+ */
+
+/******  280eceab-6fc6-4dd2-b5e7-5a33eef5f7f4  *******/    const addProduct = () => {
         setFormData(prevData => ({
             ...prevData,
             produk: [...prevData.produk, { jenis_produk: '', ukuran: '', harga: 0, jumlah: 0 }]
         }));
+    };
+
+    const calculateSubtotal = () => {
+        return formData.produk.reduce((total, prod) => total + (prod.harga * prod.jumlah), 0);
     };
 
     const handleSubmit = async (e: FormEvent) => {
@@ -107,7 +120,7 @@ const MultiStepForm: React.FC = () => {
                 if (formData.bukti) {
                     formDataToSend.append('bukti', formData.bukti);
                 }
-                formDataToSend.append('jumlah', (formData.produk.reduce((total, prod) => total + (prod.harga * prod.jumlah), 0)).toString());
+                formDataToSend.append('jumlah', calculateSubtotal().toString());
 
                 await axios.post('https://backend-umkm-riau.vercel.app/api/bukti', formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -252,8 +265,14 @@ const MultiStepForm: React.FC = () => {
                                             required
                                         />
                                     </div>
+                                    <div className="font-medium text-gray-600">
+                                        Subtotal: Rp {(produk.harga * produk.jumlah).toLocaleString()}
+                                    </div>
                                 </div>
                             ))}
+                        </div>
+                        <div className="font-bold text-lg text-gray-700 mt-4">
+                            Total Jumlah: Rp {calculateSubtotal().toLocaleString()}
                         </div>
                         <button type="button" onClick={addProduct} className="text-primary font-medium">Tambah Produk</button>
                     </>
@@ -271,6 +290,9 @@ const MultiStepForm: React.FC = () => {
                                 className="mt-1 p-1 block w-full text-black rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
                                 required
                             />
+                        </div>
+                        <div className="font-bold text-lg text-gray-700 mt-4">
+                            Total Jumlah: Rp {calculateSubtotal().toLocaleString()}
                         </div>
                     </>
                 )}

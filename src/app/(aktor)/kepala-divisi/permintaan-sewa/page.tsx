@@ -117,7 +117,9 @@ export default function Home() {
 
   const closeModal = () => {
     setSelectedRequest(null);
+    window.location.reload(); // Reload the page when the modal is closed
   };
+  
 
   const handleSave = () => {
     setNotificationMessage("Booth berhasil dipilih dan disimpan!");

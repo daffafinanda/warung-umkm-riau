@@ -70,6 +70,7 @@ const TransaksiCash: React.FC = () => {
   // Fungsi untuk menutup modal
   const closeModal = () => {
     setIsModalOpen(false);
+    window.location.reload();
   };
 
   return (

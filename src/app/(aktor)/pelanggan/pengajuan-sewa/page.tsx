@@ -184,7 +184,7 @@ const PengajuanSewa: React.FC = () => {
       <div className="max-w-3xl sm:mx-auto mx-3 mt-8 bg-white p-6 rounded-lg shadow-2xl text-center">
         <h1 className="text-2xl font-bold text-primary mb-6">Anda belum mengajukan penyewaan</h1>
         <button
-          onClick={() => router.push('/biodata-baru/pengajuan')}
+          onClick={() => router.push('/biodata-baru/pengajuan-sewa')}
           className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-70"
         >
           Ajukan penyewaan disini

@@ -92,6 +92,7 @@ const TransaksiKredit: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setIsAngsuranModalOpen(false);
+    window.location.reload();
   };
 
   return (

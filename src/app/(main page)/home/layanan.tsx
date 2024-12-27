@@ -1,9 +1,18 @@
+"use client";
 import { CiCreditCard1 } from "react-icons/ci";
-import { GoContainer } from "react-icons/go"; 
+import { GoContainer } from "react-icons/go";
 import { IoCashOutline } from "react-icons/io5";
 import React from "react";
+import { useRouter } from "next/navigation"; // Import useRouter dari Next.js
 
 const LayananFrame: React.FC = () => {
+  const router = useRouter();  // Inisialisasi router
+
+  // Fungsi untuk menavigasi berdasarkan tab yang dipilih
+  const navigateToTab = (tab: string) => {
+    router.push(`/layanan#${tab.toLowerCase()}`); // Navigasi ke halaman /layanan dengan fragment untuk tab
+  };
+
   return (
     <section className="w-full py-12 md:py-16 lg:py-20">
       <div className="container px-4 md:px-6 max-w-6xl mx-auto">
@@ -18,9 +27,12 @@ const LayananFrame: React.FC = () => {
         </div>
         <div className="grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8 mt-8 mx-auto">
           {/* Card untuk Cash */}
-          <div className="relative flex flex-col items-center p-12 bg-foreground shadow-md rounded-3xl space-y-4">
+          <div
+            className="relative flex flex-col items-center p-12 bg-foreground shadow-md rounded-3xl space-y-4 cursor-pointer"
+            onClick={() => navigateToTab('Cash')} // Menambahkan onClick untuk navigasi
+          >
             <div className="flex items-center justify-center w-16 h-16 rounded-lg">
-              <IoCashOutline className="text-6xl text-primary"/>
+              <IoCashOutline className="text-6xl text-primary" />
             </div>
             <h3 className="text-xl font-semibold text-black">Cash</h3>
             <p className="text-sm text-gray-600 text-center">
@@ -28,9 +40,12 @@ const LayananFrame: React.FC = () => {
             </p>
           </div>
           {/* Card untuk Kredit */}
-          <div className="relative flex flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4">
-            <div className="flex items-center justify-center w-16 h-16 rounded-lg ">
-                <CiCreditCard1 className="text-6xl text-primary" />
+          <div
+            className="relative flex flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4 cursor-pointer"
+            onClick={() => navigateToTab('Kredit')} // Menambahkan onClick untuk navigasi
+          >
+            <div className="flex items-center justify-center w-16 h-16 rounded-lg">
+              <CiCreditCard1 className="text-6xl text-primary" />
             </div>
             <h3 className="text-xl font-semibold text-black">Kredit</h3>
             <p className="text-sm text-gray-600 text-center">
@@ -38,9 +53,12 @@ const LayananFrame: React.FC = () => {
             </p>
           </div>
           {/* Card untuk Sewa */}
-          <div className="relative flex flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4">
+          <div
+            className="relative flex flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4 cursor-pointer"
+            onClick={() => navigateToTab('Sewa')} // Menambahkan onClick untuk navigasi
+          >
             <div className="flex items-center justify-center w-16 h-16 rounded-lg">
-              <GoContainer className="text-6xl text-primary"/>
+              <GoContainer className="text-6xl text-primary" />
             </div>
             <h3 className="text-xl font-semibold text-black">Sewa</h3>
             <p className="text-sm text-gray-600 text-center">
@@ -51,5 +69,6 @@ const LayananFrame: React.FC = () => {
       </div>
     </section>
   );
-}
-export default LayananFrame
+};
+
+export default LayananFrame;

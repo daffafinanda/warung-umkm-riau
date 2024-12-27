@@ -85,7 +85,7 @@ const KreditDetail: React.FC = () => {
         // Buat objek transaksi tanpa properti null
         setTransaksi({
           id: id,
-          tanggal_transaksi: pembelian.tanggal_transaksisplit("T")[0],
+          tanggal_transaksi: pembelian.tanggal_transaksi.split("T")[0],
           nama: pembelian.nama,
           alamat: pembelian.alamat,
           no_hp: pembelian.no_hp,

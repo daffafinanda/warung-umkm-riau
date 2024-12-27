@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BsJournalPlus } from "react-icons/bs";
 import MultiStepForm from "@/components/ModalKredit";
+import ModalStep3 from "@/components/AngsuranKreditModal";
 import axios from "axios";
 
 interface Pembelian {
@@ -124,21 +125,10 @@ const TransaksiKredit: React.FC = () => {
 
       {/* Modal */}
       <MultiStepForm isOpen={isModalOpen} onClose={handleCloseModal} selectedTransaksi={selectedTransaksi} />
+      <ModalStep3 isOpen={isAngsuranModalOpen} onClose={handleCloseModal}  />
 
-      {/* Placeholder for Angsuran Modal */}
-      {isAngsuranModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-4 rounded-lg">
-            <h2 className="text-lg font-bold">Angsuran Kredit Modal</h2>
-            <button
-              onClick={handleCloseModal}
-              className="mt-4 px-4 py-2 bg-primary text-white rounded"
-            >
-              Tutup
-            </button>
-          </div>
-        </div>
-      )}
+
+      
 
       {/* Tabel Transaksi */}
       <div className="overflow-x-auto shadow-2xl shadow-primary rounded-lg">

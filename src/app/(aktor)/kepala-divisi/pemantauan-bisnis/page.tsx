@@ -4,6 +4,7 @@ import axios from 'axios'
 import { PemantauanBooth } from '@/components/PemantauanBooth'
 import { PemantauanBoothCard } from '@/components/PemantauanBoothCard'
 import LocationPemantauan from '@/components/LocationPemantauan'
+import TabModalPendapatan from '@/components/TabModalPendapatan'
 
 type Booth = {
     id_sewa: string
@@ -26,6 +27,7 @@ export default function PemantauanBisnis() {
     const [rentedBoothCount, setRentedBoothCount] = useState(0)
     const [soldItemsCount, setSoldItemsCount] = useState(0)
     const [totalPendapatan, setTotalPendapatan] = useState(0)
+    const [isTabModalPendapatanOpen, setIsTabModalPendapatanOpen] = useState(false);
 
     const fetchBiodataName = async (biodata_nik: string) => {
         try {
@@ -61,6 +63,9 @@ export default function PemantauanBisnis() {
             console.error("Error fetching total pendapatan:", error)
         }
     }
+
+    const openTabModal = () => setIsTabModalPendapatanOpen(true);
+    const closeTabModal = () => setIsTabModalPendapatanOpen(false);
 
 
     const handleDetailClick = async (booth: Booth) => {
@@ -149,10 +154,10 @@ export default function PemantauanBisnis() {
     return (
         <div className="mx-auto p-4 space-y-4 bg-gray-100 h-screen overflow-y-auto pb-32">
             <div className="grid gap-4 md:grid-cols-3">
-                <div className="bg-white p-4 rounded-lg shadow-md">
+                <button className="bg-white p-4 flex flex-col rounded-lg shadow-md" onClick={openTabModal}>
                     <h2 className="text-sm font-bold text-gray-800">Total Pendapatan</h2>
                     <p className="text-2xl font-bold text-primary">Rp {totalPendapatan.toLocaleString('id-ID')}</p>
-                </div>
+                </button>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                     <h2 className="text-sm font-bold text-gray-800">Booth Disewakan</h2>
                     <p className="text-2xl font-bold text-primary">{rentedBoothCount}</p>
@@ -162,6 +167,9 @@ export default function PemantauanBisnis() {
                     <p className="text-2xl font-bold text-primary">{soldItemsCount}</p>
                 </div>
             </div>
+            <TabModalPendapatan
+                isOpen={isTabModalPendapatanOpen}
+                onClose={closeTabModal} />
             <LocationPemantauan />
             <div className="bg-white p-4 rounded-lg shadow-md">
                 <div className="flex justify-between items-center">
@@ -211,7 +219,6 @@ export default function PemantauanBisnis() {
                             />
                         ))}
                     </div>
-
                 </div>
             </div>
             {selectedBooth && (

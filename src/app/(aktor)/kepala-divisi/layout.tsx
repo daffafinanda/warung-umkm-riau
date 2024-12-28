@@ -8,7 +8,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     const role = localStorage.getItem('role');
-    if (role === 'KEPALA-DIVISI') {
+    if (role === 'KEPALA DIVISI') {
       setHasAccess(true);
     } else {
       setHasAccess(false);

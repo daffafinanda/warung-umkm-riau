@@ -14,6 +14,7 @@ export default function Login() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get('redirect') || '/';
+    const [biodata, setBiodata] = useState(false);
 
     // Periksa apakah sudah login
     useEffect(() => {
@@ -23,9 +24,9 @@ export default function Login() {
         if (token && id_akun) {
             // Jika token ada, ambil biodata
             fetchBiodata(id_akun, token);
-            router.push(redirectTo);
+            router.push("/");
         }
-    }, [redirectTo, router]);
+    }, [router]);
 
     const fetchBiodata = async (id_akun: string, token: string) => {
         try {
@@ -46,6 +47,7 @@ export default function Login() {
                     akun_id_akun: response.data.data.akun_id_akun,
                 };
                 localStorage.setItem('biodata', JSON.stringify(biodata));
+                setBiodata(true);
             } else {
                 localStorage.removeItem('biodata');
             }
@@ -58,14 +60,15 @@ export default function Login() {
                 const biodata = response.data.data;
                 localStorage.setItem('biodata', JSON.stringify(biodata));
             } else {
-                localStorage.removeItem('biodata');
+                localStorage.removeItem('biodata')
+                
             }
             // Redirect berdasarkan role
             if (role === 'PELANGGAN') {
                 if (biodataExists) {
                     router.push('/pelanggan');
                 } else {
-                    router.push('/');
+                    router.push(redirectTo)
                 }
             } else if (role === 'KEPALA DIVISI') {
                 router.push('/kepala-divisi');
@@ -78,8 +81,10 @@ export default function Login() {
         } catch (err) {
             if (axios.isAxiosError(err) && err.response?.status === 404) {
                 console.log('Biodata tidak ditemukan.'); 
+                setBiodata(false);
             } else {
                 console.error('Gagal mengambil biodata:', err);
+                setBiodata(false);
             }
             localStorage.removeItem('biodata');
         }
@@ -107,6 +112,10 @@ export default function Login() {
                 password: password,
             });
 
+            
+
+            
+
             if (response.data.success) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('role', response.data.role);
@@ -114,9 +123,25 @@ export default function Login() {
                 localStorage.setItem('id_akun', response.data.id_akun);
 
                 fetchBiodata(response.data.id_akun, response.data.token);
-
                 alert('Login berhasil!');
-                router.push(redirectTo); // Redirect ke halaman yang diminta
+                const role = localStorage.getItem('role');
+                if (role === 'PELANGGAN') {
+                    console.log(role)
+                    if (biodata === true) {
+                        router.push('/pelanggan');
+                        console.log(biodata)
+                    } else if (biodata === false) {
+                        router.push(redirectTo)
+                    } else {
+                        router.push('/');
+                    }
+                
+                } else if (role === 'KEPALA DIVISI') {
+                    router.push('/kepala-divisi');
+                } else if (role === 'DIREKTUR') {
+                    router.push('/direktur');
+                }
+
                 
             } else {
                 setError(response.data.message || 'Login gagal.');

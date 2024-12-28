@@ -126,10 +126,10 @@ const TransaksiKredit: React.FC = () => {
 
       {/* Modal */}
       <MultiStepForm isOpen={isModalOpen} onClose={handleCloseModal} selectedTransaksi={selectedTransaksi} />
-      <ModalStep3 isOpen={isAngsuranModalOpen} onClose={handleCloseModal}  />
+      <ModalStep3 isOpen={isAngsuranModalOpen} onClose={handleCloseModal} />
 
 
-      
+
 
       {/* Tabel Transaksi */}
       <div className="overflow-x-auto shadow-2xl shadow-primary rounded-lg">

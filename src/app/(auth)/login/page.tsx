@@ -32,6 +32,23 @@ export default function Login() {
         }
     }, [router]);
 
+    // CAPTCHA State
+    const [captchaNum1, setCaptchaNum1] = useState(0);
+    const [captchaNum2, setCaptchaNum2] = useState(0);
+    const [captchaInput, setCaptchaInput] = useState("");
+
+    // Generate angka random untuk CAPTCHA
+    useEffect(() => {
+        generateCaptcha();
+    }, []);
+
+    const generateCaptcha = () => {
+        const num1 = Math.floor(Math.random() * 10) + 1; // Angka 1-10
+        const num2 = Math.floor(Math.random() * 10) + 1; // Angka 1-10
+        setCaptchaNum1(num1);
+        setCaptchaNum2(num2);
+    };
+
     const fetchBiodata = async (id_akun: string, token: string) => {
         try {
             const response = await axios.get(`https://backend-umkm-riau.vercel.app/api/BIODATA/${id_akun}`, {
@@ -65,7 +82,7 @@ export default function Login() {
                 localStorage.setItem('biodata', JSON.stringify(biodata));
             } else {
                 localStorage.removeItem('biodata')
-                
+
             }
             // Redirect berdasarkan role
             if (role === 'PELANGGAN') {
@@ -111,6 +128,16 @@ export default function Login() {
             return;
         }
 
+        // Validasi CAPTCHA
+        const captchaResult = parseInt(captchaInput, 10);
+        if (captchaResult !== captchaNum1 + captchaNum2) {
+            setError("Captcha salah. Silakan coba lagi.");
+            setIsErrorModalVisible(true);
+            setIsLoading(false);
+            generateCaptcha(); // Buat CAPTCHA baru
+            return;
+        }
+
         try {
             const response = await axios.post('https://backend-umkm-riau.vercel.app/api/akun/login', {
                 no_hp: phoneNumber,
@@ -137,7 +164,7 @@ export default function Login() {
                         } else {
                             router.push('/');
                         }
-                    
+
                     } else if (role === 'KEPALA DIVISI') {
                         router.push('/kepala-divisi');
                     } else if (role === 'DIREKTUR') {
@@ -217,6 +244,18 @@ export default function Login() {
                             {error}
                         </div>
                     )}
+                    <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                            Berapa hasil dari {captchaNum1} + {captchaNum2}?
+                        </label>
+                        <input
+                            type="number"
+                            value={captchaInput}
+                            onChange={(e) => setCaptchaInput(e.target.value)}
+                            className="w-full px-3 py-2 border text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            required
+                        />
+                    </div>
                     <div className="flex items-center justify-between mb-6">
                         <button
                             type="submit"

@@ -6,6 +6,7 @@ interface ErrorModalProps {
   onClose: () => void;
 }
 
+
 const ErrorModal: React.FC<ErrorModalProps> = ({ message, onClose }) => {
   useEffect(() => {
     const timer = setTimeout(() => {

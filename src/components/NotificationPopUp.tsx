@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 
+
 interface NotificationPopupProps {
   message: string;
   isVisible: boolean;

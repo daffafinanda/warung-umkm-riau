@@ -12,11 +12,18 @@ const ProtectedPage: React.FC<ProtectedPageProps> = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role"); // Mengambil role dari localStorage
 
     if (!token) {
-      // Simpan halaman tujuan sebelum diarahkan ke login
+
       const loginUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
       router.replace(loginUrl);
+      return;
+    }
+
+    if (role !== "PELANGGAN") {
+      // Arahkan ke halaman yang sesuai jika peran tidak valid
+      router.replace("/penyewaan/not-found"); // Halaman untuk peran yang tidak diizinkan
     }
   }, [router, pathname]);
 

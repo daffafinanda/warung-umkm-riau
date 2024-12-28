@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FiUpload } from "react-icons/fi";
 import ProgressBar from "@/components/ProgressBar";
 import { useRouter } from 'next/navigation';
+import { MdOutlineArrowBackIos } from "react-icons/md";
 
 const Biodata: React.FC = () => {
   type FormData = {
@@ -30,6 +31,7 @@ const Biodata: React.FC = () => {
 
   const router = useRouter();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [errorFields, setErrorFields] = useState<string[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -115,7 +117,7 @@ const Biodata: React.FC = () => {
       console.log("Form is invalid!");
       return;
     }
-    console.log("Form submitted:", formData);
+    setIsLoading(true);
 
     const id_akun = localStorage.getItem("id_akun");
 
@@ -156,23 +158,35 @@ const Biodata: React.FC = () => {
       if (response.ok) {
         console.log("Form submitted successfully:", responseData);
         localStorage.setItem("biodata", JSON.stringify(formData));
-        router.push("/biodata/pengajuan-sewa");
+        router.push("/biodata-baru/pengajuan-sewa");
       } else {
         console.log("Error:", responseData.message);
       }
     } catch (error) {
       console.log("Error submitting form:", error);
+    } finally {
+      setIsLoading(false); // Atur isLoading ke false
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      {/* Breadcrumb */}
-      <nav className="text-sm mb-4 max-w-4xl mx-auto text-black" aria-label="Breadcrumb">
-        <ol className="list-none p-0 inline-flex">
-          <li className="text-primary">/ Data Penyewa</li>
-        </ol>
-      </nav>
+      <div className="flex flex-col mx-auto max-w-4xl gap-2">
+        {/* Breadcrumb */}
+        <nav className="text-lg text-black" aria-label="Breadcrumb">
+          <ol className="list-none p-0 inline-flex">
+            <li className="text-primary">/ Data Penyewa</li>
+          </ol>
+        </nav>
+        <button
+          onClick={() => router.push('/layanan#sewa')}
+          className="font-semibold text-left flex w-fit py-2 pl-2 hover:bg-opacity-70 pr-3 items-center rounded-full hover:ring-2 hover:ring-primary hover:ring-opacity-25  bg-primary text-white hover:underline mb-4"
+          >
+          <MdOutlineArrowBackIos className="mr-2  text-white" />
+          <span>Kembali</span>
+        </button>
+      </div>
+
 
       {/* Step Progress */}
       <div className="max-w-4xl p-4 md:p-0 mx-auto justify-center items-center">
@@ -351,7 +365,7 @@ const Biodata: React.FC = () => {
 
               className="px-4 py-2 bg-primary text-white w-full font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-primary-300 focus:ring-opacity-50"
             >
-              Selanjutnya
+              {isLoading ? "Memuat..." : "Selanjutnya"}
             </button>
           </div>
         </form>

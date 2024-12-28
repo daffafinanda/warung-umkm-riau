@@ -31,6 +31,11 @@ export default function ProfilePage() {
       return;
     }
 
+    const biodata = localStorage.getItem('biodata');
+
+    if (!biodata) {
+      router.push('/biodata-baru');
+    }
     // Fetch user data from API
     axios
       .get(`https://backend-umkm-riau.vercel.app/api/biodata/${id}`)

@@ -12,7 +12,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       setHasAccess(true);
     } else {
       setHasAccess(false);
-      router.push('/kepala-divisi/not-found'); // Redirect to 404 page if role is not correct
+      router.push('/direktur/not-found'); // Redirect to 404 page if role is not correct
     }
   }, [router]);
 

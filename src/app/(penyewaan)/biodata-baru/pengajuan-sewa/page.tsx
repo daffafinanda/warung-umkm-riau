@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import NotificationPopup from "@/components/NotificationPopUp";
+import { MdOutlineDashboard } from "react-icons/md";
 
 const Biodata: React.FC = () => {
   const [formData, setFormData] = useState<{
@@ -189,11 +190,21 @@ const Biodata: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <nav className="text-sm mb-4 max-w-4xl mx-auto text-black" aria-label="Breadcrumb">
-        <ol className="list-none p-0 inline-flex">
-          <li className="text-primary">/ Data Penyewa</li>
-        </ol>
-      </nav>
+      <div className="flex flex-col mx-auto max-w-4xl gap-2">
+              {/* Breadcrumb */}
+              <nav className="text-lg max-w-4xl text-black" aria-label="Breadcrumb">
+                <ol className="list-none p-0 inline-flex">
+                  <li className="text-primary">/ Data Penyewa</li>
+                </ol>
+              </nav>
+              <button
+                onClick={() => router.push('/pelanggan')}
+                className="font-semibold text-left flex w-fit py-2 px-3 hover:bg-opacity-70 items-center rounded-full hover:ring-2 hover:ring-primary hover:ring-opacity-25  bg-primary text-white hover:underline mb-4"
+                >
+                <MdOutlineDashboard className="mr-2  text-white" />
+                <span>Dashboard</span>
+              </button>
+            </div>
 
       <div className="max-w-4xl p-4 md:p-0 mx-auto justify-center items-center">
         <ProgressBar steps={steps} />

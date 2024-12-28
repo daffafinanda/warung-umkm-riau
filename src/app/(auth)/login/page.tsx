@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
+import NotificationPopup from '@/components/NotificationPopUp';
+import ErrorModal from '@/components/errorModal';
 
 export default function Login() {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -14,6 +16,8 @@ export default function Login() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get('redirect') || '/';
+    const [isNotificationVisible, setIsNotificationVisible] = useState(false);
+    const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
     const [biodata, setBiodata] = useState(false);
 
     // Periksa apakah sudah login
@@ -54,7 +58,7 @@ export default function Login() {
 
             const biodataExists = response.data && response.data.data && Object.keys(response.data.data).length > 0;
             const role = localStorage.getItem('role');
-            
+
             // Simpan biodata jika ada
             if (biodataExists) {
                 const biodata = response.data.data;
@@ -80,7 +84,7 @@ export default function Login() {
 
         } catch (err) {
             if (axios.isAxiosError(err) && err.response?.status === 404) {
-                console.log('Biodata tidak ditemukan.'); 
+                console.log('Biodata tidak ditemukan.');
                 setBiodata(false);
             } else {
                 console.error('Gagal mengambil biodata:', err);
@@ -102,6 +106,7 @@ export default function Login() {
 
         if (phoneNumber.length < 11 || phoneNumber.length > 13) {
             setError('Nomor HP Tidak Valid.');
+            setIsErrorModalVisible(true); // Tampilkan ErrorModal
             setIsLoading(false);
             return;
         }
@@ -112,10 +117,6 @@ export default function Login() {
                 password: password,
             });
 
-            
-
-            
-
             if (response.data.success) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('role', response.data.role);
@@ -123,28 +124,30 @@ export default function Login() {
                 localStorage.setItem('id_akun', response.data.id_akun);
 
                 fetchBiodata(response.data.id_akun, response.data.token);
-                alert('Login berhasil!');
                 const role = localStorage.getItem('role');
-                if (role === 'PELANGGAN') {
-                    console.log(role)
-                    if (biodata === true) {
-                        router.push('/pelanggan');
-                        console.log(biodata)
-                    } else if (biodata === false) {
-                        router.push(redirectTo)
+                setIsNotificationVisible(true); // Tampilkan modal notifikasi
+                setTimeout(() => {
+                    if (role === 'PELANGGAN') {
+                        console.log(role)
+                        if (biodata === true) {
+                            router.push('/pelanggan');
+                            console.log(biodata)
+                        } else if (biodata === false) {
+                            router.push(redirectTo)
+                        } else {
+                            router.push('/');
+                        }
+                    
+                    } else if (role === 'KEPALA DIVISI') {
+                        router.push('/kepala-divisi');
+                    } else if (role === 'DIREKTUR') {
+                        router.push('/direktur');
                     } else {
                         router.push('/');
                     }
-                
-                } else if (role === 'KEPALA DIVISI') {
-                    router.push('/kepala-divisi');
-                } else if (role === 'DIREKTUR') {
-                    router.push('/direktur');
-                }
-
-                
+                }, 2000);
             } else {
-                setError(response.data.message || 'Login gagal.');
+                setIsErrorModalVisible(true); // Tampilkan ErrorModal
             }
         } catch (err: unknown) {
             if (axios.isAxiosError(err) && err.response) {
@@ -156,7 +159,7 @@ export default function Login() {
             } else {
                 setError('Terjadi kesalahan. Silakan coba lagi.');
             }
-            console.error(err);
+            setIsErrorModalVisible(true); // Tampilkan ErrorModal
         } finally {
             setIsLoading(false);
         }
@@ -191,7 +194,7 @@ export default function Login() {
                         <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
                             Password
                         </label>
-                        
+
                         <input
                             id="password"
                             type={showPassword ? 'text' : 'password'}
@@ -238,6 +241,19 @@ export default function Login() {
                     </div>
                 </form>
             </div>
+            {isNotificationVisible && (
+                <NotificationPopup
+                    message="Login berhasil!"
+                    isVisible={isNotificationVisible}
+                    onClose={() => setIsNotificationVisible(false)}
+                />
+            )}
+            {isErrorModalVisible && (
+                <ErrorModal
+                    message={error || "Terjadi kesalahan."}
+                    onClose={() => setIsErrorModalVisible(false)}
+                />
+            )}
         </div>
     );
 }

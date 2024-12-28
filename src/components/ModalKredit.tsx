@@ -24,18 +24,18 @@ interface FormData {
 interface MultiStepFormProps {
     isOpen: boolean;
     onClose: () => void;
-    selectedTransaksi: { nama: string; jenis_produk: string; tenor?: number } | null;
+
 }
 
-const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selectedTransaksi }) => {
+const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose }) => {
 
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState<FormData>({
-        nama: selectedTransaksi?.nama || '',
+        nama: '',
         alamat: '',
         no_hp: '',
         jenis_kelamin: '',
-        jenis_produk: selectedTransaksi?.jenis_produk || '',
+        jenis_produk: '',
         ukuran: '',
         harga: 0,
         jumlah: 0,
@@ -43,7 +43,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
         bukti: null,
         alamat_domisili: '',
         nik: '',
-        tenor: selectedTransaksi?.tenor?.toString() || '',
+        tenor: '',
         foto_ktp: null,
         subtotal: 0,
         jumlahBayar: 0,

@@ -5,6 +5,8 @@ import { FaPlus } from "react-icons/fa";
 import ProductFormModal from "@/components/ProductForm";
 import ConfirmationPopup from "@/components/ConfirmationPopUp";
 import ProductDetailModal from "@/components/ProductDetailModal";
+import NotificationPopup from "@/components/NotificationPopUp";
+import AddProduk from "@/components/AddProduk";
 
 interface Product {
   id: string;
@@ -31,6 +33,9 @@ const PengelolaanProduk: React.FC = () => {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [imageFile, setImageFile] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false); // State untuk kontrol popup
+  const [popupMessage, setPopupMessage] = useState("");
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
 
   // Fetch data from API
   useEffect(() => {
@@ -59,7 +64,6 @@ const PengelolaanProduk: React.FC = () => {
               };
             })
             .filter(Boolean); // Hapus produk dengan id yang tidak valid
-
           setProducts(fetchedProducts);
         } else {
           console.error("Failed to fetch products:", data.message);
@@ -73,8 +77,7 @@ const PengelolaanProduk: React.FC = () => {
   }, []);
 
   const handleAddProduct = () => {
-    setIsPopUpOpen(true);
-    setIsEditing(false);
+    setIsAddProductOpen(true);
     setCurrentProduct({
       id: "", // ID kosong untuk produk baru
       name: "",
@@ -123,7 +126,8 @@ const PengelolaanProduk: React.FC = () => {
               : p
           )
         );
-        alert("Produk berhasil diperbarui!");
+        setPopupMessage("Produk berhasil diperbarui!"); // Set pesan untuk popup
+        setIsPopupVisible(true); // Menampilkan popup
       } else {
         console.error("Error updating product:", responseData.message);
       }
@@ -172,10 +176,11 @@ const PengelolaanProduk: React.FC = () => {
             image: imageFile || "https://via.placeholder.com/150", // Gambar default jika tidak ada
           };
 
+          setPopupMessage("Produk berhasil ditambahkan"); // Set pesan untuk popup
+          setIsPopupVisible(true); // Menampilkan popup
           setProducts((prev) => [...prev, newProduct]); // Tambahkan produk baru ke state
           setIsPopUpOpen(false);
           setImageFile(null);
-          alert("Produk berhasil ditambahkan!");
         } else {
           console.error("Error adding product:", responseData.message);
           alert(`Gagal menambahkan produk: ${responseData.message}`);
@@ -233,6 +238,8 @@ const PengelolaanProduk: React.FC = () => {
         );
         setProductToDelete(null);
         setShowConfirmation(false);
+        setPopupMessage("Produk berhasil dihapus!"); // Set pesan untuk popup
+        setIsPopupVisible(true); // Menampilkan popup
       } else {
         console.error("Failed to delete product:", response.statusText);
       }
@@ -249,8 +256,9 @@ const PengelolaanProduk: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(URL.createObjectURL(file)); // Simpan URL lokal untuk preview
-      setCurrentProduct({ ...currentProduct, image: file }); // Simpan file asli
+      const fileURL = URL.createObjectURL(file); // URL lokal
+      setImageFile(fileURL); // Simpan URL
+      setCurrentProduct({ ...currentProduct, image: fileURL }); // Perbarui produk
     }
   };
 
@@ -307,7 +315,17 @@ const PengelolaanProduk: React.FC = () => {
       <ProductFormModal
         isOpen={isPopUpOpen}
         onClose={() => setIsPopUpOpen(false)}
-        onSave={handleSaveProduct}
+        onSave={handleUpdateProduct}
+        product={currentProduct}
+        imageFile={imageFile}
+        onFileChange={handleFileChange}
+        onInputChange={handleInputChange}
+      />
+
+      <AddProduk
+        isOpen={isAddProductOpen}
+        onClose={() => setIsAddProductOpen(false)}
+        onSave={handleSaveProduct} // Menggunakan fungsi handleSaveProduct}
         product={currentProduct}
         imageFile={imageFile}
         onFileChange={handleFileChange}
@@ -328,6 +346,14 @@ const PengelolaanProduk: React.FC = () => {
           isOpen={!!selectedProduct}
           onClose={() => setSelectedProduct(null)}
           product={selectedProduct}
+        />
+      )}
+
+      {isPopupVisible && (
+        <NotificationPopup
+          message={popupMessage} // Pass the message
+          onClose={() => setIsPopupVisible(false)} // Handle close popup
+          isVisible={isPopupVisible} // Pass the visibility state
         />
       )}
     </div>

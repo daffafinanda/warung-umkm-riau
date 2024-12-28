@@ -14,7 +14,7 @@ const ModalStep3: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
     const [formData, setFormData] = useState({
         bukti: null as File | null,
         tanggal: new Date().toISOString().split('T')[0],
-        jumlah: null,
+        jumlah: 0 ,
     });
 
     useEffect(() => {

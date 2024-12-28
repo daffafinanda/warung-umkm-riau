@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
+import NotificationPopup from '@/components/NotificationPopUp';
 
 export default function Login() {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -14,6 +15,7 @@ export default function Login() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get('redirect') || '/';
+    const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
     // Periksa apakah sudah login
     useEffect(() => {
@@ -52,7 +54,7 @@ export default function Login() {
 
             const biodataExists = response.data && response.data.data && Object.keys(response.data.data).length > 0;
             const role = localStorage.getItem('role');
-            
+
             // Simpan biodata jika ada
             if (biodataExists) {
                 const biodata = response.data.data;
@@ -77,7 +79,7 @@ export default function Login() {
 
         } catch (err) {
             if (axios.isAxiosError(err) && err.response?.status === 404) {
-                console.log('Biodata tidak ditemukan.'); 
+                console.log('Biodata tidak ditemukan.');
             } else {
                 console.error('Gagal mengambil biodata:', err);
             }
@@ -115,9 +117,10 @@ export default function Login() {
 
                 fetchBiodata(response.data.id_akun, response.data.token);
 
-                alert('Login berhasil!');
-                router.push(redirectTo); // Redirect ke halaman yang diminta
-                
+                setIsNotificationVisible(true); // Tampilkan modal notifikasi
+                setTimeout(() => {
+                    router.push(redirectTo); // Redirect setelah modal selesai
+                }, 2000);
             } else {
                 setError(response.data.message || 'Login gagal.');
             }
@@ -166,7 +169,7 @@ export default function Login() {
                         <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
                             Password
                         </label>
-                        
+
                         <input
                             id="password"
                             type={showPassword ? 'text' : 'password'}
@@ -213,6 +216,13 @@ export default function Login() {
                     </div>
                 </form>
             </div>
+            {isNotificationVisible && (
+                <NotificationPopup
+                    message="Login berhasil!"
+                    isVisible={isNotificationVisible}
+                    onClose={() => setIsNotificationVisible(false)}
+                />
+            )}
         </div>
     );
 }

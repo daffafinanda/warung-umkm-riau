@@ -5,6 +5,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import NotificationPopup from '@/components/NotificationPopUp';
+import ErrorModal from '@/components/errorModal';
 
 export default function Login() {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -16,6 +17,7 @@ export default function Login() {
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get('redirect') || '/';
     const [isNotificationVisible, setIsNotificationVisible] = useState(false);
+    const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
 
     // Periksa apakah sudah login
     useEffect(() => {
@@ -99,6 +101,7 @@ export default function Login() {
 
         if (phoneNumber.length < 11 || phoneNumber.length > 13) {
             setError('Nomor HP Tidak Valid.');
+            setIsErrorModalVisible(true); // Tampilkan ErrorModal
             setIsLoading(false);
             return;
         }
@@ -122,7 +125,7 @@ export default function Login() {
                     router.push(redirectTo); // Redirect setelah modal selesai
                 }, 2000);
             } else {
-                setError(response.data.message || 'Login gagal.');
+                setIsErrorModalVisible(true); // Tampilkan ErrorModal
             }
         } catch (err: unknown) {
             if (axios.isAxiosError(err) && err.response) {
@@ -134,7 +137,7 @@ export default function Login() {
             } else {
                 setError('Terjadi kesalahan. Silakan coba lagi.');
             }
-            console.error(err);
+            setIsErrorModalVisible(true); // Tampilkan ErrorModal
         } finally {
             setIsLoading(false);
         }
@@ -221,6 +224,12 @@ export default function Login() {
                     message="Login berhasil!"
                     isVisible={isNotificationVisible}
                     onClose={() => setIsNotificationVisible(false)}
+                />
+            )}
+            {isErrorModalVisible && (
+                <ErrorModal
+                    message={error || "Terjadi kesalahan."}
+                    onClose={() => setIsErrorModalVisible(false)}
                 />
             )}
         </div>

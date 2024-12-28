@@ -3,19 +3,19 @@
 import React, { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function RegisterPage() {
     const [noHp, setNoHp] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [error, setError] = useState(""); // Used for validation and backend error messages
+    const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-    const [showPassword, setShowPassword] = useState(false); // State for password visibility
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false); // State for confirm password visibility
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); // State for loading
     const router = useRouter();
 
-    // Validate password (uppercase, number, special character)
     const validatePassword = (password: string) => {
         const hasUpperCase = /[A-Z]/.test(password);
         const hasNumber = /\d/.test(password);
@@ -25,33 +25,29 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        setError(""); // Clear any previous errors
+        setError("");
         setSuccessMessage("");
+        setIsLoading(true); // Start loading
 
-        // Validate phone number length
+        // Validate inputs
         if (noHp.length < 11 || noHp.length > 13) {
             setError("Nomor HP harus antara 11 dan 13 digit.");
+            setIsLoading(false);
             return;
         }
 
-        // Validate password length and requirements
-        if (password.length < 8) {
-            setError("Password harus minimal 8 karakter.");
+        if (password.length < 8 || !validatePassword(password)) {
+            setError("Password harus minimal 8 karakter dan memiliki huruf besar, angka, serta simbol.");
+            setIsLoading(false);
             return;
         }
 
-        if (!validatePassword(password)) {
-            setError("Password harus memiliki huruf besar, angka, dan simbol.");
-            return;
-        }
-
-        // Validate password match
         if (password !== confirmPassword) {
             setError("Password dan konfirmasi password tidak cocok.");
+            setIsLoading(false);
             return;
         }
 
-        // Register via API (Axios)
         try {
             const response = await axios.post(
                 "https://backend-umkm-riau.vercel.app/api/akun/register",
@@ -61,19 +57,17 @@ export default function RegisterPage() {
             if (response.data.success) {
                 setSuccessMessage(response.data.message);
                 setTimeout(() => {
-                    router.push("/login"); // Redirect to login page
+                    router.push("/login");
                 }, 1500);
             } else {
-                setError(response.data.message); // Display backend error message
+                setError(response.data.message);
             }
         } catch (error) {
-            setError("Terjadi kesalahan saat registrasi."); // Display network error
-            
+            console.error("Error registering:", error);
+            setError("Terjadi kesalahan saat registrasi.");
+        } finally {
+            setIsLoading(false); // Stop loading
         }
-    };
-
-    const handleGoBackToLogin = () => {
-        router.push("/login");
     };
 
     return (
@@ -84,7 +78,6 @@ export default function RegisterPage() {
                     Masukkan nomor telepon dan buat password Anda untuk melanjutkan.
                 </p>
                 <form onSubmit={handleSubmit}>
-                    {/* Phone number input */}
                     <div className="mb-4">
                         <label htmlFor="noHp" className="block text-gray-700 text-sm font-bold mb-2">
                             Nomor HP
@@ -99,10 +92,8 @@ export default function RegisterPage() {
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
-
-                    {/* Password input */}
                     <div className="mb-4 relative">
-                        <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
+                        <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-1">
                             Password
                         </label>
                         <input
@@ -118,11 +109,9 @@ export default function RegisterPage() {
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-10 text-gray-500"
                         >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Toggle icon */}
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </button>
                     </div>
-
-                    {/* Confirm password input */}
                     <div className="mb-4 relative">
                         <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-bold mb-2">
                             Konfirmasi Password
@@ -140,32 +129,21 @@ export default function RegisterPage() {
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             className="absolute right-3 top-10 text-gray-500"
                         >
-                            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />} {/* Toggle icon */}
+                            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                         </button>
                     </div>
-
-                    {/* Error or success message */}
                     {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
                     {successMessage && <p className="text-green-500 text-xs mt-1">{successMessage}</p>}
-
-                    {/* Submit button */}
                     <button
                         type="submit"
-                        className="w-full bg-primary text-white py-2 rounded-lg hover:bg-opacity-80 transition"
+                        className={`w-full py-2 rounded-lg transition ${
+                            isLoading ? "bg-gray-400" : "bg-primary hover:bg-opacity-80"
+                        } text-white`}
+                        disabled={isLoading}
                     >
-                        Lanjutkan
+                        {isLoading ? "Loading..." : "Lanjutkan"}
                     </button>
                 </form>
-
-                {/* Back to login button */}
-                <div className="mt-2 text-center">
-                    <button
-                        onClick={handleGoBackToLogin}
-                        className="text-primary hover:text-opacity-80 text-sm"
-                    >
-                        Kembali ke Login
-                    </button>
-                </div>
             </div>
         </div>
     );

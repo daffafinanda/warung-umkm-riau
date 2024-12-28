@@ -49,8 +49,38 @@ export default function Login() {
             } else {
                 localStorage.removeItem('biodata');
             }
+
+            const biodataExists = response.data && response.data.data && Object.keys(response.data.data).length > 0;
+            const role = localStorage.getItem('role');
+            
+            // Simpan biodata jika ada
+            if (biodataExists) {
+                const biodata = response.data.data;
+                localStorage.setItem('biodata', JSON.stringify(biodata));
+            } else {
+                localStorage.removeItem('biodata');
+            }
+            // Redirect berdasarkan role
+            if (role === 'PELANGGAN') {
+                if (biodataExists) {
+                    router.push('/pelanggan');
+                } else {
+                    router.push('/');
+                }
+            } else if (role === 'KEPALA DIVISI') {
+                router.push('/kepala-divisi');
+            } else if (role === 'DIREKTUR') {
+                router.push('/direktur');
+            } else {
+                router.push('/');
+            }
+
         } catch (err) {
-            console.error('Gagal mengambil biodata:', err);
+            if (axios.isAxiosError(err) && err.response?.status === 404) {
+                console.log('Biodata tidak ditemukan.'); 
+            } else {
+                console.error('Gagal mengambil biodata:', err);
+            }
             localStorage.removeItem('biodata');
         }
     };
@@ -87,6 +117,7 @@ export default function Login() {
 
                 alert('Login berhasil!');
                 router.push(redirectTo); // Redirect ke halaman yang diminta
+                
             } else {
                 setError(response.data.message || 'Login gagal.');
             }
@@ -135,6 +166,7 @@ export default function Login() {
                         <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
                             Password
                         </label>
+                        
                         <input
                             id="password"
                             type={showPassword ? 'text' : 'password'}

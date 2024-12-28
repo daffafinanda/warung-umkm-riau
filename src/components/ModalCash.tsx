@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
+import NotificationPopup from './NotificationPopUp';
 
 interface Product {
     jenis_produk: string;
@@ -23,6 +24,11 @@ interface FormData {
 
 const MultiStepForm: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(1);
+    const [notification, setNotification] = useState<{ isVisible: boolean; message: string }>({
+        isVisible: false,
+        message: '',
+    });
+
     const [formData, setFormData] = useState<FormData>({
         nama: '',
         alamat: '',
@@ -35,6 +41,7 @@ const MultiStepForm: React.FC = () => {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, index?: number) => {
         const { name, value } = e.target;
+
 
         if (index !== undefined) {
             const updatedProduk = [...formData.produk];
@@ -122,21 +129,28 @@ const MultiStepForm: React.FC = () => {
                 }
                 formDataToSend.append('jumlah', calculateSubtotal().toString());
 
-                await axios.post('https://backend-umkm-riau.vercel.app/api/bukti', formDataToSend, {
+                const response = await axios.post('https://backend-umkm-riau.vercel.app/api/bukti', formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
 
-                alert('Form submitted successfully!');
-                setCurrentStep(1);
-                setFormData({
-                    nama: '',
-                    alamat: '',
-                    no_hp: '',
-                    jenis_kelamin: '',
-                    produk: [],
-                    tanggal: new Date().toISOString().split('T')[0],
-                    bukti: null,
+                setNotification({
+                    isVisible: true,
+                    message: response.data.message,
                 });
+
+                // Reset form after submission
+                setTimeout(() => {
+                    setCurrentStep(1);
+                    setFormData({
+                        nama: '',
+                        alamat: '',
+                        no_hp: '',
+                        jenis_kelamin: '',
+                        produk: [],
+                        tanggal: new Date().toISOString().split('T')[0],
+                        bukti: null,
+                    });
+                }, 2000);
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -314,6 +328,12 @@ const MultiStepForm: React.FC = () => {
                     </button>
                 </div>
             </form>
+            <NotificationPopup
+                message={notification.message}
+                isVisible={notification.isVisible}
+                onClose={() => setNotification({ isVisible: false, message: '' })}
+            />
+
         </div>
     );
 };

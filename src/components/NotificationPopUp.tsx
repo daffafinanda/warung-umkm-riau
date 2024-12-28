@@ -14,24 +14,30 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
   onClose,
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isRendered, setIsRendered] = useState(false);
 
   useEffect(() => {
     if (isVisible) {
+      setIsRendered(true); // Pastikan elemen dirender
       setIsAnimating(true); // Mulai animasi masuk
       const timer = setTimeout(() => {
-        setIsAnimating(false); // Mulai animasi keluar sebelum menutup
-        setTimeout(onClose, 1000); // Tunggu animasi selesai sebelum benar-benar menghapus
+        setIsAnimating(false); // Mulai animasi keluar
+        const closeTimer = setTimeout(() => {
+          setIsRendered(false); // Hapus elemen setelah animasi keluar selesai
+          onClose();
+        }, 300); // Durasi animasi keluar (sinkron dengan transition)
+        return () => clearTimeout(closeTimer);
       }, 1500); // Durasi notifikasi terlihat
-      return () => clearTimeout(timer); // Bersihkan timer saat komponen unmount
+      return () => clearTimeout(timer); // Bersihkan timer
     }
   }, [isVisible, onClose]);
 
-  if (!isVisible && !isAnimating) return null;
+  if (!isRendered) return null;
 
   return ReactDOM.createPortal(
     <div className="fixed top-0 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
-        className={`bg-white flex-col p-6 rounded-lg shadow-lg flex items-center space-x-3 transition-transform duration-300 ${isAnimating ? "scale-100 opacity-100" : "scale-95 opacity-0"
+        className={`bg-white flex-col p-6 rounded-lg shadow-lg flex items-center space-x-3 transition-all duration-300 ${isAnimating ? "scale-100 opacity-100" : "scale-95 opacity-0"
           }`}
       >
         <span className="text-gray-800 text-xl font-medium">{message}</span>

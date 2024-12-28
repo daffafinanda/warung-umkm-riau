@@ -18,7 +18,6 @@ const TransaksiKredit: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAngsuranModalOpen, setIsAngsuranModalOpen] = useState(false);
   const [transaksi, setTransaksi] = useState<Pembelian[]>([]);
-  const [selectedTransaksi, setSelectedTransaksi] = useState<Pembelian | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
 
@@ -29,6 +28,7 @@ const TransaksiKredit: React.FC = () => {
           "https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT"
         );
         const pembelianData = pembelianResponse.data.data;
+        console.log("Bukti data:", pembelianData);
 
         const transaksiData = await Promise.all(
           pembelianData.map(async (item: Pembelian) => {
@@ -40,8 +40,10 @@ const TransaksiKredit: React.FC = () => {
                 `https://backend-umkm-riau.vercel.app/api/bukti/${item.id}`
               );
               jumlah_bukti = buktiResponse.data.data.length - 1;
+              console.log("Bukti data:", buktiResponse);
             } catch (error) {
               console.error("Error fetching bukti data:", error);
+              
               jumlah_bukti = 0;
             }
 
@@ -125,7 +127,7 @@ const TransaksiKredit: React.FC = () => {
       </div>
 
       {/* Modal */}
-      <MultiStepForm isOpen={isModalOpen} onClose={handleCloseModal} selectedTransaksi={selectedTransaksi} />
+      <MultiStepForm isOpen={isModalOpen} onClose={handleCloseModal}  />
       <ModalStep3 isOpen={isAngsuranModalOpen} onClose={handleCloseModal} />
 
 
@@ -155,12 +157,12 @@ const TransaksiKredit: React.FC = () => {
                 <td className="px-6 py-4">{item.jumlah_bukti} / {item.tenor}</td>
                 <td className="px-6 py-4">
                   <span
-                    className={`px-2 py-1 text-xs font-medium rounded ${item.jumlah_bukti === item.tenor
+                    className={`px-2 py-1 text-xs font-medium rounded ${item.jumlah_bukti == item.tenor
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
                       }`}
                   >
-                    {item.jumlah_bukti === item.tenor ? "Lunas" : "Belum Lunas"}
+                    {item.jumlah_bukti == item.tenor ? "Lunas" : "Belum Lunas"}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">

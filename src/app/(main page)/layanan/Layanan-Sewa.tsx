@@ -1,11 +1,19 @@
-// app/layanan-sewa/page.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaCheck } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 const LayananSewa: React.FC = () => {
   const [isAgreed, setIsAgreed] = useState(false);
+  const [isPelanggan, setIsPelanggan] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Mendapatkan role dari localStorage
+    const role = localStorage.getItem('role');
+    if (role === 'PELANGGAN') {
+      setIsPelanggan(true);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen rounded-xl bg-foreground shadow-lg">
@@ -50,31 +58,36 @@ const LayananSewa: React.FC = () => {
           </p>
         </div>
 
-        <div className="mt-10 flex items-center space-x-4">
-        <input
-          type="checkbox"
-          id="agreeCheckbox"
-          className="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded checked:bg-primary"
-          checked={isAgreed}
-          onChange={(e) => setIsAgreed(e.target.checked)}
-        />
+        {isPelanggan && (
+          <>
+            <div className="mt-10 flex items-center space-x-4">
+              <input
+                type="checkbox"
+                id="agreeCheckbox"
+                className="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded checked:bg-primary"
+                checked={isAgreed}
+                onChange={(e) => setIsAgreed(e.target.checked)}
+              />
+              <label htmlFor="agreeCheckbox" className="text-gray-700">
+                Saya menyetujui seluruh persyaratan yang telah ditetapkan.
+              </label>
+            </div>
 
-          <label htmlFor="agreeCheckbox" className="text-gray-700">
-            Saya menyetujui seluruh persyaratan yang telah ditetapkan.
-          </label>
-        </div>
-
-        <div className="mt-6 text-center">
-          <button
-            className={`px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-75 ${
-              isAgreed ? 'bg-primary text-white hover:bg-opacity-90' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-            onClick={() => {router.push('/biodata-baru');}}
-            disabled={!isAgreed}
-          >
-            {isAgreed ? <FaCheck className="inline-block mr-2" /> : null} Isi formulir penyewaan
-          </button>
-        </div>
+            <div className="mt-6 text-center">
+              <button
+                className={`px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-75 ${
+                  isAgreed ? 'bg-primary text-white hover:bg-opacity-90' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                onClick={() => {
+                  router.push('/biodata-baru');
+                }}
+                disabled={!isAgreed}
+              >
+                {isAgreed ? <FaCheck className="inline-block mr-2" /> : null} Isi formulir penyewaan
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -81,10 +81,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, toggleSidebar }) => {
             </li>
           ))}
         </ul>
-      </div>
         {role === "pelanggan" && (
-          <div className="relative bottom-48 p-4 border-t border-gray-200">
-            <span className="text-black">User Biodata</span>
+          <div className=" border-gray-200">
+
             <Link
               href={`/biodata`}
               onClick={toggleSidebar}
@@ -103,6 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, toggleSidebar }) => {
             </Link>
           </div>
         )}
+      </div>
     </aside>
   );
 };

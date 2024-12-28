@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { MdOutlineArrowBackIos } from "react-icons/md";
+import { FaTrash } from "react-icons/fa";
 
 interface User {
   nik: string;
@@ -46,12 +47,14 @@ export default function ProfilePage() {
         axios
           .get(`https://backend-umkm-riau.vercel.app/api/penyewaan/${response.data.data.nik}`)
           .then((penyewaanResponse) => {
-            if (penyewaanResponse.data) {
-              setIsRented(true); // If user has penyewaan, set isRented to true
+            if (penyewaanResponse.data.length > 0) {
+              setIsRented(true); 
+              console.log(penyewaanResponse.data)
             }
           })
           .catch(() => {
             console.log("No penyewaan record found");
+        
           });
       })
       .catch(() => {
@@ -60,8 +63,23 @@ export default function ProfilePage() {
       });
   }, []);
 
-  const handleBackClick = () => {
-    router.push('/pelanggan'); // Navigate to /pelanggan when back button is clicked
+  const handleDelete = async () => {
+    const id = localStorage.getItem('id_akun');
+
+    if (!id) {
+      alert('ID not found in local storage');
+      return;
+    }
+
+    try {
+      await axios.delete(`https://backend-umkm-riau.vercel.app/api/biodata/${id}`);
+      alert('Biodata berhasil dihapus');
+      localStorage.removeItem('biodata'); // Remove biodata from localStorage
+      router.push('/biodata-baru'); // Redirect to biodata creation page
+    } catch (error) {
+      console.error('Error deleting biodata:', error);
+      alert('Gagal menghapus biodata. Silakan coba lagi.');
+    }
   };
 
   if (loading) {
@@ -77,27 +95,26 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background shadow-lg  px-4 sm:px-6 lg:px-8">
-        <div className="p-4 max-w-3xl mx-auto ">
-          {/* Breadcrumb */}
-          <div className="mb-4 flex flex-col">
-              <span className="text-gray-800 font-semibold">/Biodata</span>
-            <button
-              onClick={handleBackClick}
-              className="flex items-center text-primary hover:underline mb-4"
-                      >
-               <MdOutlineArrowBackIos className="mr-2" />
-                Kembali
-            </button> 
-        </div>
-      <div className="max-w-3xl mx-auto bg-foreground rounded-2xl shadow-xl overflow-hidden">
+    <div className="min-h-screen bg-background shadow-lg pt-6 pb-16 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col mx-auto max-w-4xl gap-2">
+                {/* Breadcrumb */}
+                <span className="text-gray-800 text-lg font-semibold">/Biodata</span>
+                <button
+                  onClick={() => router.push('/pelanggan')}
+                  className="font-semibold text-left flex w-fit py-2 pl-2 hover:bg-opacity-70 pr-3 items-center rounded-full hover:ring-2 hover:ring-primary hover:ring-opacity-25  bg-primary text-white hover:underline mb-4"
+                  >
+                  <MdOutlineArrowBackIos className="mr-2  text-white" />
+                  <span>Kembali</span>
+                </button>
+          </div>
+        <div className="max-w-4xl mx-auto bg-foreground rounded-2xl shadow-xl overflow-hidden">
           <div className='p-8'>
           <h1 className="text-3xl font-bold text-gray-800 mb-6">Biodata Penyewa</h1>
 
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-700 mb-2">Data Pribadi</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 ">
                 <InfoItem label="Nama" value={user.nama} />
                 <InfoItem label="NIK" value={user.nik} />
                 <InfoItem label="Jenis Kelamin" value={user.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'} />
@@ -118,8 +135,8 @@ export default function ProfilePage() {
                 <img
                   src={user.foto_ktp}
                   alt="KTP"
-                  width={600}
-                  height={400}
+                  width={300}
+
                   className="rounded-lg justify-center"
                   />
                   </div>
@@ -130,9 +147,10 @@ export default function ProfilePage() {
               <div className="mt-8 border-t pt-6">
                 <p className="text-lg text-gray-700 mb-4">Anda sudah tidak ingin menyewa lagi? Anda dapat menghapus biodata.</p>
                 <button
-                  onClick={() => ""}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-300"
+                  onClick={handleDelete}
+                  className=" flex justify-center items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-300 transition duration-100"
                 >
+                  <FaTrash />
                   Hapus Biodata
                 </button>
               </div>
@@ -140,15 +158,23 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-gray-50 px-4 py-3 rounded-lg">
-      <p className="text-sm font-medium text-gray-500">{label}</p>
-      <p className="mt-1 text-lg text-gray-900">{value}</p>
+      
+      <label htmlFor="nama" className="block text-sm font-medium text-gray-700 capitalize">{label}</label>
+              <input
+                type="text"
+                id="nama"
+                value={value}
+                placeholder="Masukkan nama anda"
+                readOnly
+
+                className="bg-gray-50 mt-1 block w-full text-xl rounded-md border shadow-inner px-3 py-2 text-black focus:ring focus:ring-primary-200 focus:ring-opacity-50 "
+              />
     </div>
   );
 }

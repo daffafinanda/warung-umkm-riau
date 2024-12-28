@@ -18,6 +18,7 @@ interface FormData {
     bukti: File | null;
     id_pembelian?: number;
     subtotal: number;
+    jumlahBayar: number;
 }
 
 interface MultiStepFormProps {
@@ -27,7 +28,7 @@ interface MultiStepFormProps {
 }
 
 const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selectedTransaksi }) => {
-    
+
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState<FormData>({
         nama: selectedTransaksi?.nama || '',
@@ -45,9 +46,17 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
         tenor: selectedTransaksi?.tenor?.toString() || '',
         foto_ktp: null,
         subtotal: 0,
+        jumlahBayar: 0,
     });
     if (!isOpen) return null;
-    
+
+    const handleChange1 = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: name === 'jumlahBayar' ? parseFloat(value) || 0 : value, // Pastikan jumlahBayar berupa angka
+        }));
+    };
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prevData => {
@@ -126,7 +135,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
                 if (formData.bukti) {
                     formDataToSend.append('bukti', formData.bukti);
                 }
-                formDataToSend.append('jumlah', formData.subtotal.toString());
+                formDataToSend.append('jumlah', formData.jumlahBayar.toString());
 
                 await axios.post('https://backend-umkm-riau.vercel.app/api/bukti', formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -298,6 +307,15 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose, selected
                                 onChange={handleFileChange}
                                 required
                                 className=" p-1 text-black block w-full rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
+                            />
+                            <label className="block text-sm font-medium text-gray-700">DP:</label>
+                            <input
+                                type="number"
+                                name="jumlahBayar"
+                                value={formData.jumlahBayar || ''}
+                                onChange={handleChange1}
+                                required
+                                className="p-1 text-black block w-full rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
                             />
                         </div>
                     )}

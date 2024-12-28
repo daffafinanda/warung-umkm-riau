@@ -41,15 +41,22 @@ const Biodata: React.FC = () => {
     { name: 'Pembayaran', status: 'upcoming' as const },
   ];
 
-  
-
   useEffect(() => {
       const biodata = localStorage.getItem("biodata");
       if (biodata) {
         // Redirect to the specific page if biodata exists
-        router.replace("/biodata/pengajuan-sewa");
+        router.replace("/biodata-baru/pengajuan-sewa");
       }
-  }, [ router]);
+
+      const noHpFromStorage = localStorage.getItem("no_hp");
+    if (noHpFromStorage) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        noHp: noHpFromStorage,
+      }));
+    }
+  }, [router]);
+
 
 
   // Validation function
@@ -207,6 +214,8 @@ const Biodata: React.FC = () => {
                 id="noHp"
                 value={formData.noHp}
                 placeholder="Masukkan No HP Anda"
+                readOnly
+                
                 onChange={(e) => {
                   const value = e.target.value;
                   if (/^\d*$/.test(value)) {

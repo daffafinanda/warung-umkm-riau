@@ -81,8 +81,8 @@ export default function ProfilePage() {
               onClick={handleBackClick}
               className="flex items-center text-primary hover:underline mb-4"
                       >
-                        <MdOutlineArrowBackIos className="mr-2" />
-                        Kembali
+               <MdOutlineArrowBackIos className="mr-2" />
+                Kembali
             </button> 
         </div>
       <div className="max-w-3xl mx-auto bg-foreground rounded-2xl shadow-xl overflow-hidden">
@@ -125,7 +125,7 @@ export default function ProfilePage() {
               <div className="mt-8 border-t pt-6">
                 <p className="text-lg text-gray-700 mb-4">Anda sudah tidak ingin menyewa lagi? Anda dapat menghapus biodata.</p>
                 <button
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => ""}
                   className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-300"
                 >
                   Hapus Biodata

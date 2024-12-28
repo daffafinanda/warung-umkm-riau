@@ -141,7 +141,7 @@ const Biodata: React.FC = () => {
     // Ambil biodata dari localStorage
     const biodata = localStorage.getItem('biodata');
     if (!biodata) {
-        console.error("Biodata not found in localStorage");
+        router.push('/biodata-baru');
         return;
     }
 

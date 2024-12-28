@@ -7,6 +7,14 @@ import L from "leaflet";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
+interface PaymentHistory {
+  id: number;
+  id_sewa: number;
+  tanggal: string;
+  bukti: string;
+  jumlah: number;
+}
+
 interface BoothData {
   id_sewa: number;
   mulai_sewa: string;
@@ -17,7 +25,9 @@ interface BoothData {
 }
 
 const BoothSaya = () => {
+  
   const [data, setData] = useState<BoothData | null>(null);
+  const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true); // Tambahkan state isLoading
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string>("");
@@ -50,6 +60,26 @@ const BoothSaya = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchPaymentHistory = async () => {
+      if (!data) return;
+
+      try {
+        const response = await axios.get(
+          `https://backend-umkm-riau.vercel.app/api/sewa/${data.id_sewa}`
+        );
+
+        if (response.data.success) {
+          setPaymentHistory(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching payment history:", error);
+      }
+    };
+
+    fetchPaymentHistory();
+  }, [data]);
 
   useEffect(() => {
     if (data) {
@@ -153,14 +183,34 @@ const BoothSaya = () => {
           ))}
         </div>
 
+        {/* Tabel Riwayat Pembayaran */}
         <div>
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">Riwayat Pembayaran</h2>
-          <button
-            onClick={() => openModal("https://via.placeholder.com/150")}
-            className="text-primary underline hover:text-primary-dark"
-          >
-            Lihat Riwayat Pembayaran
-          </button>
+          <table className="table-auto w-full border-collapse border text-black border-gray-300">
+            <thead>
+              <tr className="bg-gray-200 fl">
+                <th className="border border-gray-300 px-4 py-2">Tanggal</th>
+                <th className="border border-gray-300 px-4 py-2">Jumlah</th>
+                <th className="border border-gray-300 px-4 py-2">Bukti</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paymentHistory.map((payment) => (
+                <tr key={payment.id}>
+                  <td className="border border-gray-300 px-4 py-2">{new Date(payment.tanggal).toLocaleDateString()}</td>
+                  <td className="border border-gray-300 px-4 py-2">Rp. {payment.jumlah.toLocaleString()}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <button
+                      onClick={() => openModal(payment.bukti)}
+                      className="text-primary underline hover:text-primary-dark"
+                    >
+                      Lihat Bukti
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 

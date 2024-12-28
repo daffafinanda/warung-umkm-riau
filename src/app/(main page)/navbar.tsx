@@ -4,6 +4,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { FaUserCircle } from "react-icons/fa"; // Import React Icon untuk akun
 import Link from "next/link"; // Import Link dari next/link
+import { useRouter } from "next/navigation";
+import { MdLogout } from "react-icons/md";
+import { AiOutlineUser } from "react-icons/ai";
+
+
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,6 +17,8 @@ const Navbar: React.FC = () => {
   const [role, setRole] = useState<string>(""); // State untuk role
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State untuk dropdown
+  const router = useRouter();
+  const [biodata, setBiodata] = useState<boolean>(false);
   
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Create a ref for the dropdown
 
@@ -22,9 +29,9 @@ const Navbar: React.FC = () => {
       setIsLoggedIn(true);
       // Ambil biodata dari localStorage
       const biodata = JSON.parse(localStorage.getItem("biodata") || "{}");
-  
       if (biodata && biodata.nama) {
         console.log("Biodata retrieved:", biodata);
+        setBiodata(true);
         setUsername(biodata.nama); // Set username sesuai dengan nama di biodata
       } else {
         console.log("Biodata not available or incomplete.");
@@ -110,11 +117,16 @@ const Navbar: React.FC = () => {
               <FaUserCircle className="w-6 h-6 text-primary" />
               
               {/* Tampilkan username hanya jika role adalah "PELANGGAN" */}
-              {role === "PELANGGAN" && (
-                <span className="text-primary font-medium">{username}</span>
+              {role === "PELANGGAN" &&  biodata === true
+              ? (<div>
+                <span className="text-primary font-medium mr-1">{username} </span>
+                <span className="text-sm hidden xl:inline-block text-gray-500"> ({role})</span>
+              </div>
+              )
+              : (<span className="text-base text-primary">{role}</span>
+              
               )}
               
-              <span className="text-sm text-gray-500">({role})</span> {/* Tampilkan role untuk semua role */}
               
               <button
                 onClick={toggleDropdown}
@@ -142,11 +154,19 @@ const Navbar: React.FC = () => {
                 >
                   <ul>
                     <li>
+                      {role === "PELANGGAN" && (
+                        <button
+                          onClick = {() => router.push('/biodata')}
+                          className="block w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-200 border-b"
+                          >
+                          <AiOutlineUser className="w-4 h-4 inline-block mr-2 " /> Biodata
+                        </button>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-200"
                       >
-                        Log Out
+                        <MdLogout className="w-4 h-4 inline-block mr-2" />  Log Out
                       </button>
                     </li>
                   </ul>

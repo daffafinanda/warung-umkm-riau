@@ -83,7 +83,7 @@ const SewaDetail = () => {
   
         // Hitung total pembayaran dan sisa
         const jumlahDibayar = pembayaranData ? pembayaranData.reduce((acc : number, cur  : Pembayaran) => acc + cur.jumlah, 0) : 0;
-        const sisa = penyewaanData.durasi * 600000 - jumlahDibayar;
+        const sisa = penyewaanData.durasi * 300000 - jumlahDibayar;
   
         // Set data detail
         setDetail({
@@ -92,7 +92,7 @@ const SewaDetail = () => {
           nama_penyewa: namaPenyewa,
           lokasi: penyewaanData.lokasi,
           durasi: penyewaanData.durasi,
-          harga: penyewaanData.durasi * 600000, // Contoh perhitungan harga
+          harga: penyewaanData.durasi * 300000, // Contoh perhitungan harga
           pembayaran: pembayaranData,
           jumlah_dibayar: jumlahDibayar,
           sisa,

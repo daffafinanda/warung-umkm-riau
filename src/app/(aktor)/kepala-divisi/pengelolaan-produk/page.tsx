@@ -14,7 +14,7 @@ interface Product {
   price: number | string;
   dimensions: string;
   image: string | null;
-  description: string;
+  deskripsi: string;
 }
 
 const PengelolaanProduk: React.FC = () => {
@@ -27,7 +27,7 @@ const PengelolaanProduk: React.FC = () => {
     price: 0,
     dimensions: "",
     image: "",
-    description: "",
+    deskripsi: "",
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
@@ -59,7 +59,7 @@ const PengelolaanProduk: React.FC = () => {
                 price: item.harga,
                 dimensions: item.ukuran,
                 image: item.foto || "https://via.placeholder.com/150", // Default image if null
-                description: "Deskripsi produk", // Assuming there's no description in the API data
+                deskripsi: item.deskripsi, // Assuming there's no deskripsi in the API data
               };
             })
             .filter(Boolean); // Hapus produk dengan id yang tidak valid
@@ -83,7 +83,7 @@ const PengelolaanProduk: React.FC = () => {
       price: 0,
       dimensions: "",
       image: "",
-      description: "",
+      deskripsi: "",
     });
   };
 
@@ -98,7 +98,7 @@ const PengelolaanProduk: React.FC = () => {
       formData.append("jenis", product.name); // Nama produk
       formData.append("ukuran", product.dimensions); // Ukuran produk
       formData.append("harga", product.price.toString()); // Harga produk
-      formData.append("deskripsi", product.description); // Deskripsi produk
+      formData.append("deskripsi", product.deskripsi); // Deskripsi produk
 
       if (imageFile) {
         const response = await fetch(imageFile); // Ambil blob dari URL file
@@ -121,7 +121,7 @@ const PengelolaanProduk: React.FC = () => {
         setProducts((prevProducts) =>
           prevProducts.map((p) =>
             p.id === product.id
-              ? { ...p, name: product.name, dimensions: product.dimensions, price: product.price, image: imageFile || p.image, description: product.description }
+              ? { ...p, name: product.name, dimensions: product.dimensions, price: product.price, image: imageFile || p.image, deskripsi: product.deskripsi }
               : p
           )
         );
@@ -147,7 +147,7 @@ const PengelolaanProduk: React.FC = () => {
         formData.append("jenis", product.name);
         formData.append("ukuran", product.dimensions);
         formData.append("harga", product.price.toString());
-        formData.append("deskripsi", product.description);
+        formData.append("deskripsi", product.deskripsi);
 
         if (imageFile) {
           const response = await fetch(imageFile); // Ambil blob dari URL file

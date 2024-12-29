@@ -7,7 +7,7 @@ interface Product {
   price: number;
   dimensions: string;
   image: string;
-
+  deskripsi: string;
 }
 
 interface ProductDetailModalProps {
@@ -46,6 +46,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             <h2 className="text-3xl font-semibold text-gray-800 mb-2">{product.name}</h2>
             <p className="text-xl text-gray-500 mb-4">Harga: Rp{product.price}</p>
             <p className="text-sm text-gray-400 mb-4">{product.dimensions}</p>
+            <p className="text-md text-gray-600 mb-4">{product.deskripsi}</p>
             <div className="flex items-center space-x-4">
               <button
                 onClick={onClose}
@@ -53,7 +54,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               >
                 Close
               </button>
-              
+
             </div>
           </div>
         </div>

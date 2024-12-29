@@ -1,12 +1,17 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import NotificationPopup from './NotificationPopUp';
+import { useModal } from './ModalContext';
 
 interface Product {
     jenis_produk: string;
     ukuran: string;
     harga: number;
     jumlah: number;
+
+}
+interface MultiStepFormProps {
+    onClose: () => void;
 }
 
 interface FormData {
@@ -20,14 +25,18 @@ interface FormData {
     // Bukti Bayar
     tanggal: string;
     bukti: File | null;
+
 }
 
-const MultiStepForm: React.FC = () => {
+const MultiStepForm: React.FC<MultiStepFormProps> = ({ onClose }) => {
+
     const [currentStep, setCurrentStep] = useState(1);
     const [notification, setNotification] = useState<{ isVisible: boolean; message: string }>({
         isVisible: false,
         message: '',
     });
+
+    const { showError, showNotification } = useModal();
 
     const [formData, setFormData] = useState<FormData>({
         nama: '',
@@ -150,11 +159,13 @@ const MultiStepForm: React.FC = () => {
                         tanggal: new Date().toISOString().split('T')[0],
                         bukti: null,
                     });
+                    onClose() // Tutup form setelah reset
                 }, 2000);
+                showNotification("Data pembelian ditambahkan");
             }
         } catch (error) {
             console.error('Error submitting form:', error);
-            alert('An error occurred while submitting the form. Please try again.');
+            showError('Error ketika mensubmit data, coba lagi');
         }
     };
 

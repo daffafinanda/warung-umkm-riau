@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import BoothCard from "@/components/BoothCard";
 import { FaPlus } from "react-icons/fa";
 import TambahBoothModal from "@/components/TambahBooth";
+import { useModal } from '@/components/ModalContext';
 
 interface Booth {
     id_booth: string;
@@ -16,6 +17,7 @@ export default function Page() {
     const [booths, setBooths] = useState<Booth[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalTambahBoothOpen, setIsModalTambahBoothOpen] = useState(false);
+    const { showNotification, showError } = useModal();
 
     // Fungsi untuk mengambil ulang data
     const refetchBooths = async () => {
@@ -58,12 +60,15 @@ export default function Page() {
 
             const result = await response.json();
             if (result.success) {
-                refetchBooths(); // Refresh data booth setelah menambahkan
+                refetchBooths();
+                showNotification("Berhasil menambah booth"); // Refresh data booth setelah menambahkan
             } else {
                 console.error("Gagal menambah booth:", result.message);
+                showError("Gagal menambah booth");
             }
         } catch (error) {
             console.error("Error menambah booth:", error);
+            showError("Error menambah booth");
         }
     };
 

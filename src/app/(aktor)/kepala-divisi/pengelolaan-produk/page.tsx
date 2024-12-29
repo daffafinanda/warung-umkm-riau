@@ -5,7 +5,7 @@ import { FaPlus } from "react-icons/fa";
 import ProductFormModal from "@/components/ProductForm";
 import ConfirmationPopup from "@/components/ConfirmationPopUp";
 import ProductDetailModal from "@/components/ProductDetailModal";
-import NotificationPopup from "@/components/NotificationPopUp";
+import { useModal } from '@/components/ModalContext';
 import AddProduk from "@/components/AddProduk";
 
 interface Product {
@@ -33,8 +33,7 @@ const PengelolaanProduk: React.FC = () => {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [imageFile, setImageFile] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isPopupVisible, setIsPopupVisible] = useState(false); // State untuk kontrol popup
-  const [popupMessage, setPopupMessage] = useState("");
+  const { showNotification, showError } = useModal();
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
 
   // Fetch data from API
@@ -126,10 +125,10 @@ const PengelolaanProduk: React.FC = () => {
               : p
           )
         );
-        setPopupMessage("Produk berhasil diperbarui!"); // Set pesan untuk popup
-        setIsPopupVisible(true); // Menampilkan popup
+        showNotification("Produk berhasil diperbarui");
       } else {
         console.error("Error updating product:", responseData.message);
+        showError("Gagal meperbarui produk");
       }
     } catch (error) {
       console.error("Error updating product:", error);
@@ -176,18 +175,17 @@ const PengelolaanProduk: React.FC = () => {
             image: imageFile || "https://via.placeholder.com/150", // Gambar default jika tidak ada
           };
 
-          setPopupMessage("Produk berhasil ditambahkan"); // Set pesan untuk popup
-          setIsPopupVisible(true); // Menampilkan popup
+          showNotification("Produk berhasil ditambahkan");
           setProducts((prev) => [...prev, newProduct]); // Tambahkan produk baru ke state
           setIsPopUpOpen(false);
           setImageFile(null);
         } else {
           console.error("Error adding product:", responseData.message);
-          alert(`Gagal menambahkan produk: ${responseData.message}`);
+          showError("Gagal menambahkan produk");
         }
       } catch (error) {
         console.error("Error adding product:", error);
-        alert("Terjadi kesalahan saat menambahkan produk. Silakan coba lagi.");
+        showError("Terjadi kesalahan saat menambahkan produk. Silakan coba lagi.");
       }
     }
   };
@@ -238,10 +236,10 @@ const PengelolaanProduk: React.FC = () => {
         );
         setProductToDelete(null);
         setShowConfirmation(false);
-        setPopupMessage("Produk berhasil dihapus!"); // Set pesan untuk popup
-        setIsPopupVisible(true); // Menampilkan popup
+        showNotification("Produk berhasil dihapus");
       } else {
         console.error("Failed to delete product:", response.statusText);
+        showError("Gagal menghapus produk. Silakan coba lagi.");
       }
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -346,14 +344,6 @@ const PengelolaanProduk: React.FC = () => {
           isOpen={!!selectedProduct}
           onClose={() => setSelectedProduct(null)}
           product={selectedProduct}
-        />
-      )}
-
-      {isPopupVisible && (
-        <NotificationPopup
-          message={popupMessage} // Pass the message
-          onClose={() => setIsPopupVisible(false)} // Handle close popup
-          isVisible={isPopupVisible} // Pass the visibility state
         />
       )}
     </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useModal } from './ModalContext';
 
 interface BoothData {
     id_booth: string;

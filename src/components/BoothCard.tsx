@@ -46,7 +46,7 @@ export default function BoothCard({
     const openModalRiwayatKerusakan = async () => {
         setIsLoadingRiwayat(true);
         try {
-            const response = await fetch(`https://backend-umkm-riau.vercel.app/api/booth/riwayat/kerusakan/${id}`);
+            const response = await fetch(`https://backend-umkm-riau.vercel.app/api/kerusakan/${id}`);
             if (!response.ok) {
                 throw new Error("Gagal mengambil data riwayat kerusakan");
             }
@@ -74,7 +74,7 @@ export default function BoothCard({
         const fetchRiwayatKerusakan = async () => {
             setIsLoadingRiwayat(true);
             try {
-                const response = await fetch(`https://backend-umkm-riau.vercel.app/api/booth/riwayat/kerusakan/${id}`);
+                const response = await fetch(`https://backend-umkm-riau.vercel.app/api/kerusakan/${id}`);
                 if (!response.ok) {
                     throw new Error("Gagal mengambil data riwayat kerusakan");
                 }
@@ -163,7 +163,7 @@ export default function BoothCard({
 
             // Kirim data ke endpoint backend
             const response = await fetch(
-                `https://backend-umkm-riau.vercel.app/api/booth/kerusakan`,
+                `https://backend-umkm-riau.vercel.app/api/kerusakan`,
                 {
                     method: "POST",
                     headers: {

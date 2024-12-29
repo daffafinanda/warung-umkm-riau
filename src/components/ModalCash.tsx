@@ -208,6 +208,10 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ onClose }) => {
                                 type="text"
                                 id="no_hp"
                                 name="no_hp"
+                                onInput={(e) => {
+                                    const input = e.target as HTMLInputElement;
+                                    input.value = input.value.replace(/[^0-9]/g, '');
+                                }}
                                 value={formData.no_hp}
                                 onChange={handleChange}
                                 maxLength={13}

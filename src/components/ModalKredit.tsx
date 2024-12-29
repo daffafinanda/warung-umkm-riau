@@ -190,10 +190,15 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose }) => {
                             />
                             <label className="block text-sm font-medium text-gray-700">No HP:</label>
                             <input
-                                type="text"
+                                type="tel"
                                 name="no_hp"
                                 value={formData.no_hp}
                                 onChange={handleChange}
+                                pattern="[0-9]*"
+                                onInput={(e) => {
+                                    const input = e.target as HTMLInputElement;
+                                    input.value = input.value.replace(/[^0-9]/g, '');
+                                }}
                                 maxLength={13}
                                 minLength={11}
                                 required
@@ -224,6 +229,10 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose }) => {
                             <input
                                 type="text"
                                 name="nik"
+                                onInput={(e) => {
+                                    const input = e.target as HTMLInputElement;
+                                    input.value = input.value.replace(/[^0-9]/g, '');
+                                }}
                                 value={formData.nik}
                                 onChange={handleChange}
                                 className="mt-1 p-1 text-black block w-full rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
@@ -232,6 +241,11 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose }) => {
                             <input
                                 type="text"
                                 name="tenor"
+                                onInput={(e) => {
+                                    const input = e.target as HTMLInputElement;
+                                    input.value = input.value.replace(/[^0-9]/g, '');
+                                }}
+                                maxLength={2}
                                 value={formData.tenor}
                                 onChange={handleChange}
                                 className="mt-1 p-1 text-black block w-full rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"

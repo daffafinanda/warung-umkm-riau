@@ -106,7 +106,7 @@ export default function BoothCard({
         }
 
         try {
-            const response = await fetch(`https://backend-umkm-riau.vercel.app/api/booth/riwayat/kerusakan/${idKerusakan}`, {
+            const response = await fetch(`https://backend-umkm-riau.vercel.app/api/kerusakan/${idKerusakan}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

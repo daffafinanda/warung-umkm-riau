@@ -54,8 +54,6 @@ const AddProduk: React.FC<AddProdukProps> = ({
                     Tambah Produk
                 </h3>
 
-
-
                 {/* Input Fields */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
@@ -102,7 +100,7 @@ const AddProduk: React.FC<AddProdukProps> = ({
                     <textarea
                         className="w-full border rounded-lg p-2"
                         name="description"
-                        value={product.deskripsi}
+                        
                         onChange={onInputChange}
                     />
                 </div>

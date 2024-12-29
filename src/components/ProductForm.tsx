@@ -102,7 +102,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
           <textarea
             className="w-full border rounded-lg p-2"
             name="deskripsi"
-            value={product.deskripsi}
             onChange={onInputChange}
           />
         </div>

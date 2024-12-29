@@ -43,12 +43,15 @@ export default function ProfilePage() {
       .then((response) => {
         setUser(response.data.data);
         setLoading(false);
+        console.log(response.data.data);
 
         axios
           .get(`https://backend-umkm-riau.vercel.app/api/penyewaan/${response.data.data.nik}`)
           .then((penyewaanResponse) => {
-            if (penyewaanResponse.data.length > 0) {
+            console.log("Ada Ga",penyewaanResponse.data.data);
+            if (penyewaanResponse.data.data) {
               setIsRented(true);
+            
             }
           })
           .catch(() => {

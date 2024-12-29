@@ -122,7 +122,7 @@ const ProdukFrame: React.FC = () => {
             price: selectedProduct.harga, // Map 'harga' to 'price'
             dimensions: selectedProduct.ukuran, // Map 'ukuran' to 'dimensions'
             image: selectedProduct.foto, // Map 'foto' to 'image'
-            description: selectedProduct.description || "", // Map 'description'
+            deskripsi: selectedProduct.description || "", // Map 'description'
           }}
         />
       )}

@@ -146,9 +146,8 @@ const DataTransaksi: React.FC = () => {
       {selectedOption === "Pembayaran Kredit" && <div>Form untuk Pembayaran Kredit</div>}
 
       <TambahPembayaranSewa
-        isVisible={showModal}
+        isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onSave={(formData) => console.log("Form Sewa Data Submitted:", formData)}
       />
     </div>
   );

@@ -28,7 +28,7 @@ const LayananFrame: React.FC = () => {
         <div className="grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8 mt-8 mx-auto">
           {/* Card untuk Cash */}
           <div
-            className="relative flex hover:shadow-2xl hover:shadow-primary flex-col items-center p-12 bg-foreground shadow-md rounded-3xl space-y-4 cursor-pointer"
+            className="relative flex hover:shadow-2xl hover:shadow-gray-500 flex-col items-center p-12 bg-foreground shadow-md rounded-3xl space-y-4 cursor-pointer"
             onClick={() => navigateToTab('Cash')} // Menambahkan onClick untuk navigasi
           >
             <div className="flex items-center justify-center w-16 h-16 rounded-lg">
@@ -41,14 +41,14 @@ const LayananFrame: React.FC = () => {
           </div>
           {/* Card untuk Kredit */}
           <div
-            className="relative flex hover:shadow-2xl hover:shadow-primary  flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4 cursor-pointer"
+            className="relative flex hover:bg-primary hover:text-white hover:shadow-lg group   flex-col items-center p-12 bg-foreground shadow-md rounded-3xl space-y-4 cursor-pointer"
             onClick={() => navigateToTab('Kredit')} // Menambahkan onClick untuk navigasi
           >
             <div className="flex items-center justify-center w-16 h-16 rounded-lg">
-              <CiCreditCard1 className="text-6xl text-primary" />
+              <CiCreditCard1 className="text-6xl group-hover:text-white text-primary" />
             </div>
-            <h3 className="text-xl font-semibold text-black">Kredit</h3>
-            <p className="text-sm text-gray-600 text-center">
+            <h3 className="text-xl font-semibold group-hover:text-white text-black">Kredit</h3>
+            <p className="text-sm text-gray-600 group-hover:text-white text-center">
               Pembayaran dengan uang muka serta cicilan hingga 5x
             </p>
           </div>

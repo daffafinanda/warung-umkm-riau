@@ -30,6 +30,8 @@ const AddBayarSewaModal: React.FC<AddBayarSewaModalProps> = ({ isOpen, onClose }
   const { showError, showNotification } = useModal();
   const [selectedId, setSelectedId] = useState<number | "">("");
   const [dropdownOptions, setDropdownOptions] = useState<{ id_sewa: number; nama: string;  }[]>([]);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
 
 
   useEffect(() => {
@@ -193,18 +195,41 @@ const AddBayarSewaModal: React.FC<AddBayarSewaModalProps> = ({ isOpen, onClose }
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="bukti" className="block text-sm font-medium mb-1">
-            Bukti Pembayaran
-          </label>
-          <input
-            type="file"
-            id="bukti"
-            name="bukti"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
+  <label htmlFor="bukti" className="block text-sm font-medium mb-1">
+    Bukti Pembayaran
+  </label>
+  <input
+    type="file"
+    id="bukti"
+    name="bukti"
+    accept="image/*"
+    onChange={(e) => {
+      handleFileChange(e);
+      const file = e.target.files?.[0];
+      if (file) {
+        const previewUrl = URL.createObjectURL(file);
+        setPreviewImage(previewUrl);
+      } else {
+        setPreviewImage(null);
+      }
+    }}
+    className="w-full border border-gray-300 rounded-lg p-2"
+  />
+</div>
+
+    {previewImage && (
+      <div className="mb-4">
+        <p className="block text-sm font-medium mb-1">Preview Gambar</p>
+        <img
+          src={previewImage}
+          alt="Preview Bukti Pembayaran"
+          height={100}
+          width={100}
+          className=" rounded-lg border border-gray-300"
+        />
+      </div>
+    )}
+
         <div className="flex justify-end">
           <button
             onClick={onClose}

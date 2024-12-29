@@ -1,7 +1,10 @@
+"use client";
 import React from "react";
+import {useRouter} from "next/navigation";
 
 
 const HomeFrame: React.FC = () => {
+  const router = useRouter();
   return (
     <section>
       <div className="flex flex-col mx-auto md:flex-row items-center mb-20 justify-between gap-12">
@@ -25,10 +28,14 @@ const HomeFrame: React.FC = () => {
               bisa dibeli atau disewa dengan mudah...
             </p>
             <div className="flex items-center justify-start space-x-4">
-              <button className="h-12 w-36 bg-primary rounded-3xl">
+              <button 
+              className="h-12 w-36 bg-primary rounded-3xl"
+              onClick={() => {router.push("/produk")}}>
                 Produk Kami
               </button>
-              <button className="h-12 w-36 border border-gray-300 rounded-3xl hover:border-primary duration-300 ease-in-out text-primary">
+              <button 
+              className="h-12 w-36 border border-gray-300 rounded-3xl hover:border-primary duration-300 ease-in-out text-primary"
+              onClick={() => {router.push("/layanan")}}>
                 Layanan Kami
               </button>
             </div>

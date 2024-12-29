@@ -7,6 +7,7 @@ import Link from "next/link"; // Import Link dari next/link
 import { useRouter } from "next/navigation";
 import { MdLogout } from "react-icons/md";
 import { AiOutlineUser } from "react-icons/ai";
+import ConfirmationPopup from "@/components/ConfirmationPopUp";
 
 
 
@@ -19,6 +20,7 @@ const Navbar: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State untuk dropdown
   const router = useRouter();
   const [biodata, setBiodata] = useState<boolean>(false);
+  const [isLogoutVisible, setLogoutVisible] = useState(false);
   
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Create a ref for the dropdown
 
@@ -80,8 +82,12 @@ const Navbar: React.FC = () => {
     // Hapus token dari localStorage dan set isLoggedIn ke false
     localStorage.clear();
     setIsLoggedIn(false);
+    setLogoutVisible(false);
     setIsDropdownOpen(false); // Close dropdown after logout
   };
+  const handleCanceLogout = () => {
+    setLogoutVisible(false);
+  }
 
   const menuItems = [
     { name: "Home", href: "/" },
@@ -172,11 +178,22 @@ const Navbar: React.FC = () => {
                         </button>
                       )}
                       <button
-                        onClick={handleLogout}
-                        className="block w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-200"
+                        onClick={() => setLogoutVisible(true)}
+                        className="py-2 w-full px-4 flex items-center bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-100"
                       >
-                        <MdLogout className="w-4 h-4 inline-block mr-2" />  Log Out
+                        <MdLogout className="w-4 h-4 inline-block mr-2" /> Logout
                       </button>
+
+                      {isLogoutVisible && (
+                        <ConfirmationPopup
+                          title="Konfirmasi Logout"
+                          message="Apakah Anda yakin ingin logout?"
+                          onConfirm={handleLogout}
+                          onCancel={handleCanceLogout}
+                          confirmText="Ya, Logout"
+                          cancelText="Batal"
+                        />
+                      )}
                     </li>
                   </ul>
                 </div>

@@ -10,10 +10,12 @@ interface AddBayarSewaModalProps {
   onClose: () => void;
 }
 interface Pembelian {
+  booth_id_booth: null;
   biodata_nik: string;
   id_sewa: number;
   nama: string;
   nik: number;
+  
 }
 
 interface BayarSewa {

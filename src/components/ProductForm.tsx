@@ -67,6 +67,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             type="text"
             className="w-full border rounded-lg p-2"
             name="name"
+            maxLength={10}
             value={product.name}
             onChange={onInputChange}
           />
@@ -79,6 +80,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             type="number"
             className="w-full border rounded-lg p-2"
             name="price"
+            maxLength={12}
             value={product.price === 0 ? "" : product.price}
             onChange={onInputChange}
           />
@@ -91,6 +93,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             type="text"
             className="w-full border rounded-lg p-2"
             name="dimensions"
+            maxLength={20}
             value={product.dimensions}
             onChange={onInputChange}
           />
@@ -102,6 +105,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
           <textarea
             className="w-full border rounded-lg p-2"
             name="deskripsi"
+            maxLength={256}
             value={product.deskripsi}
             onChange={onInputChange}
           />

@@ -76,6 +76,7 @@ const AddProduk: React.FC<AddProdukProps> = ({
                         type="number"
                         className="w-full border rounded-lg p-2"
                         name="price"
+                        maxLength={12}
                         value={product.price === 0 ? "" : product.price}
                         onChange={onInputChange}
                     />
@@ -100,6 +101,7 @@ const AddProduk: React.FC<AddProdukProps> = ({
                     <textarea
                         className="w-full border rounded-lg p-2"
                         name="deskripsi"
+                        maxLength={256}
                         value={product.deskripsi}
                         onChange={onInputChange}
                     />

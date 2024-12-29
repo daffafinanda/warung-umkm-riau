@@ -213,10 +213,66 @@ export default function BoothCard({
 
     // Fungsi untuk menghapus penyewa
     const handleHapusPenyewa = async () => {
-        const newStatus = status === "rusak" ? "rusak" : "tidak disewa";
-        setPenyewa(null);
-        setStatus(newStatus);
-        await updateStatus(newStatus);
+        try {
+            // Step 1: Get id_penyewaan dari booth ID
+            const responseGetPenyewaan = await fetch(
+                `https://backend-umkm-riau.vercel.app/api/penyewaan/booth/${id}`
+            );
+
+            if (!responseGetPenyewaan.ok) {
+                throw new Error("Gagal mendapatkan id_penyewaan.");
+            }
+
+            const dataPenyewaan = await responseGetPenyewaan.json();
+
+            if (!dataPenyewaan.success || !dataPenyewaan.data || dataPenyewaan.data.length === 0) {
+                throw new Error("Data id_penyewaan tidak ditemukan.");
+            }
+
+            const idPenyewaan = dataPenyewaan.data[0].id_sewa;
+
+            // Step 2: Hapus bayar_sewa berdasarkan id_penyewaan
+            const responseHapusBayarSewa = await fetch(
+                `https://backend-umkm-riau.vercel.app/api/sewa/hapus/${idPenyewaan}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (!responseHapusBayarSewa.ok) {
+                throw new Error("Gagal menghapus bayar_sewa.");
+            }
+
+            // Step 3: Hapus penyewaan berdasarkan id_penyewaan
+            const responseHapusPenyewaan = await fetch(
+                `https://backend-umkm-riau.vercel.app/api/penyewaan/${idPenyewaan}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (!responseHapusPenyewaan.ok) {
+                throw new Error("Gagal menghapus penyewaan.");
+            }
+
+            // Step 4: Update status booth
+            const newStatus = status === "rusak" ? "rusak" : "tidak disewa";
+            setPenyewa(null);
+            setStatus(newStatus);
+            await updateStatus(newStatus);
+
+            console.log("Penyewa berhasil dihapus.");
+            refetchData(); // Refetch untuk memperbarui UI
+        } catch (error) {
+            console.error("Terjadi kesalahan:", error.message);
+            alert(`Error: ${error.message}`); // Opsional: Tampilkan pesan error
+        }
     };
 
 
@@ -239,15 +295,11 @@ export default function BoothCard({
 
     const updateStatus = async (newStatus) => {
         const payload = {
-            id_booth: id,
-            ukuran: "3x4 meter",
             status: newStatus,
-            harga_sewa: "50000",
-            riwayat_kerusakan: riwayat.map((item, index) => `${index + 1}. ${item.deskripsi}`).join(" "),
         };
 
         try {
-            const response = await fetch(`https://backend-umkm-riau.vercel.app/api/booth/${id}`, {
+            const response = await fetch(`https://backend-umkm-riau.vercel.app/api/booth/status/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

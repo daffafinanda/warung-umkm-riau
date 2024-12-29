@@ -10,9 +10,9 @@ interface AddBayarSewaModalProps {
   onClose: () => void;
 }
 interface Pembelian {
-  id: number;
+  id_sewa: number;
   nama: string;
-  tenor: number;
+  t: number;
 }
 
 interface BayarSewa {
@@ -29,47 +29,43 @@ const AddBayarSewaModal: React.FC<AddBayarSewaModalProps> = ({ isOpen, onClose }
   };
   const { showError, showNotification } = useModal();
   const [selectedId, setSelectedId] = useState<number | "">("");
-  const [dropdownOptions, setDropdownOptions] = useState<{ id: number; nama: string; tenor: number }[]>([]);
-  const [isLunas, setIsLunas] = useState(false);
+  const [dropdownOptions, setDropdownOptions] = useState<{ id_sewa: number; nama: string;  }[]>([]);
+
 
   useEffect(() => {
-    const fetchPembelianData = async () => {
-        try {
-            const response = await axios.get('https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT');
-            const pembelianData = response.data.data;
-            setDropdownOptions(pembelianData.map((item: Pembelian) => ({
-                id: item.id,
-                nama: item.nama,
-                tenor: item.tenor,
-            })));
-        } catch (error) {
-            console.error('Error fetching pembelian data:', error);
-        }
-    };
+    const fetchPenyewaanData = async () => {
+      try {
+        const response = await axios.get('https://backend-umkm-riau.vercel.app/api/penyewaan');
+        const pembelianData = response.data.data;
+        const nik = response.data.data[0].biodata_nik
+  
+        // Fetch nama untuk setiap ID Sewa
+        const optionsWithNama = await Promise.all(
+          pembelianData.map(async (item: Pembelian) => {
+            try {
+              const biodataResponse = await axios.get(`https://backend-umkm-riau.vercel.app/api/biodata/nik/${nik}`);
 
-    fetchPembelianData();
-}, []);
-
-  useEffect(() => {
-    const fetchBuktiData = async () => {
-        if (!selectedId) return;
-
-        try {
-            const response = await axios.get(`https://backend-umkm-riau.vercel.app/api/bukti/${selectedId}`);
-            const buktiCount = response.data.data.length;
-            const selectedOption = dropdownOptions.find(option => option.id === selectedId);
-
-            if (selectedOption) {
-                setIsLunas(buktiCount === selectedOption.tenor);
+              return {
+                id_sewa: item.id_sewa,
+                nama: biodataResponse.data.data.nama,
+              };
+            } catch (error) {
+              console.error(`Error fetching nama for id_sewa ${item.id_sewa}:`, error);
+              return { id_sewa: item.id_sewa, nama: item.nama }; // Fallback jika terjadi error
             }
-        } catch (error) {
-            console.error('Error fetching bukti data:', error);
-        }
+          })
+        );
+  
+        setDropdownOptions(optionsWithNama);
+      } catch (error) {
+        console.error('Error fetching pembelian data:', error);
+      }
     };
-
-    fetchBuktiData();
-}, [selectedId, dropdownOptions]);
-
+  
+    fetchPenyewaanData();
+  }, []);
+  
+  
 
   const [formData, setFormData] = useState<BayarSewa>({
     id_sewa: '',
@@ -91,7 +87,8 @@ const AddBayarSewaModal: React.FC<AddBayarSewaModalProps> = ({ isOpen, onClose }
   };
 
   const handleSubmit = async () => {
-    if (!formData.id_sewa || !formData.jumlah || !formData.bukti) {
+    if (!formData.id_sewa || formData.jumlah === null || formData.jumlah <= 0 || !formData.bukti) {
+
       showError('ID Sewa, Jumlah, dan Bukti harus diisi.');
       return;
     }
@@ -149,19 +146,25 @@ const AddBayarSewaModal: React.FC<AddBayarSewaModalProps> = ({ isOpen, onClose }
             ID Sewa
           </label>
           <select
-                        name="id_pembelian"
+                        name="id_sewa"
                         value={selectedId}
-                        onChange={(e) => setSelectedId(Number(e.target.value))}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setSelectedId(Number(value));
+                          setFormData({ ...formData, id_sewa: value });
+                        }}
+                        
                         className="mt-1 p-1 text-black block w-full rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
                         required
                     >
                         <option value="">Pilih ID</option>
-                        {dropdownOptions.map(option => (
-                            <option key={option.id} value={option.id}>
-                                {option.id} - {option.nama} ({isLunas ? 'LUNAS' : 'BELUM LUNAS'})
-                            </option>
+                        {dropdownOptions.map((option, index) => (
+                          <option key={`${option.id_sewa}-${index}`} value={option.id_sewa}>
+                            {option.id_sewa} - {option.nama}
+                          </option>
                         ))}
                     </select>
+
         </div>
         <div className="mb-4">
           <label htmlFor="tanggal" className="block text-sm font-medium mb-1">

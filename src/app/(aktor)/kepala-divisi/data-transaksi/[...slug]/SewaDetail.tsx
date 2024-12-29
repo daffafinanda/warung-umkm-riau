@@ -6,8 +6,6 @@ import { MdOutlineArrowBackIos } from "react-icons/md"; // Import tombol Back da
 import ImageModal from "@/components/ImageModal";
 import axios from "axios";
 
-
-
 // Simulasi data untuk penyewaan
 interface Pembayaran {
   tanggal: string;
@@ -92,7 +90,7 @@ const SewaDetail = () => {
           nama_penyewa: namaPenyewa,
           lokasi: penyewaanData.lokasi,
           durasi: penyewaanData.durasi,
-          harga: penyewaanData.durasi * 300000, // Contoh perhitungan harga
+          harga: penyewaanData.durasi * 300000,
           pembayaran: pembayaranData,
           jumlah_dibayar: jumlahDibayar,
           sisa,
@@ -105,8 +103,6 @@ const SewaDetail = () => {
     fetchData();
   }, [id]);
   
-  
-
   const openModal = (imageSrc: string) => {
     setSelectedImage(imageSrc);
     setIsModalOpen(true);

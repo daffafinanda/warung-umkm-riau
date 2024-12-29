@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { BsJournalPlus } from "react-icons/bs";
+import { BsJournalPlus, BsTrash } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import MultiStepForm from "@/components/ModalCash";
 
@@ -21,7 +21,9 @@ const TransaksiCash: React.FC = () => {
   const router = useRouter();
   const [data, setData] = useState<FormData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // State untuk modal
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [errorStatus, setErrorStatus] = useState<Record<string, { buktiError: boolean; produkError: boolean }>>({});
+
 
   useEffect(() => {
     const fetchTransaksiData = async () => {
@@ -31,23 +33,51 @@ const TransaksiCash: React.FC = () => {
 
         const updatedData = await Promise.all(
           transaksiData.map(async (transaksi: FormData) => {
-            const productResponse = await axios.get(`https://backend-umkm-riau.vercel.app/api/produk/${transaksi.id}`);
-            const productData = productResponse.data.data;
+            let buktiError = false;
+            let produkError = false;
 
-            const jumlahProduk = productData.reduce((total: number, item: Product) => total + item.jumlah, 0);
-            const totalTransaksi = productData.reduce((total: number, item: Product) => total + item.subtotal, 0);
+            try {
+              const productResponse = await axios.get(`https://backend-umkm-riau.vercel.app/api/produk/${transaksi.id}`);
+              const productData = productResponse.data.data;
 
-            return {
-              id: transaksi.id.toString(),
-              tanggal_transaksi: transaksi.tanggal_transaksi.split("T")[0],
-              nama: transaksi.nama,
-              jumlah_produk: jumlahProduk,
-              totalTransaksi: totalTransaksi,
-            };
+              if (productData.length === 0) {
+                produkError = true;
+              }
+
+              const jumlahProduk = productData.reduce((total: number, item: Product) => total + item.jumlah, 0);
+              const totalTransaksi = productData.reduce((total: number, item: Product) => total + item.subtotal, 0);
+              
+              try {
+              const buktiResponse = await axios.get(`https://backend-umkm-riau.vercel.app/api/bukti/${transaksi.id}`);
+              if (!buktiResponse.data.data.length) {
+                buktiError = true;
+              } 
+            } catch (error) {
+              buktiError = true;
+              console.error("Error fetching bukti data:", error);
+            }
+
+              // Update state for errors
+              setErrorStatus((prev) => ({
+                ...prev,
+                [transaksi.id]: { buktiError, produkError },
+              }));
+
+              return {
+                id: transaksi.id.toString(),
+                tanggal_transaksi: transaksi.tanggal_transaksi.split("T")[0],
+                nama: transaksi.nama,
+                jumlah_produk: jumlahProduk,
+                totalTransaksi: totalTransaksi,
+              };
+            } catch (error:unknown) {
+              console.warn(`Error fetching data for transaksi ID ${transaksi.id}:`, error);
+              return null;
+            }
           })
         );
 
-        setData(updatedData);
+        setData(updatedData.filter((item) => item !== null));
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -57,7 +87,6 @@ const TransaksiCash: React.FC = () => {
 
     fetchTransaksiData();
   }, []);
-
   if (loading) {
     return <p className="text-primary">Loading...</p>;
   }
@@ -73,6 +102,44 @@ const TransaksiCash: React.FC = () => {
     window.location.reload();
   };
 
+  const handleDelete = async (id: number, buktiError: boolean, produkError: boolean) => {
+    try {
+      console.log("Nilai buktiError:", buktiError);
+      console.log("Nilai produkError:", produkError);
+      console.log("ID yang akan dihapus:", id);
+  
+      if (buktiError && produkError) {
+        console.log("Kondisi: buktiError && produkError");
+        // Hapus pembelian langsung
+        
+        const deletePembelian = await axios.delete(`https://backend-umkm-riau.vercel.app/api/pembelian/${id}`);
+        console.log("Pembelian berhasil dihapus:", deletePembelian.data);
+      } else if (buktiError) {
+        console.log("Kondisi: buktiError saja");
+        // Hapus produk terlebih dahulu
+        console.log("Menghapus produk terlebih dahulu...");
+        const deleteProduk = await axios.delete(`https://backend-umkm-riau.vercel.app/api/produk/${id}`);
+        console.log("Produk berhasil dihapus:", deleteProduk.data);
+        // Hapus pembelian setelah produk berhasil dihapus
+        const deletePembelian = await axios.delete(`https://backend-umkm-riau.vercel.app/api/pembelian/${id}`);
+        console.log("Pembelian berhasil dihapus:", deletePembelian.data);
+
+      } else {
+        console.log("Tidak ada kondisi yang terpenuhi.");
+      }
+  
+      // Refresh data setelah penghapusan
+      window.location.reload();
+      console.log("Data transaksi diperbarui.");
+      
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        console.error("Error deleting data:", error.response?.data || error.message);
+      } else {
+        console.error("Unknown error:", error);
+      }
+    }
+  };
   return (
     <div className="relative">
       <button
@@ -111,22 +178,33 @@ const TransaksiCash: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => (
-              <tr key={index} className="bg-white border-b hover:bg-gray-50">
-                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{item.tanggal_transaksi}</td>
-                <td className="px-6 py-4 text-center">{item.nama}</td>
-                <td className="px-6 py-4 text-center">{item.jumlah_produk}</td>
-                <td className="px-6 py-4 text-center">{item.totalTransaksi}</td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => router.push(`data-transaksi/cash/${item.id}`)}
-                    className="font-medium text-blue-600 hover:underline"
-                  >
-                    Detail
-                  </button>
-                </td>
-              </tr>
-            ))}
+          {data.map((item) => {
+              const { buktiError, produkError } = errorStatus[item.id] || {};
+              return (
+                <tr key={item.id} className="bg-white border-b hover:bg-gray-50">
+                  <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{item.tanggal_transaksi}</td>
+                  <td className="px-6 py-4 text-center">{item.nama}</td>
+                  <td className="px-6 py-4 text-center">{item.jumlah_produk}</td>
+                  <td className="px-6 py-4 text-center">{item.totalTransaksi}</td>
+                  <td className="px-6 py-4 text-right">
+                    {(buktiError || produkError) && (
+                      <button
+                        onClick={() => handleDelete(parseInt(item.id), buktiError, produkError)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <BsTrash />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => router.push(`data-transaksi/cash/${item.id}`)}
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      Detail
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

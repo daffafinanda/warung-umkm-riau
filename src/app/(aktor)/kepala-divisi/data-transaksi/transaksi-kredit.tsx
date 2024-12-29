@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BsJournalPlus } from "react-icons/bs";
+import { BsJournalPlus, BsTrash } from "react-icons/bs";
 import MultiStepForm from "@/components/ModalKredit";
 import ModalStep3 from "@/components/AngsuranKreditModal";
 import axios from "axios";
@@ -12,6 +12,8 @@ interface Pembelian {
   tenor: number;
   jenis_produk: string;
   jumlah_bukti: number;
+  buktiError: boolean;
+  produkError: boolean;
 }
 
 const TransaksiKredit: React.FC = () => {
@@ -19,6 +21,7 @@ const TransaksiKredit: React.FC = () => {
   const [isAngsuranModalOpen, setIsAngsuranModalOpen] = useState(false);
   const [transaksi, setTransaksi] = useState<Pembelian[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -28,23 +31,22 @@ const TransaksiKredit: React.FC = () => {
           "https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT"
         );
         const pembelianData = pembelianResponse.data.data;
-        console.log("Bukti data:", pembelianData);
 
         const transaksiData = await Promise.all(
           pembelianData.map(async (item: Pembelian) => {
             let jumlah_bukti = 0;
             let jenis_produk = "N/A";
+            let buktiError = false;
+            let produkError = false;
 
             try {
               const buktiResponse = await axios.get(
                 `https://backend-umkm-riau.vercel.app/api/bukti/${item.id}`
               );
               jumlah_bukti = buktiResponse.data.data.length - 1;
-              console.log("Bukti data:", buktiResponse);
             } catch (error) {
+              buktiError = true;
               console.error("Error fetching bukti data:", error);
-              
-              jumlah_bukti = 0;
             }
 
             try {
@@ -53,12 +55,14 @@ const TransaksiKredit: React.FC = () => {
               );
               if (produkResponse.data.data.length > 0) {
                 jenis_produk = produkResponse.data.data[0]?.jenis_produk || "N/A";
+              } else if (produkResponse.data.data.length === 0) {
+                produkError = true;
               }
             } catch (error) {
+              produkError = true;
               console.error("Error fetching produk data:", error);
-              jenis_produk = "N/A";
             }
-
+            
             return {
               id: item.id,
               tanggal_transaksi: item.tanggal_transaksi.split("T")[0],
@@ -66,10 +70,12 @@ const TransaksiKredit: React.FC = () => {
               tenor: item.tenor,
               jenis_produk,
               jumlah_bukti,
+              buktiError,
+              produkError,
             };
           })
         );
-
+        
         setTransaksi(transaksiData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -79,6 +85,45 @@ const TransaksiKredit: React.FC = () => {
     fetchTransaksi();
   }, []);
 
+  const handleDelete = async (id: number, buktiError: boolean, produkError: boolean) => {
+    try {
+      console.log("Nilai buktiError:", buktiError);
+      console.log("Nilai produkError:", produkError);
+      console.log("ID yang akan dihapus:", id);
+  
+      if (buktiError && produkError) {
+        console.log("Kondisi: buktiError && produkError");
+        // Hapus pembelian langsung
+        
+        const deletePembelian = await axios.delete(`https://backend-umkm-riau.vercel.app/api/pembelian/${id}`);
+        console.log("Pembelian berhasil dihapus:", deletePembelian.data);
+      } else if (buktiError) {
+        console.log("Kondisi: buktiError saja");
+        // Hapus produk terlebih dahulu
+        console.log("Menghapus produk terlebih dahulu...");
+        const deleteProduk = await axios.delete(`https://backend-umkm-riau.vercel.app/api/produk/${id}`);
+        console.log("Produk berhasil dihapus:", deleteProduk.data);
+        // Hapus pembelian setelah produk berhasil dihapus
+        const deletePembelian = await axios.delete(`https://backend-umkm-riau.vercel.app/api/pembelian/${id}`);
+        console.log("Pembelian berhasil dihapus:", deletePembelian.data);
+
+      } else {
+        console.log("Tidak ada kondisi yang terpenuhi.");
+      }
+  
+      // Refresh data setelah penghapusan
+      window.location.reload();
+      console.log("Data transaksi diperbarui.");
+      
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        console.error("Error deleting data:", error.response?.data || error.message);
+      } else {
+        console.error("Unknown error:", error);
+      }
+    }
+  };
+  
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
   const handleOpenTransaksiModal = () => {
@@ -166,6 +211,14 @@ const TransaksiKredit: React.FC = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
+                {(item.buktiError || item.produkError) && (
+                    <button
+                      onClick={() => handleDelete(item.id, item.buktiError, item.produkError)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <BsTrash />
+                    </button>
+                  )}
                   <button
                     onClick={() => router.push(`data-transaksi/kredit/${item.id}`)}
                     className="font-medium text-blue-600 hover:underline"

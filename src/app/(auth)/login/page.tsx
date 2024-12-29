@@ -195,7 +195,7 @@ export default function Login() {
             <div className="w-full max-w-md">
                 <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-2xl px-8 pt-6 pb-8 mb-4">
                     <div className="text-center mb-6">
-                        <h1 className="text-2xl font-bold text-black">Login</h1>
+                        <h1 className="text-2xl font-bold text-primary">Login</h1>
                         <p className="text-sm text-gray-600">Masuk ke akun anda</p>
                     </div>
                     <div className="mb-4">

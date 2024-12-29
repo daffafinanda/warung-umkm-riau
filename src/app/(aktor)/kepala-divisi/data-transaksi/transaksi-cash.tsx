@@ -46,16 +46,16 @@ const TransaksiCash: React.FC = () => {
 
               const jumlahProduk = productData.reduce((total: number, item: Product) => total + item.jumlah, 0);
               const totalTransaksi = productData.reduce((total: number, item: Product) => total + item.subtotal, 0);
-              
+
               try {
-              const buktiResponse = await axios.get(`https://backend-umkm-riau.vercel.app/api/bukti/${transaksi.id}`);
-              if (!buktiResponse.data.data.length) {
+                const buktiResponse = await axios.get(`https://backend-umkm-riau.vercel.app/api/bukti/${transaksi.id}`);
+                if (!buktiResponse.data.data.length) {
+                  buktiError = true;
+                }
+              } catch (error) {
                 buktiError = true;
-              } 
-            } catch (error) {
-              buktiError = true;
-              console.error("Error fetching bukti data:", error);
-            }
+                console.error("Error fetching bukti data:", error);
+              }
 
               // Update state for errors
               setErrorStatus((prev) => ({
@@ -70,7 +70,7 @@ const TransaksiCash: React.FC = () => {
                 jumlah_produk: jumlahProduk,
                 totalTransaksi: totalTransaksi,
               };
-            } catch (error:unknown) {
+            } catch (error: unknown) {
               console.warn(`Error fetching data for transaksi ID ${transaksi.id}:`, error);
               return null;
             }
@@ -107,11 +107,11 @@ const TransaksiCash: React.FC = () => {
       console.log("Nilai buktiError:", buktiError);
       console.log("Nilai produkError:", produkError);
       console.log("ID yang akan dihapus:", id);
-  
+
       if (buktiError && produkError) {
         console.log("Kondisi: buktiError && produkError");
         // Hapus pembelian langsung
-        
+
         const deletePembelian = await axios.delete(`https://backend-umkm-riau.vercel.app/api/pembelian/${id}`);
         console.log("Pembelian berhasil dihapus:", deletePembelian.data);
       } else if (buktiError) {
@@ -127,11 +127,11 @@ const TransaksiCash: React.FC = () => {
       } else {
         console.log("Tidak ada kondisi yang terpenuhi.");
       }
-  
+
       // Refresh data setelah penghapusan
       window.location.reload();
       console.log("Data transaksi diperbarui.");
-      
+
     } catch (error) {
       if (error instanceof axios.AxiosError) {
         console.error("Error deleting data:", error.response?.data || error.message);
@@ -178,7 +178,7 @@ const TransaksiCash: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-          {data.map((item) => {
+            {data.map((item) => {
               const { buktiError, produkError } = errorStatus[item.id] || {};
               return (
                 <tr key={item.id} className="bg-white border-b hover:bg-gray-50">
@@ -187,20 +187,25 @@ const TransaksiCash: React.FC = () => {
                   <td className="px-6 py-4 text-center">{item.jumlah_produk}</td>
                   <td className="px-6 py-4 text-center">{item.totalTransaksi}</td>
                   <td className="px-6 py-4 text-right">
-                    {(buktiError || produkError) && (
+                    <div className=" flex flex-row items-center justify-end">
+                      {(buktiError || produkError) && (
+                        <div className="bg-red-700 p-2 mr-10 rounded-md">
+                          <button
+                            onClick={() => handleDelete(parseInt(item.id), buktiError, produkError)}
+                            className="text-red-600 hover:text-red-800 flex items-center"
+                          >
+                            <BsTrash className="text-white" />
+                          </button>
+                        </div>
+                      )}
                       <button
-                        onClick={() => handleDelete(parseInt(item.id), buktiError, produkError)}
-                        className="text-red-600 hover:text-red-800"
+                        onClick={() => router.push(`data-transaksi/cash/${item.id}`)}
+                        className="font-medium text-blue-600 hover:underline"
                       >
-                        <BsTrash />
+                        Detail
                       </button>
-                    )}
-                    <button
-                      onClick={() => router.push(`data-transaksi/cash/${item.id}`)}
-                      className="font-medium text-blue-600 hover:underline"
-                    >
-                      Detail
-                    </button>
+
+                    </div>
                   </td>
                 </tr>
               );

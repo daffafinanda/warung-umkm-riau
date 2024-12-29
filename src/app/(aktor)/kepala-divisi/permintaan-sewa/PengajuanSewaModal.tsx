@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import FormData from "@/components/FormData";
 import ConfirmationPopup from "@/components/ConfirmationPopUp";
+import { useModal } from '@/components/ModalContext';
 
 import axios from "axios";
 
@@ -15,7 +16,7 @@ interface RentalRequest {
   alamatKTP: string;
   fotoKTP: string;
   durasiPenyewaan: number;
-  status : string;
+  status: string;
   lokasiBooth: string;
   idbooth: string | null;
   mulaiSewa: string | null;
@@ -44,7 +45,8 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showBoothConfirmPopup, setShowBoothConfirmPopup] = useState(false);
   const [boothOptions, setBoothOptions] = useState<{ id_booth: string }[]>([]);
-  
+  const { showNotification, showError } = useModal();
+
   useEffect(() => {
     if (request?.idbooth) {
       setSelectedBooth(request.idbooth); // Set default value if idbooth exists
@@ -52,7 +54,7 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
       setSelectedBooth(""); // Default to empty string if idbooth is null
     }
   }, [request]);
-  
+
 
   useEffect(() => {
     // Fetch data booth saat komponen dimount
@@ -68,38 +70,38 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
         console.error("Error fetching booth data:", error);
       }
     };
-  
+
     if (showBoothSelector) {
       fetchBoothData(); // Panggil fetch hanya saat selector dibuka
     }
   }, [showBoothSelector]);
-  
+
   if (!request) return null;
 
   const handleDelete = async () => {
     if (!request) return;
-  
+
     try {
       // Panggil API DELETE
       const response = await axios.delete(
         `https://backend-umkm-riau.vercel.app/api/penyewaan/${request.id}`
       );
-  
+
       if (response.data.success) {
-        alert("Pengajuan berhasil dihapus.");
+        showNotification("Pengajuan berhasil dihapus.");
         onDelete(request.id); // Callback untuk memperbarui UI
         setShowDeletePopup(false);
         onClose();
       } else {
         console.error("Error deleting request:", response.data);
-        alert("Terjadi kesalahan saat menghapus pengajuan.");
+        showError("Terjadi kesalahan saat menghapus pengajuan.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Gagal menghapus pengajuan. Silakan coba lagi.");
+      showError("Gagal menghapus pengajuan. Silakan coba lagi.");
     }
   };
-  
+
   // Hitung tanggal akhir penyewaan
   const calculateEndDate = (startDate: string, duration: number) => {
     if (!startDate) return ""; // Jika tanggal awal kosong
@@ -110,50 +112,50 @@ const PengajuanSewaModal: React.FC<PengajuanSewaModalProps> = ({
 
 
 
-const handleBoothSelectionConfirm = async () => {
-  if (!request || !selectedBooth) return;
+  const handleBoothSelectionConfirm = async () => {
+    if (!request || !selectedBooth) return;
 
-  // Siapkan payload
-  const payload = {
-    mulai_sewa: startDate,
-    akhir_sewa: endDate,
-    status: "DISETUJUI",
-    booth_id_booth: selectedBooth,
-  };
-  console.log(payload);
-  try {
-    // Kirim data dengan metode PUT ke API
-    const response = await axios.put(
-      `https://backend-umkm-riau.vercel.app/api/penyewaan/${request.nik}`,
-      payload
-    );
-    console.log(request.nik);
-    console.log(response.data);
-    if (response.data.success) {
-      alert("Booth berhasil disimpan!");
-      onSave(request.id, selectedBooth); // Callback untuk menyimpan
-      setShowBoothConfirmPopup(false);
-      setShowBoothSelector(false);
-      onClose();
-    } else {
-      console.error("Error:", response.data);
-      alert("Terjadi kesalahan saat menyimpan data.");
+    // Siapkan payload
+    const payload = {
+      mulai_sewa: startDate,
+      akhir_sewa: endDate,
+      status: "DISETUJUI",
+      booth_id_booth: selectedBooth,
+    };
+    console.log(payload);
+    try {
+      // Kirim data dengan metode PUT ke API
+      const response = await axios.put(
+        `https://backend-umkm-riau.vercel.app/api/penyewaan/${request.nik}`,
+        payload
+      );
+      console.log(request.nik);
+      console.log(response.data);
+      if (response.data.success) {
+        showNotification("Booth berhasil disimpan!");
+        onSave(request.id, selectedBooth); // Callback untuk menyimpan
+        setShowBoothConfirmPopup(false);
+        setShowBoothSelector(false);
+        onClose();
+      } else {
+        console.error("Error:", response.data);
+        showError("Terjadi kesalahan saat menyimpan data.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      showError("Gagal menyimpan data. Silakan coba lagi.");
     }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Gagal menyimpan data. Silakan coba lagi.");
-  }
-};
+  };
 
   const formatDate = (date: string) => {
     const dateObj = new Date(date);
     const day = String(dateObj.getDate()).padStart(2, "0"); // Ensure two-digit day
     const month = String(dateObj.getMonth() + 1).padStart(2, "0"); // Ensure two-digit month
     const year = dateObj.getFullYear();
-    
+
     return `${day}/${month}/${year}`;
   };
-  
+
   const endDate = calculateEndDate(startDate, request.durasiPenyewaan);
 
   return (
@@ -178,14 +180,14 @@ const handleBoothSelectionConfirm = async () => {
               >
                 Tolak pengajuan
               </button>
-              </>
-            )}
-              <button
-                onClick={() => setShowBoothSelector(true)}
-                className="w-full py-2 bg-primary text-white rounded-xl hover:bg-opacity-75"
-              >
-                Pilih Booth
-              </button>
+            </>
+          )}
+          <button
+            onClick={() => setShowBoothSelector(true)}
+            className="w-full py-2 bg-primary text-white rounded-xl hover:bg-opacity-75"
+          >
+            Pilih Booth
+          </button>
         </div>
 
         <div className="mt-4 text-end border-t-2 pt-2">
@@ -225,7 +227,7 @@ const handleBoothSelectionConfirm = async () => {
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 className="w-full p-2 border text-gray-800 border-gray-300 rounded-lg"
-                min={new Date().toISOString().split("T")[0]} 
+                min={new Date().toISOString().split("T")[0]}
               />
             </div>
             <div className="mt-4">

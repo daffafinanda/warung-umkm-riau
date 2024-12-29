@@ -4,7 +4,7 @@ import axios from "axios";
 
 import RentalRequestCard from "@/components/RentalRequestCard";
 import PengajuanSewaModal from "./PengajuanSewaModal";
-import NotificationPopup from "@/components/NotificationPopUp";
+import { useModal } from '@/components/ModalContext';
 
 interface RentalRequest {
   id: number;
@@ -15,7 +15,7 @@ interface RentalRequest {
   jenisKelamin: string;
   alamatDomisili: string;
   alamatKTP: string;
-  fotoKTP: string ;
+  fotoKTP: string;
   durasiPenyewaan: number;
   status: string;
   lokasiBooth: string;
@@ -27,8 +27,7 @@ interface RentalRequest {
 export default function Home() {
   const [rentalRequests, setRentalRequests] = useState<RentalRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<RentalRequest | null>(null);
-  const [isPopupVisible, setPopupVisible] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState("");
+  const { showNotification } = useModal();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,19 +35,19 @@ export default function Home() {
         const rentalResponse = await axios.get(
           "https://backend-umkm-riau.vercel.app/api/penyewaan"
         );
-    
+
         if (rentalResponse.data.success) {
           const rentalData = rentalResponse.data.data;
-    
+
           const requests = await Promise.all(
             rentalData.map(async (rental: any) => {
               try {
                 const biodataResponse = await axios.get(
                   `https://backend-umkm-riau.vercel.app/api/biodata/nik/${rental.biodata_nik}`
                 );
-    
+
                 const biodata = biodataResponse.data.data;
-    
+
                 let noHp = "-";
                 if (biodata.akun_id_akun) {
                   const akunResponse = await axios.get(
@@ -56,7 +55,7 @@ export default function Home() {
                   );
                   noHp = akunResponse.data.data.no_hp || "-";
                 }
-    
+
                 return {
                   id: rental.id_sewa,
                   nama: biodata.nama,
@@ -68,7 +67,7 @@ export default function Home() {
                   alamatKTP: biodata.alamat,
                   fotoKTP: biodata.foto_ktp,
                   durasiPenyewaan: rental.durasi,
-                  status : rental.status,
+                  status: rental.status,
                   lokasiBooth: rental.lokasi,
                   idbooth: rental.booth_id_booth,
                   mulaiSewa: rental.mulai_sewa,
@@ -84,10 +83,10 @@ export default function Home() {
               }
             })
           );
-    
+
           // Filter out any null values (in case of errors in fetching data)
           const validRequests = requests.filter((request) => request !== null);
-    
+
           console.log(validRequests);
           setRentalRequests(validRequests);
         }
@@ -95,12 +94,12 @@ export default function Home() {
         console.error("Error fetching rental requests:", error);
       }
     };
-    
+
     fetchData();
   }, []);
 
 
-  const formatGender = (gender : string) => {
+  const formatGender = (gender: string) => {
     return gender === 'L' ? 'Laki-Laki' : gender === 'P' ? 'Perempuan' : 'Tidak Diketahui';
   };
   const formatDate = (isoDate: string) => {
@@ -110,7 +109,7 @@ export default function Home() {
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
-  
+
   const handleDetailClick = (request: RentalRequest) => {
     setSelectedRequest(request);
   };
@@ -119,19 +118,17 @@ export default function Home() {
     setSelectedRequest(null);
     window.location.reload(); // Reload the page when the modal is closed
   };
-  
+
 
   const handleSave = () => {
-    setNotificationMessage("Booth berhasil dipilih dan disimpan!");
-    setPopupVisible(true);
+    showNotification("Booth berhasil dipilih dan disimpan!");
     closeModal();
   };
 
   const handleDeleteRequest = (id: number) => {
     const updatedRequests = rentalRequests.filter((request) => request.id !== id);
     setRentalRequests(updatedRequests);
-    setNotificationMessage("Pengajuan berhasil ditolak!");
-    setPopupVisible(true);
+    showNotification("Pengajuan berhasil ditolak!");
     closeModal();
   };
 
@@ -155,12 +152,6 @@ export default function Home() {
         onClose={closeModal}
         onSave={handleSave}
         onDelete={() => handleDeleteRequest(selectedRequest?.id ?? 0)}
-      />
-
-      <NotificationPopup
-        message={notificationMessage}
-        isVisible={isPopupVisible}
-        onClose={() => setPopupVisible(false)}
       />
     </div>
   );

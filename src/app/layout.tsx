@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Outfit } from 'next/font/google';
+import { ModalProvider } from "@/components/ModalContext"; // Import ModalProvider
+import Modals from "@/components/Modals"; // Import Modals
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -13,8 +15,6 @@ export const metadata: Metadata = {
   description: "Penyewaan dan Penjualan Barang UMKM",
 };
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,9 +22,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={` ${outfit.variable} antialiased`}>
-        {children}
+      <body className={` ${outfit.variable} antialiased`}>
+        <ModalProvider>
+          <Modals /> {/* Render Modals */}
+          {children}
+        </ModalProvider>
       </body>
     </html>
   );

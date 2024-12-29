@@ -16,6 +16,7 @@ interface TambahBoothModalProps {
 }
 
 const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, onSubmit }) => {
+    const { showError, showNotification } = useModal();
     const [formData, setFormData] = useState<BoothData>({
         id_booth: '',
         ukuran: '',
@@ -32,6 +33,12 @@ const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, on
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Validasi input: pastikan semua field diisi
+        if (!formData.id_booth.trim() || !formData.ukuran.trim()) {
+            showError("Semua field harus diisi!");
+            onClose();
+            return;
+        }
 
         // Tambahkan status default dan riwayat kerusakan kosong
         const boothData = {
@@ -56,7 +63,6 @@ const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, on
                         <label htmlFor="id_booth" className="block text-sm font-medium text-gray-700">ID Booth</label>
                         <input
                             type="text"
-
                             id="id_booth"
                             name="id_booth"
                             value={formData.id_booth}

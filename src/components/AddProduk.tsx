@@ -99,8 +99,8 @@ const AddProduk: React.FC<AddProdukProps> = ({
                     </label>
                     <textarea
                         className="w-full border rounded-lg p-2"
-                        name="description"
-                        
+                        name="deskripsi"
+                        value={product.deskripsi}
                         onChange={onInputChange}
                     />
                 </div>

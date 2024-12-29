@@ -91,6 +91,7 @@ export default function ForgotPasswordPage() {
                             type="tel"
                             placeholder="Contoh: 081234567890"
                             value={no_hp}
+                            maxLength={13}
                             onChange={(e) => setno_hp(e.target.value.replace(/\D/g, ""))}
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />

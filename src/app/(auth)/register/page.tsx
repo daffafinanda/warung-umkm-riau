@@ -4,6 +4,7 @@ import React, { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Link from "next/link";
 
 export default function RegisterPage() {
     const [noHp, setNoHp] = useState("");
@@ -143,6 +144,12 @@ export default function RegisterPage() {
                     >
                         {isLoading ? "Loading..." : "Lanjutkan"}
                     </button>
+                    <p className="mt-4 text-sm text-gray-600 text-center">
+                        Sudah memiliki akun?{" "}
+                        <Link href="/login" className="text-primary font-semibold hover:underline">
+                            Masuk
+                        </Link>
+                    </p>
                 </form>
             </div>
         </div>

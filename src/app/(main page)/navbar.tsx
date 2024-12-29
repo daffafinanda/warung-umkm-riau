@@ -233,7 +233,7 @@ const Navbar: React.FC = () => {
         >
           <ul className="flex flex-col p-4 md:p-0 mt-4 font-semibold md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:bg-background">
             {/* Tambahkan menu Dashboard */}
-            {(role !== "PELANGGAN" || (role === "PELANGGAN" && biodata)) && (
+            {(role == "KEPALA DIVISI" || role == "DIREKTUR" || (role === "PELANGGAN" && biodata)) && (
               <li>
                 <button
                   onClick={handleDashboardRedirect}

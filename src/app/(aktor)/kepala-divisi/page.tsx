@@ -64,7 +64,6 @@ export default function Dashboard() {
     }
   }
 
-  const openTabModal = () => setIsTabModalPendapatanOpen(true);
   const closeTabModal = () => setIsTabModalPendapatanOpen(false);
 
 
@@ -103,6 +102,10 @@ export default function Dashboard() {
     }
   };
 
+  const handleTotalPendapatan = () => {
+    fetchTotalPendapatan();
+    setIsTabModalPendapatanOpen(true);
+  };
 
 
 
@@ -154,9 +157,9 @@ export default function Dashboard() {
   return (
     <div className="mx-auto p-4 space-y-4 bg-gray-100 h-screen overflow-y-auto pb-32">
       <div className="grid gap-4 md:grid-cols-3">
-        <button className="bg-white p-4 flex flex-col rounded-lg shadow-md" onClick={openTabModal}>
-          <h2 className="text-sm font-bold text-gray-800">Total Pendapatan</h2>
-          <p className="text-2xl font-bold text-primary">Rp {totalPendapatan.toLocaleString('id-ID')}</p>
+        <button className="bg-white p-4 flex flex-col rounded-lg shadow-md hover:shadow-xl hover:bg-primary hover:text-white group" onClick={handleTotalPendapatan}>
+          <h2 className="text-sm font-bold text-gray-800 group-hover:text-white">Total Pendapatan</h2>
+          <p className="text-2xl font-bold text-primary group-hover:text-white">Rp {totalPendapatan.toLocaleString('id-ID')}</p>
         </button>
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-sm font-bold text-gray-800">Booth Disewakan</h2>

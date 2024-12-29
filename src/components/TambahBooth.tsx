@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 interface BoothData {
     id_booth: string;
     ukuran: string;
-    harga_sewa: string;
+
 }
 
 interface TambahBoothModalProps {
@@ -18,7 +18,6 @@ const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, on
     const [formData, setFormData] = useState<BoothData>({
         id_booth: '',
         ukuran: '',
-        harga_sewa: '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +40,7 @@ const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, on
         };
 
         onSubmit(boothData);
-        setFormData({ id_booth: '', ukuran: '', harga_sewa: '' }); // Reset form
+        setFormData({ id_booth: '', ukuran: '' }); // Reset form
         onClose();
     };
 
@@ -75,18 +74,6 @@ const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, on
                             onChange={handleChange}
                             className="mt-1 block w-full text-black rounded-md p-1 border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label htmlFor="harga_sewa" className="block text-sm font-medium text-gray-700">Harga Sewa</label>
-                        <input
-                            type="text"
-                            id="harga_sewa"
-                            name="harga_sewa"
-                            value={formData.harga_sewa}
-                            onChange={handleChange}
-                            className="mt-1 block w-full text-black p-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                            required
                         />
                     </div>
                     <div className="flex justify-end space-x-2">

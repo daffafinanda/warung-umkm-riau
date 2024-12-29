@@ -184,7 +184,7 @@ const TabModalPendapatan: React.FC<TabModalPendapatanProps> = ({ isOpen, onClose
                 </div>
                 <div className="md:p-6 p-2">
                     <h2 className="text-2xl font-bold mb-4 text-primary">
-                        {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Transactions
+                        {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Transaksi
                     </h2>
                     <div className="space-y-2 text-black">{renderTransactions(activeTab)}</div>
                     <div className="mt-4 text-lg font-semibold text-primary">

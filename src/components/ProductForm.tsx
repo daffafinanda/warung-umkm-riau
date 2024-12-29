@@ -6,7 +6,6 @@ interface Product {
   name: string;
   price: number;
   dimensions: string;
-  description: string;
   image: string; // The image property in the product data
 }
 
@@ -36,9 +35,9 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
   // Validasi input
   const handleSave = () => {
-    const { name, price, dimensions, description } = product;
+    const { name, price, dimensions,  } = product;
 
-    if (!name || price === 0 || !dimensions || !description || !imageToDisplay) {
+    if (!name || price === 0 || !dimensions || !imageToDisplay) {
       alert("Harap isi semua field yang ada");
       return;
     }
@@ -92,17 +91,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             className="w-full border rounded-lg p-2"
             name="dimensions"
             value={product.dimensions}
-            onChange={onInputChange}
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">
-            Deskripsi<span className="text-red-500">*</span>
-          </label>
-          <textarea
-            className="w-full border rounded-lg p-2"
-            name="description"
-            value={product.description}
             onChange={onInputChange}
           />
         </div>

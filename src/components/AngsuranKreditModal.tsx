@@ -12,7 +12,7 @@ const ModalStep3: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
     const [selectedId, setSelectedId] = useState<number | "">("");
     const [dropdownOptions, setDropdownOptions] = useState<Pembelian[]>([]);
     const [isLunas, setIsLunas] = useState(false);
-    const [showNotification, showError] = useModal();
+    const {showNotification, showError} = useModal();
     const [formData, setFormData] = useState({
         bukti: null as File | null,
         tanggal: new Date().toISOString().split('T')[0],

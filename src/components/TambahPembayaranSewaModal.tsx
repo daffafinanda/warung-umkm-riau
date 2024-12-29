@@ -1,13 +1,18 @@
 // app/components/AddBayarSewaModal.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useModal } from "@/components/ModalContext";
 
 interface AddBayarSewaModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+interface Pembelian {
+  id: number;
+  nama: string;
+  tenor: number;
 }
 
 interface BayarSewa {
@@ -23,6 +28,47 @@ const AddBayarSewaModal: React.FC<AddBayarSewaModalProps> = ({ isOpen, onClose }
     return today.toISOString().split('T')[0]; // Format 'YYYY-MM-DD'
   };
   const { showError, showNotification } = useModal();
+  const [selectedId, setSelectedId] = useState<number | "">("");
+  const [dropdownOptions, setDropdownOptions] = useState<{ id: number; nama: string; tenor: number }[]>([]);
+  const [isLunas, setIsLunas] = useState(false);
+
+  useEffect(() => {
+    const fetchPembelianData = async () => {
+        try {
+            const response = await axios.get('https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT');
+            const pembelianData = response.data.data;
+            setDropdownOptions(pembelianData.map((item: Pembelian) => ({
+                id: item.id,
+                nama: item.nama,
+                tenor: item.tenor,
+            })));
+        } catch (error) {
+            console.error('Error fetching pembelian data:', error);
+        }
+    };
+
+    fetchPembelianData();
+}, []);
+
+  useEffect(() => {
+    const fetchBuktiData = async () => {
+        if (!selectedId) return;
+
+        try {
+            const response = await axios.get(`https://backend-umkm-riau.vercel.app/api/bukti/${selectedId}`);
+            const buktiCount = response.data.data.length;
+            const selectedOption = dropdownOptions.find(option => option.id === selectedId);
+
+            if (selectedOption) {
+                setIsLunas(buktiCount === selectedOption.tenor);
+            }
+        } catch (error) {
+            console.error('Error fetching bukti data:', error);
+        }
+    };
+
+    fetchBuktiData();
+}, [selectedId, dropdownOptions]);
 
 
   const [formData, setFormData] = useState<BayarSewa>({
@@ -102,14 +148,20 @@ const AddBayarSewaModal: React.FC<AddBayarSewaModalProps> = ({ isOpen, onClose }
           <label htmlFor="id_sewa" className="block text-sm font-medium mb-1">
             ID Sewa
           </label>
-          <input
-            type="text"
-            id="id_sewa"
-            name="id_sewa"
-            value={formData.id_sewa}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
+          <select
+                        name="id_pembelian"
+                        value={selectedId}
+                        onChange={(e) => setSelectedId(Number(e.target.value))}
+                        className="mt-1 p-1 text-black block w-full rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
+                        required
+                    >
+                        <option value="">Pilih ID</option>
+                        {dropdownOptions.map(option => (
+                            <option key={option.id} value={option.id}>
+                                {option.id} - {option.nama} ({isLunas ? 'LUNAS' : 'BELUM LUNAS'})
+                            </option>
+                        ))}
+                    </select>
         </div>
         <div className="mb-4">
           <label htmlFor="tanggal" className="block text-sm font-medium mb-1">

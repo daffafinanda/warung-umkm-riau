@@ -7,6 +7,7 @@ interface Product {
     price: number;
     dimensions: string;
     image: string; // The image property in the product data
+    deskripsi: string;
 }
 
 interface AddProdukProps {
@@ -35,9 +36,9 @@ const AddProduk: React.FC<AddProdukProps> = ({
 
     // Validasi input
     const handleSave = () => {
-        const { name, price, dimensions } = product;
+        const { name, price, dimensions, deskripsi } = product;
 
-        if (!name || price === 0 || !dimensions || !imageToDisplay) {
+        if (!name || price === 0 || !dimensions || !imageToDisplay || !deskripsi) {
             alert("Harap isi semua field yang ada");
             return;
         }
@@ -91,6 +92,17 @@ const AddProduk: React.FC<AddProdukProps> = ({
                         name="dimensions"
                         maxLength={20}
                         value={product.dimensions}
+                        onChange={onInputChange}
+                    />
+                </div>
+                <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                        Deskripsi<span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                        className="w-full border rounded-lg p-2"
+                        name="description"
+                        value={product.deskripsi}
                         onChange={onInputChange}
                     />
                 </div>

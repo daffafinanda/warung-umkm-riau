@@ -276,7 +276,6 @@ export default function BoothCard({
     };
 
 
-
     // Fungsi untuk menandai rusak
     const handleTandaiRusak = async () => {
         const newStatus = mapStatus["rusak"];

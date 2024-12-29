@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
+import { useModal } from './ModalContext';
 
 interface FormData {
     nama: string;
@@ -28,7 +29,7 @@ interface MultiStepFormProps {
 }
 
 const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose }) => {
-
+    const { showNotification, showError } = useModal();
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState<FormData>({
         nama: '',
@@ -141,12 +142,12 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose }) => {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
 
-                alert('Form submitted successfully!');
+                showNotification('Pembayaran berhasil disimpan');
                 onClose();
             }
         } catch (error) {
             console.error('Error submitting form:', error);
-            alert('An error occurred while submitting the form. Please try again.');
+            showNotification('Gagal menyimpan, coba lagi!');
         }
     };
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
+import { useModal } from './ModalContext';
 
 interface Pembelian {
     id: number;
@@ -11,10 +12,11 @@ const ModalStep3: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
     const [selectedId, setSelectedId] = useState<number | "">("");
     const [dropdownOptions, setDropdownOptions] = useState<Pembelian[]>([]);
     const [isLunas, setIsLunas] = useState(false);
+    const [showNotification, showError] = useModal();
     const [formData, setFormData] = useState({
         bukti: null as File | null,
         tanggal: new Date().toISOString().split('T')[0],
-        jumlah: 0 ,
+        jumlah: 0,
     });
 
     useEffect(() => {
@@ -70,7 +72,7 @@ const ModalStep3: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
         e.preventDefault();
 
         if (!selectedId || !formData.bukti) {
-            alert('Please select an ID and upload proof of payment.');
+            showError('Silahkan Pilih ID terlebih dahulu!');
             return;
         }
 
@@ -85,11 +87,11 @@ const ModalStep3: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
-            alert('Bukti berhasil disubmit!');
+            showNotification('Angsuran berhasil ditambahkan');
             onClose();
         } catch (error) {
             console.error('Error submitting bukti:', error);
-            alert('Terjadi kesalahan saat mengirim data.');
+            showError('Terjadi kesalahan saat menambahkan angsuran.');
         }
     };
 

@@ -64,20 +64,30 @@ const BoothSaya = () => {
   useEffect(() => {
     const fetchPaymentHistory = async () => {
       if (!data) return;
-
+  
       try {
         const response = await axios.get(
           `https://backend-umkm-riau.vercel.app/api/sewa/${data.id_sewa}`
         );
-
+  
         if (response.data.success) {
           setPaymentHistory(response.data.data);
         }
       } catch (error) {
-        console.error("Error fetching payment history:", error);
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            console.log("Error fetching payment history:", error.response.data);
+          } else if (error.request) {
+            console.log("No response received for payment history:", error.request);
+          } else {
+            console.log("Error message for payment history:", error.message);
+          }
+        } else {
+          console.log("Unexpected error while fetching payment history:", error);
+        }
       }
     };
-
+  
     fetchPaymentHistory();
   }, [data]);
 

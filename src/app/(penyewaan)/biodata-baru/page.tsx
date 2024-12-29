@@ -112,62 +112,74 @@ const Biodata: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!validateForm()) {
       console.log("Form is invalid!");
       return;
     }
     setIsLoading(true);
-
+  
     const id_akun = localStorage.getItem("id_akun");
-
+  
     if (!id_akun) {
       console.error("ID Akun tidak ada");
       return;
     }
-
+  
     // Membuat FormData untuk mengirim file
     const formDataToSend = new FormData();
     
-    // Menambahkan field data lainnya
     formDataToSend.append("nik", formData.nik);
     formDataToSend.append("nama", formData.nama);
     formDataToSend.append("alamat", formData.alamat_ktp);
     formDataToSend.append("jenis_kelamin", formData.jenisKelamin === "Laki-Laki" ? "L" : "P");
     formDataToSend.append("alamat_domisili", formData.alamat_domisili);
     if (formData.fotoKTP) {
-      formDataToSend.append("foto_ktp", formData.fotoKTP); // Mengirim file foto KTP
+      formDataToSend.append("foto_ktp", formData.fotoKTP);
     }
-    formDataToSend.append("akun_id_akun", id_akun as string); // Mengirim ID Akun sebagai string, namun akan diproses sebagai number di backend
+    formDataToSend.append("akun_id_akun", id_akun as string);
     
-    console.log("Data yang akan dikirim ke server:");
-    for (const [key, value] of formDataToSend.entries()) {
-      console.log(`${key}:`, value);
-    }
-
     try {
       const response = await fetch(
         "https://backend-umkm-riau.vercel.app/api/biodata",
         {
           method: "POST",
-          body: formDataToSend, // Mengirim data sebagai FormData
+          body: formDataToSend,
         }
       );
-
+  
       const responseData = await response.json();
+  
       if (response.ok) {
         console.log("Form submitted successfully:", responseData);
-        localStorage.setItem("biodata", JSON.stringify(formData));
-        router.push("/biodata-baru/pengajuan-sewa");
+  
+        // Ambil biodata dari API GET setelah POST berhasil
+        const biodataResponse = await fetch(
+          `https://backend-umkm-riau.vercel.app/api/biodata/${id_akun}`
+        );
+  
+        if (biodataResponse.ok) {
+          const biodataData = await biodataResponse.json();
+          console.log("Biodata retrieved successfully:", biodataData);
+  
+          // Simpan biodata ke localStorage
+          localStorage.setItem("biodata", JSON.stringify(biodataData.data));
+  
+          // Redirect ke halaman berikutnya
+          router.push("/biodata-baru/pengajuan-sewa");
+        } else {
+          console.error("Error retrieving biodata:", await biodataResponse.text());
+        }
       } else {
         console.log("Error:", responseData.message);
       }
     } catch (error) {
       console.log("Error submitting form:", error);
     } finally {
-      setIsLoading(false); // Atur isLoading ke false
+      setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">

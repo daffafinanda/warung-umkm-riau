@@ -67,6 +67,15 @@ const Navbar: React.FC = () => {
     setIsDropdownOpen(!isDropdownOpen); // Toggle dropdown visibility
   };
 
+  const handleDashboardRedirect = () => {
+    if (role === "PELANGGAN" && biodata) {
+      router.push("/pelanggan");
+    } else if (role === "KEPALA DIVISI") {
+      router.push("/kepala-divisi");
+    } else if (role === "DIREKTUR") {
+      router.push("/direktur");
+    }
+  };
   const handleLogout = () => {
     // Hapus token dari localStorage dan set isLoggedIn ke false
     localStorage.clear();
@@ -154,7 +163,7 @@ const Navbar: React.FC = () => {
                 >
                   <ul>
                     <li>
-                      {role === "PELANGGAN" && (
+                      {role === "PELANGGAN" && biodata === true && (
                         <button
                           onClick = {() => router.push('/biodata')}
                           className="block w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-200 border-b"
@@ -206,6 +215,21 @@ const Navbar: React.FC = () => {
           id="navbar-sticky"
         >
           <ul className="flex flex-col p-4 md:p-0 mt-4 font-semibold md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:bg-background">
+            {/* Tambahkan menu Dashboard */}
+            {(role !== "PELANGGAN" || (role === "PELANGGAN" && biodata)) && (
+              <li>
+                <button
+                  onClick={handleDashboardRedirect}
+                  className={`block py-2 px-3 rounded md:p-0 ${
+                    pathname === "/dashboard"
+                      ? "text-primary font-bold"
+                      : "text-gray-900 hover:bg-gray-200 md:hover:bg-transparent md:hover:text-primary"
+                  }`}
+                >
+                  Dashboard
+                </button>
+              </li>
+            )}
             {menuItems.map((item) => (
               <li key={item.name}>
                 <a

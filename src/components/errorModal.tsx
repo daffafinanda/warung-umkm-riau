@@ -18,7 +18,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ message, onClose }) => {
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-100">
       <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col">
         <MdErrorOutline className='text-6xl text-red-600 mx-auto' />
         <h2 className="text-xl font-bold mb-4 text-red-600 text-center">Gagal</h2>

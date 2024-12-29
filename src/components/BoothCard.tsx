@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { MdCheckCircle, MdWarning, MdError, MdAddCircle, MdCalendarToday } from "react-icons/md";
 import ModalRiwayatKerusakanBooth from "@/components/ModalRiwayatKerusakanBooth";
 import ModalTambahRiwayatKerusakanBooth from "@/components/ModalTambahRiwayatKerusakan";
+import { useModal } from "./ModalContext";
 
 interface BoothCardProps {
     id: string; // Tambahkan ID booth
@@ -35,6 +36,7 @@ export default function BoothCard({
     const [isModalHapusPenyewa, setIsModalHapusPenyewa] = useState(false);
     const openModalHapusPenyewa = () => setIsModalHapusPenyewa(true);
     const closeModalHapusPenyewa = () => setIsModalHapusPenyewa(false);
+    const { showError, showNotification } = useModal();
 
     const [riwayatKerusakan, setRiwayatKerusakan] = useState([]);
     const [isLoadingRiwayat, setIsLoadingRiwayat] = useState(false);
@@ -153,12 +155,19 @@ export default function BoothCard({
     };
 
     const handleTambahRiwayat = async () => {
+        // Validasi input sebelum melanjutkan
+        if (!newRiwayat.deskripsi.trim()) {
+            showError("Deskripsi kerusakan tidak boleh kosong.");
+            closeModalTambahRiwayatKerusakan();
+            return;
+        }
+
         try {
             // Siapkan payload untuk POST request
             const payload = {
                 id_booth: id, // Tambahkan id_booth ke payload
                 tanggal_kerusakan: new Date().toISOString().split("T")[0], // Tanggal saat ini dalam format YYYY-MM-DD
-                riwayat_kerusakan: newRiwayat.deskripsi, // Deskripsi dari input
+                riwayat_kerusakan: newRiwayat.deskripsi.trim(), // Deskripsi dari input (hapus spasi di awal/akhir)
             };
 
             // Kirim data ke endpoint backend
@@ -173,15 +182,21 @@ export default function BoothCard({
                 }
             );
 
+            // Periksa apakah respons berhasil
             if (!response.ok) {
                 const textResponse = await response.text();
                 console.error("Error respons backend:", textResponse);
+
+                // Deteksi jika server mengembalikan HTML
                 if (textResponse.startsWith("<!DOCTYPE")) {
                     throw new Error("Server mengembalikan HTML, bukan JSON. Periksa URL atau konfigurasi backend.");
                 }
+
+                // Lemparkan error jika respons gagal
                 throw new Error(`Gagal menambahkan riwayat kerusakan. Status: ${response.status}`);
             }
 
+            // Ambil data JSON dari respons
             const data = await response.json();
             console.log("Riwayat kerusakan berhasil ditambahkan:", data);
 
@@ -193,11 +208,16 @@ export default function BoothCard({
 
             // Refetch data untuk memperbarui tampilan
             refetchData();
-        } catch (error) {
+
+            // Berikan notifikasi kepada pengguna
+            showNotification("Riwayat kerusakan berhasil ditambahkan.");
+        } catch (error: any) {
+            // Tangani kesalahan
             console.error("Terjadi kesalahan:", error.message);
-            alert(error.message); // Tampilkan pesan error ke pengguna
+            showError(error.message || "Terjadi kesalahan saat menambahkan riwayat kerusakan.");
         }
     };
+
 
 
 
@@ -271,7 +291,6 @@ export default function BoothCard({
             refetchData(); // Refetch untuk memperbarui UI
         } catch (error) {
             console.error("Terjadi kesalahan:", error.message);
-            alert(`Error: ${error.message}`); // Opsional: Tampilkan pesan error
         }
     };
 

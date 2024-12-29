@@ -56,29 +56,29 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="p-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3  gap-6 text-black">
         {/* Widget Biodata */}
         <Link href="/biodata" className="block">
-          <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <FaUser className="h-12 w-12 text-blue-500 mb-4" />
+          <div className="bg-white p-6 rounded-lg   shadow-md hover:shadow-lg transition-shadow">
+            <FaUser className="h-12 w-12 text-primary mb-4" />
             <h2 className="text-xl font-semibold mb-2">Biodata</h2>
-            <p className="text-gray-600">Lihat dan edit informasi pribadi Anda</p>
+            <p className="text-gray-600">Lihat informasi pribadi Anda</p>
           </div>
         </Link>
 
         {/* Widget Pengajuan Sewa */}
         <Link href="/pengajuan-sewa" className="block">
           <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <FaClipboardList className="h-12 w-12 text-green-500 mb-4" />
+            <FaClipboardList className="h-12 w-12 text-primary mb-4" />
             <h2 className="text-xl font-semibold mb-2">Pengajuan Sewa</h2>
-            <p className="text-gray-600">Ajukan penyewaan booth baru</p>
+            <p className="text-gray-600">Lihat data pengajuan sewa anda</p>
           </div>
         </Link>
 
         {/* Widget Booth Saya */}
         <Link href="/booth-saya" className="block">
           <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <FaStore className="h-12 w-12 text-purple-500 mb-4" />
+            <FaStore className="h-12 w-12 text-primary mb-4" />
             <h2 className="text-xl font-semibold mb-2">Booth Saya</h2>
             <p className="text-gray-600">Kelola booth yang sedang Anda sewa</p>
           </div>

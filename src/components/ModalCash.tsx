@@ -296,9 +296,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ onClose }) => {
                                             required
                                         />
                                     </div>
-                                    <div className="font-medium text-gray-600">
-                                        Subtotal: Rp {(produk.harga * produk.jumlah).toLocaleString()}
-                                    </div>
                                 </div>
                             ))}
                         </div>

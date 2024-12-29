@@ -28,7 +28,7 @@ const LayananFrame: React.FC = () => {
         <div className="grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8 mt-8 mx-auto">
           {/* Card untuk Cash */}
           <div
-            className="relative flex flex-col items-center p-12 bg-foreground shadow-md rounded-3xl space-y-4 cursor-pointer"
+            className="relative flex hover:shadow-2xl hover:shadow-primary flex-col items-center p-12 bg-foreground shadow-md rounded-3xl space-y-4 cursor-pointer"
             onClick={() => navigateToTab('Cash')} // Menambahkan onClick untuk navigasi
           >
             <div className="flex items-center justify-center w-16 h-16 rounded-lg">
@@ -41,7 +41,7 @@ const LayananFrame: React.FC = () => {
           </div>
           {/* Card untuk Kredit */}
           <div
-            className="relative flex flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4 cursor-pointer"
+            className="relative flex hover:shadow-2xl hover:shadow-primary  flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4 cursor-pointer"
             onClick={() => navigateToTab('Kredit')} // Menambahkan onClick untuk navigasi
           >
             <div className="flex items-center justify-center w-16 h-16 rounded-lg">
@@ -54,7 +54,7 @@ const LayananFrame: React.FC = () => {
           </div>
           {/* Card untuk Sewa */}
           <div
-            className="relative flex flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4 cursor-pointer"
+            className="relative flex hover:shadow-2xl hover:shadow-primary flex-col items-center p-12 bg-[#FCFCFC] shadow-md rounded-3xl space-y-4 cursor-pointer"
             onClick={() => navigateToTab('Sewa')} // Menambahkan onClick untuk navigasi
           >
             <div className="flex items-center justify-center w-16 h-16 rounded-lg">

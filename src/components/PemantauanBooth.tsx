@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface PemantauanBoothProps {
     isOpen: boolean;
@@ -6,7 +6,7 @@ interface PemantauanBoothProps {
     boothData: {
         id: string;
         penyewa: string;
-        lokasi: string;
+        lokasi: string; // Format: "latitude,longitude"
         status: string;
         ktpImage: string;
         no_hp: string;
@@ -29,6 +29,28 @@ const DataItem = ({ label, value }: { label: string; value: string }) => (
 
 export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothProps) {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [kecamatan, setKecamatan] = useState<string>("Memuat...");
+
+    useEffect(() => {
+        if (!isOpen || !boothData.lokasi) return;
+
+        const fetchKecamatan = async () => {
+            const [lat, lon] = boothData.lokasi.split(",");
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const kecamatanName =
+                    data.address?.suburb || data.address?.village || "Tidak ditemukan";
+                setKecamatan(kecamatanName);
+            } catch (error) {
+                console.error("Gagal mengambil data kecamatan:", error);
+                setKecamatan("Gagal memuat kecamatan");
+            }
+        };
+
+        fetchKecamatan();
+    }, [isOpen, boothData.lokasi]);
 
     if (!isOpen) return null;
 
@@ -59,8 +81,6 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
         );
     });
 
-    // Split kerusakan data into list
-    // Mengatur manual dengan index untuk penomoran
     const kerusakanItems = boothData.riwayat_kerusakan
         ? boothData.riwayat_kerusakan.split(" | ").map((item, index) => (
             <p key={index} className="mb-1">
@@ -68,7 +88,6 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
             </p>
         ))
         : <p>Tidak ada riwayat kerusakan</p>;
-
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -92,7 +111,7 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                             <DataItem label="Nama Penyewa" value={boothData.penyewa} />
                             <DataItem label="No HP" value={boothData.no_hp} />
                             <DataItem label="Alamat Domisili" value={boothData.alamat_domisili} />
-                            <DataItem label="Alamat Lokasi Booth" value={boothData.lokasi} />
+                            <DataItem label="Kecamatan Lokasi Booth" value={kecamatan} />
                             <DataItem label="NIK" value={boothData.nik} />
                             <DataItem label="Jenis Kelamin" value={boothData.jenis_kelamin} />
                             <DataItem label="Awal Penyewaan" value={boothData.awal_penyewaan} />
@@ -113,7 +132,6 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                             <h3 className="text-base md:text-lg">Riwayat Pembayaran</h3>
                         </div>
                         <div className="p-4">
-                            {/* Only render the payment history if it's valid */}
                             {paymentHistoryLinks}
                         </div>
                     </div>
@@ -123,7 +141,6 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                             <h3 className="text-base md:text-lg">Riwayat Kerusakan</h3>
                         </div>
                         <div className="p-4">
-                            {/* Render kerusakanItems as a numbered list */}
                             <ul className="list-decimal pl-6">
                                 {kerusakanItems}
                             </ul>
@@ -132,7 +149,6 @@ export function PemantauanBooth({ isOpen, onClose, boothData }: PemantauanBoothP
                 </div>
             </div>
 
-            {/* Modal to display selected image */}
             {selectedImage && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
                     <div className="bg-white p-4 rounded-xl shadow-xl max-w-xl w-full relative">

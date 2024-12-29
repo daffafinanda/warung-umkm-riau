@@ -12,6 +12,8 @@ type Booth = {
   akhir_sewa: string | null
   permintaan_dibuat: string
   lokasi: string // Koordinat "latitude,longitude"
+  latitude: number;
+  longitude: number;
   status: string
   booth_id_booth: string | null
   biodata_nik: string
@@ -78,7 +80,16 @@ export default function Dashboard() {
       if (response.data.success && response.data.data.length > 0) {
         const detail = response.data.data[0];
 
-        // Format data sesuai props PemantauanBooth
+        // Simpan lokasi ke localStorage
+        const lokasiData = {
+          id: booth.booth_id_booth || 'Unknown',
+          lokasi: booth.kecamatan || 'Unknown',
+          latitude: booth.latitude,
+          longitude: booth.longitude,
+        };
+        localStorage.setItem('lokasiDetail', JSON.stringify(lokasiData));
+
+        // Format dan set data untuk modal
         const formattedBooth = {
           id: booth.booth_id_booth || 'Unknown',
           penyewa: detail.nama || 'Unknown',
@@ -101,6 +112,7 @@ export default function Dashboard() {
       console.error("Error fetching booth details:", error);
     }
   };
+
 
   const handleTotalPendapatan = () => {
     fetchTotalPendapatan();

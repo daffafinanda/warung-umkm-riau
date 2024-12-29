@@ -151,7 +151,7 @@ const Dashboard: React.FC = () => {
   ) : (
     <div className="text-lg">
       <p className="mb-4">
-        Hai <strong>{rentalData?.nama || 'Pengguna'}</strong>, kamu sedang tidak memiliki penyewaan booth nih.
+        Hai <strong>{rentalData!.nama || "Pelanggan" }</strong>, kamu sedang tidak memiliki penyewaan booth nih.
       </p>
       <p>
         Jika kamu ingin melakukan penyewaan, maka{' '}

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import FormData from "@/components/FormData";
 import { useRouter } from "next/navigation";
+import ConfirmationPopup from "@/components/ConfirmationPopUp";
 
 const PengajuanSewa: React.FC = () => {
   type Status = "Disetujui" | "Menunggu" | "Diproses" | "Ditolak";
@@ -36,6 +37,7 @@ const PengajuanSewa: React.FC = () => {
   const [rentalId, setRentalId] = useState<string | null>(null);  // Store rental id
   const router = useRouter();
   const [isDataEmpty, setIsDataEmpty] = useState<boolean>(false);
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -90,6 +92,9 @@ const PengajuanSewa: React.FC = () => {
     }
   }, []);
 
+  const openPopup = () => setIsPopupOpen(true);
+  const closePopup = () => setIsPopupOpen(false);
+
   const getStatusClass = (status: Status): string => {
     switch (status) {
       case "Disetujui":
@@ -111,7 +116,7 @@ const PengajuanSewa: React.FC = () => {
         return (
           <button
             type="button"
-            onClick={handleDelete}  // Call the handleDelete function
+            onClick={openPopup}  // Call the handleDelete function
             className="w-full bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 focus:outline-none"
           >
             Batalkan Pengajuan
@@ -138,21 +143,22 @@ const PengajuanSewa: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={handleDelete}  // Call the handleDelete function
+              onClick={openPopup}  // Call the handleDelete function
               className="w-full bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 focus:outline-none"
             >
               Batalkan Pengajuan
             </button>
+            
           </div>
         );
-      default:
-        return null;
-    }
-  };
-
-  const handleDelete = () => {
-    if (!rentalId) {
-      console.error("Rental ID is missing.");
+        default:
+          return null;
+        }
+      };
+      
+      const handleDelete = () => {
+        if (!rentalId) {
+          console.error("Rental ID is missing.");
       return;
     }
 
@@ -217,13 +223,24 @@ const PengajuanSewa: React.FC = () => {
             {formData.statusProses}
           </div>
         </div>
-
+        {isPopupOpen && (
+            <ConfirmationPopup
+            title="Konfirmasi Pembatalan"
+            message="Apakah Anda yakin ingin membatalkan pengajuan penyewaan ini?"
+            onConfirm={() => {
+              handleDelete();
+              closePopup();
+            }}
+            onCancel={closePopup}
+          />
+            )}
         {/* Tombol Aksi */}
         <div className="flex justify-center">
           {renderButtons(formData.statusProses as Status)}
         </div>
       </form>
     </div>
+    
   );
 };
 

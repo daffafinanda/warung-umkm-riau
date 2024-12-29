@@ -161,9 +161,7 @@ export default function Login() {
                             console.log(biodata)
                         } else if (biodata === false) {
                             router.push(redirectTo)
-                        } else {
-                            router.push('/');
-                        }
+                        } 
 
                     } else if (role === 'KEPALA DIVISI') {
                         router.push('/kepala-divisi');

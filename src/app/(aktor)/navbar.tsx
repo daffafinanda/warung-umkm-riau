@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FiMenu, FiChevronDown } from "react-icons/fi";
 import { usePathname, useRouter } from "next/navigation";
+import ConfirmationPopup from "@/components/ConfirmationPopUp";
 
 interface NavbarProps {
   toggleSidebar: () => void;
@@ -13,6 +14,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const actorRoles = ["direktur", "kepala-divisi", "pelanggan"];
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isLogoutVisible, setLogoutVisible] = useState(false);
 
   useEffect(() => {
     const biodata = localStorage.getItem("biodata");
@@ -50,8 +52,12 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const handleLogout = () => {
     localStorage.clear();
     setDropdownOpen(false);
+    setLogoutVisible(false);
     router.push("/");
   };
+  const handleCanceLogout = () => {
+    setLogoutVisible(false);
+  }
 
   const handleClickOutside = (event: MouseEvent) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -96,11 +102,21 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-gray-100 text-black shadow-lg rounded-md overflow-hidden z-10">
               <button
-                onClick={handleLogout}
+                onClick={() => setLogoutVisible(true)}
                 className="w-full text-left block px-4 py-2 hover:bg-primary hover:bg-opacity-25 hover:text-primary focus:outline-none focus:bg-gray-500 focus:text-white"
               >
                 Logout
               </button>
+              {isLogoutVisible && (
+                        <ConfirmationPopup
+                          title="Konfirmasi Logout"
+                          message="Apakah Anda yakin ingin logout?"
+                          onConfirm={handleLogout}
+                          onCancel={handleCanceLogout}
+                          confirmText="Ya, Logout"
+                          cancelText="Batal"
+                        />
+                      )}
             </div>
           )}
         </div>

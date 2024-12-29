@@ -84,6 +84,7 @@ const Navbar: React.FC = () => {
     setIsLoggedIn(false);
     setLogoutVisible(false);
     setIsDropdownOpen(false); // Close dropdown after logout
+    window.location.reload();
   };
   const handleCanceLogout = () => {
     setLogoutVisible(false);

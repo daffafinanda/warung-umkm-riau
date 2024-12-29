@@ -68,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, toggleSidebar }) => {
                 className={`flex items-center p-2 rounded-lg ${
                   isActive(menu.link)
                     ? "bg-[#2f68351b] text-primary font-bold"
-                    : "text-gray-900 hover:bg-gray-100"
+                    : "text-gray-900 hover:bg-gray-100 focus:ring-2 focus:ring-gray-200" 
                 }`}
               >
                 <menu.icon

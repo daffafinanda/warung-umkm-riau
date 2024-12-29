@@ -28,10 +28,14 @@ const RiwayatPenyewaan = () => {
           "https://backend-umkm-riau.vercel.app/api/penyewaan"
         );
         const penyewaanData = penyewaanResponse.data.data;
-        console.log(penyewaanData);
-
+  
+        // Filter data dengan booth_id_booth yang tidak kosong atau null
+        const filteredData = penyewaanData.filter(
+          (item: PenyewaanData) => item.booth_id_booth && item.booth_id_booth.trim() !== ""
+        );
+  
         const updatedData = await Promise.all(
-          penyewaanData.map(async (item: PenyewaanData) => {
+          filteredData.map(async (item: PenyewaanData) => {
             const biodataResponse = await axios.get(
               `https://backend-umkm-riau.vercel.app/api/biodata/nik/${item.biodata_nik}`
             );
@@ -44,7 +48,7 @@ const RiwayatPenyewaan = () => {
             };
           })
         );
-        
+  
         setDataPenyewaan(updatedData);
         setLoading(false);
       } catch (error) {
@@ -52,9 +56,10 @@ const RiwayatPenyewaan = () => {
         setLoading(false);
       }
     };
-
+  
     fetchPenyewaanData();
   }, []);
+  
 
   if (loading) {
     return <p className="text-primary">Loading...</p>;

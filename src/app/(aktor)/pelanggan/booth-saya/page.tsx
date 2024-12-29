@@ -74,7 +74,18 @@ const BoothSaya = () => {
           setPaymentHistory(response.data.data);
         }
       } catch (error) {
-        console.error("Error fetching payment history:", error);
+        
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            console.log("Error fetching payment history:", error.response.data);
+          } else if (error.request) {
+            console.log("No response received for payment history:", error.request);
+          } else {
+            console.log("Error message for payment history:", error.message);
+          }
+        } else {
+          console.log("Unexpected error while fetching payment history:", error);
+        }
       }
     };
 
@@ -144,6 +155,18 @@ const BoothSaya = () => {
       </button>
     </div>
    );
+  }
+
+  if (!data.mulai_sewa || !data.akhir_sewa) {
+    return (
+      <div className="p-6">
+        <div className="mx-auto w-fit px-10 py-6 bg-foreground rounded-lg shadow-xl">
+          <div className="text-center font-semibold text-primary ">
+            Pengajuan sewa anda sedang diproses...
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

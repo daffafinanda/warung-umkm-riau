@@ -160,7 +160,7 @@ const TransaksiCash: React.FC = () => {
             >
               ✕
             </button>
-            <MultiStepForm />
+            <MultiStepForm onClose={closeModal} />
           </div>
         </div>
       )}

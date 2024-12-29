@@ -48,9 +48,11 @@ export default function ProfilePage() {
         axios
           .get(`https://backend-umkm-riau.vercel.app/api/penyewaan/${response.data.data.nik}`)
           .then((penyewaanResponse) => {
-            console.log("Ada Ga",penyewaanResponse.data.data);
-            if (penyewaanResponse.data.data) {
+            console.log("Ada Ga",penyewaanResponse.data.data.length >0);
+
+            if (penyewaanResponse.data.data.length >0) {
               setIsRented(true);
+              console.log("Ada penyewaan");
             
             }
           })

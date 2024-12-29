@@ -210,6 +210,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ onClose }) => {
                                 name="no_hp"
                                 value={formData.no_hp}
                                 onChange={handleChange}
+                                maxLength={13}
                                 className="mt-1 p-1 block text-black w-full rounded-md border border-grey-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
                                 required
                             />

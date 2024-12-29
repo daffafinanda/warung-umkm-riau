@@ -36,35 +36,38 @@ const AddBayarSewaModal: React.FC<AddBayarSewaModalProps> = ({ isOpen, onClose }
 
 
   useEffect(() => {
-  const fetchPenyewaanData = async () => {
-    try {
-      const response = await axios.get('https://backend-umkm-riau.vercel.app/api/penyewaan');
-      const pembelianData = response.data.data;
-      // Fetch nama untuk setiap ID Sewa
-      const optionsWithNama = await Promise.all(
-        pembelianData.map(async (item: Pembelian) => {
-          try {
-            const biodataResponse = await axios.get(`https://backend-umkm-riau.vercel.app/api/biodata/nik/${item.biodata_nik}`);
-
-            return {
-              id_sewa: item.id_sewa,
-              nama: biodataResponse.data.data.nama,
-            };
-          } catch (error) {
-            console.error(`Error fetching nama for id_sewa ${item.id_sewa}:`, error);
-            return { id_sewa: item.id_sewa, nama: item.nama }; // Fallback jika terjadi error
-          }
-        })
-      );
-
-      setDropdownOptions(optionsWithNama);
-    } catch (error) {
-      console.error('Error fetching pembelian data:', error);
-    }
-  };
-
-  fetchPenyewaanData();
-}, []);
+    const fetchPenyewaanData = async () => {
+      try {
+        const response = await axios.get('https://backend-umkm-riau.vercel.app/api/penyewaan');
+        const pembelianData = response.data.data;
+        // Filter penyewaan data to ensure booth_id_booth is not null
+        const filteredData = pembelianData.filter((item: Pembelian) => item.booth_id_booth !== null);
+  
+        // Fetch nama for each ID Sewa
+        const optionsWithNama = await Promise.all(
+          filteredData.map(async (item: Pembelian) => {
+            try {
+              const biodataResponse = await axios.get(`https://backend-umkm-riau.vercel.app/api/biodata/nik/${item.biodata_nik}`);
+              return {
+                id_sewa: item.id_sewa,
+                nama: biodataResponse.data.data.nama,
+              };
+            } catch (error) {
+              console.error(`Error fetching nama for id_sewa ${item.id_sewa}:`, error);
+              return { id_sewa: item.id_sewa, nama: item.nama }; // Fallback if error occurs
+            }
+          })
+        );
+  
+        setDropdownOptions(optionsWithNama);
+      } catch (error) {
+        console.error('Error fetching pembelian data:', error);
+      }
+    };
+  
+    fetchPenyewaanData();
+  }, []);
+  
 
   
 

@@ -29,7 +29,7 @@ interface Transaksi {
   nik : string;
   alamat_domisili: string;
 
-  produk: Produk;
+  produk: Produk[];
   totalTransaksi: number;
   dp: number;
   tenor: number;

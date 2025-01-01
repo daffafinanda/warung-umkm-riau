@@ -20,7 +20,7 @@ interface Product {
   price: number;
   dimensions: string;
   image: string;
-  description: string;
+  deskripsi: string;
 }
 
 const ProdukPage: React.FC = () => {
@@ -45,7 +45,7 @@ const ProdukPage: React.FC = () => {
               price: parseInt(item.harga, 10) || 0, // Convert harga to number
               dimensions: item.ukuran,
               image: item.foto || "https://via.placeholder.com/150", // Placeholder if no image
-              description: `Produk ${item.jenis} dengan ukuran ${item.ukuran}`,
+              deskripsi: `Produk ${item.jenis} dengan ukuran ${item.ukuran}`,
             })
           );
           setProducts(transformedProducts);

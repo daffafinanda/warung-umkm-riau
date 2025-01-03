@@ -5,16 +5,16 @@ import { FaPlus } from "react-icons/fa";
 import TambahBoothModal from "@/components/TambahBooth";
 import { useModal } from '@/components/ModalContext';
 
-interface Booth {
+interface BoothData {
     id_booth: string;
     ukuran: string;
     status: string;
     harga_sewa: string;
-    riwayat_kerusakan: string;
+    riwayat_kerusakan: { tanggal: string; deskripsi: string }[];
 }
 
 export default function Page() {
-    const [booths, setBooths] = useState<Booth[]>([]);
+    const [booths, setBooths] = useState<BoothData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalTambahBoothOpen, setIsModalTambahBoothOpen] = useState(false);
     const { showNotification, showError } = useModal();

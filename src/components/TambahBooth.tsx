@@ -10,7 +10,7 @@ interface BoothData {
 interface TambahBoothModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: BoothData) => void;
+    onSubmit: (data: BoothData) => Promise<void>;
     existingBoothIds: string[]; // New prop for existing booth IDs
 
 }
@@ -49,6 +49,7 @@ const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, on
 
         onSubmit(boothData);
         setFormData({ id_booth: '', ukuran: '' }); // Reset form
+        showNotification('Data berhasil ditambahkan!');
         onClose();
     };
 

@@ -48,20 +48,26 @@ export default function Page() {
 
     const handleTambahBoothSubmit = async (data: BoothData) => {
         try {
+            // Ambil hanya id_booth dan ukuran yang diperlukan
+            const { id_booth, ukuran } = data;
+
+            // Kirim data ke API dengan properti yang dibutuhkan
             const response = await fetch("https://backend-umkm-riau.vercel.app/api/booth", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    ...data,
+                    id_booth, // Hanya kirimkan id_booth
+                    ukuran,   // Hanya kirimkan ukuran
                     status: "TIDAK DISEWA", // Status default
-                    riwayat_kerusakan: ""  // Riwayat kosong
+                    harga_sewa: "", // Harga sewa default
+                    riwayat_kerusakan: [] // Riwayat kerusakan default
                 }),
             });
 
             const result = await response.json();
             if (result.success) {
                 refetchBooths();
-                showNotification("Berhasil menambah booth"); // Refresh data booth setelah menambahkan
+                showNotification("Berhasil menambah booth");
             } else {
                 console.error("Gagal menambah booth:", result.message);
                 showError("Gagal menambah booth");
@@ -71,6 +77,7 @@ export default function Page() {
             showError("Error menambah booth");
         }
     };
+
 
 
     const handleAddRiwayat = (boothIndex: number, newRiwayat: { tanggal: string; deskripsi: string }) => {
@@ -93,7 +100,8 @@ export default function Page() {
             <TambahBoothModal
                 isOpen={isModalTambahBoothOpen}
                 onClose={() => setIsModalTambahBoothOpen(false)}
-                onSubmit={handleTambahBoothSubmit} />
+                onSubmit={handleTambahBoothSubmit}
+                existingBoothIds={booths.map(booth => booth.id_booth)} />
             <button
                 onClick={handleTambahBooth}
                 className="bg-primary shadow-xl border-primary w-full md: flex items-center justify-center font-semibold text-lg text-white px-4 py-3 rounded-lg mb-6 hover:bg-primary hover:bg-opacity-80 hover:scale-95 transition-all duration-200 ease-in-out"

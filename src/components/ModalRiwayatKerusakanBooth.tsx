@@ -8,6 +8,7 @@ interface ModalRiwayatKerusakanBoothProps {
     onClose: () => void;
     riwayat: { id: string; tanggal: string; deskripsi: string }[];
     onDelete: (id: string) => void;
+    isLoading: boolean;
 }
 
 const ModalRiwayatKerusakanBooth: React.FC<ModalRiwayatKerusakanBoothProps> = ({
@@ -15,6 +16,7 @@ const ModalRiwayatKerusakanBooth: React.FC<ModalRiwayatKerusakanBoothProps> = ({
     onClose,
     riwayat,
     onDelete,
+    isLoading,
 }) => {
     if (!isOpen) return null;
 
@@ -29,23 +31,32 @@ const ModalRiwayatKerusakanBooth: React.FC<ModalRiwayatKerusakanBoothProps> = ({
                     <IoCloseSharp className="w-5 h-5" />
                 </button>
                 <h2 className="text-xl font-semibold text-center text-black">Riwayat Kerusakan</h2>
-                <div className="flex flex-col gap-4 mt-4">
-                    {riwayat.map((item) => (
-                        <div key={item.id} className="flex items-start justify-between">
-                            <div>
-                                <h3 className="text-lg font-semibold text-primary">{item.tanggal}</h3>
-                                <p className="font-medium text-black">{item.deskripsi}</p>
+
+                {/* Tampilkan loading jika sedang memuat */}
+                {isLoading ? (
+                    <div className="flex justify-center items-center mt-4">
+                        <div className="w-6 h-6 border-t-4 border-primary border-solid rounded-full animate-spin"></div> {/* Spinner */}
+                        <p className="ml-2">Loading...</p> {/* Teks Loading */}
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-4 mt-4">
+                        {riwayat.map((item) => (
+                            <div key={item.id} className="flex items-start justify-between">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-primary">{item.tanggal}</h3>
+                                    <p className="font-medium text-black">{item.deskripsi}</p>
+                                </div>
+                                <button
+                                    onClick={() => onDelete(item.id)}  // Mengirim ID kerusakan saat dihapus
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-100 p-1 rounded-full transition-colors"
+                                    aria-label={`Delete riwayat from ${item.tanggal}`}
+                                >
+                                    <LuTrash2 className="w-5 h-5" />
+                                </button>
                             </div>
-                            <button
-                                onClick={() => onDelete(item.id)}  // Mengirim ID kerusakan saat dihapus
-                                className="text-red-500 hover:text-red-700 hover:bg-red-100 p-1 rounded-full transition-colors"
-                                aria-label={`Delete riwayat from ${item.tanggal}`}
-                            >
-                                <LuTrash2 className="w-5 h-5" />
-                            </button>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -2,11 +2,11 @@
 import React, { ChangeEvent } from "react";
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: number;
   dimensions: string;
-  image: string; // The image property in the product data
+  image: string;
   deskripsi: string;
 }
 

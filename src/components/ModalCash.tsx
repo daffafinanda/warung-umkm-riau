@@ -25,6 +25,7 @@ interface FormData {
     // Bukti Bayar
     tanggal: string;
     bukti: File | null;
+    id_pembelian?: number;
 
 }
 
@@ -77,13 +78,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ onClose }) => {
         }
     };
 
-/*************  ✨ Codeium Command ⭐  *************/
-/**
- * Adds a new product entry to the formData state.
- * The new product has default values for jenis_produk, ukuran, harga, and jumlah.
- */
-
-/******  280eceab-6fc6-4dd2-b5e7-5a33eef5f7f4  *******/    const addProduct = () => {
+    const addProduct = () => {
         setFormData(prevData => ({
             ...prevData,
             produk: [...prevData.produk, { jenis_produk: '', ukuran: '', harga: 0, jumlah: 0 }]

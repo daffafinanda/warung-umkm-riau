@@ -11,6 +11,12 @@ interface Location {
     lng: number;
 }
 
+interface ApiLocation {
+    booth_id_booth: string;
+    nama: string;
+    lokasi: string; // Format: "lat,lng"
+}
+
 // Properly set custom icon URLs without modifying _getIconUrl
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -33,7 +39,7 @@ export function LocationMap() {
                 const response = await fetch('https://backend-umkm-riau.vercel.app/api/penyewaan/lokasi');
                 const data = await response.json();
                 if (data.success && Array.isArray(data.data)) {
-                    const formattedLocations = data.data.map((item: any) => {
+                    const formattedLocations: Location[] = data.data.map((item: ApiLocation) => {
                         const [lat, lng] = item.lokasi.split(',').map(Number);
                         return {
                             boothId: item.booth_id_booth,

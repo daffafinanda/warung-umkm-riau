@@ -4,6 +4,9 @@ import { useModal } from './ModalContext';
 interface BoothData {
     id_booth: string;
     ukuran: string;
+    status: string;
+    harga_sewa: string;
+    riwayat_kerusakan: { tanggal: string; deskripsi: string }[];
 
 }
 
@@ -20,6 +23,9 @@ const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, on
     const [formData, setFormData] = useState<BoothData>({
         id_booth: '',
         ukuran: '',
+        status: "TIDAK DISEWA", // Status default
+        harga_sewa: "",
+        riwayat_kerusakan: []
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +54,7 @@ const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, on
         };
 
         onSubmit(boothData);
-        setFormData({ id_booth: '', ukuran: '' }); // Reset form
+        setFormData({ id_booth: '', ukuran: '', status: "TIDAK DISEWA", harga_sewa: "", riwayat_kerusakan: [] }); // Reset form
         showNotification('Data berhasil ditambahkan!');
         onClose();
     };

@@ -7,6 +7,11 @@ interface Pembelian {
     tenor: number;
 }
 
+interface PembelianResponse {
+    data: Pembelian[];
+}
+
+
 const ModalStep3: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
     const [selectedId, setSelectedId] = useState<number | "">("");
     const [dropdownOptions, setDropdownOptions] = useState<Pembelian[]>([]);
@@ -20,13 +25,17 @@ const ModalStep3: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
     useEffect(() => {
         const fetchPembelianData = async () => {
             try {
-                const response = await axios.get('https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT');
+                const response = await axios.get<PembelianResponse>(
+                    'https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT'
+                );
                 const pembelianData = response.data.data;
-                setDropdownOptions(pembelianData.map((item: any) => ({
-                    id: item.id,
-                    nama: item.nama,
-                    tenor: parseInt(item.tenor, 10),
-                })));
+                setDropdownOptions(
+                    pembelianData.map((item) => ({
+                        id: item.id,
+                        nama: item.nama,
+                        tenor: item.tenor,
+                    }))
+                );
             } catch (error) {
                 console.error('Error fetching pembelian data:', error);
             }

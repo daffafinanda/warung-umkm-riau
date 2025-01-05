@@ -11,10 +11,23 @@ import AddProduk from "@/components/AddProduk";
 interface Product {
   id: string;
   name: string;
-  price: number | string;
+  price: number;
   dimensions: string;
-  image: string | null;
+  image: string;
   deskripsi: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    id: string;
+    jenis: string;
+    harga: number;
+    ukuran: string;
+    foto?: string;
+    deskripsi: string;
+  }[];
 }
 
 const PengelolaanProduk: React.FC = () => {
@@ -43,12 +56,12 @@ const PengelolaanProduk: React.FC = () => {
         const response = await fetch(
           "https://backend-umkm-riau.vercel.app/api/dokumentasi"
         );
-        const data = await response.json();
+        const data: ApiResponse = await response.json();
 
         if (data.success) {
           // Map API data to Product interface
           const fetchedProducts = data.data
-            .map((item: any) => {
+            .map((item) => {
               if (!item.id) {
                 console.warn("ID produk tidak ditemukan di data:", item);
                 return null; // Jangan masukkan produk yang tidak valid
@@ -62,7 +75,8 @@ const PengelolaanProduk: React.FC = () => {
                 deskripsi: item.deskripsi, // Assuming there's no deskripsi in the API data
               };
             })
-            .filter(Boolean); // Hapus produk dengan id yang tidak valid
+            .filter((item): item is Product => item !== null); // Filter out null values and assert type
+
           setProducts(fetchedProducts);
         } else {
           console.error("Failed to fetch products:", data.message);
@@ -74,6 +88,7 @@ const PengelolaanProduk: React.FC = () => {
 
     fetchProducts();
   }, []);
+
 
   const handleAddProduct = () => {
     setIsAddProductOpen(true);

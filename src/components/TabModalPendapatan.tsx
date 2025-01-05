@@ -18,6 +18,32 @@ type TabModalPendapatanProps = {
     onClose: () => void;
 };
 
+type Pembelian = {
+    id: number;
+    jenis_pembayaran: 'CREDIT' | 'CASH';
+};
+
+type Bukti = {
+    id: number;
+    id_pembelian: number;
+    tanggal: string;
+    jumlah: number;
+    bukti: string;
+};
+
+type Produk = {
+    id: number;
+    id_pembelian: number;
+    jenis_produk: string;
+};
+
+type Sewa = {
+    id: number;
+    tanggal: string;
+    jumlah: number;
+    bukti: string;
+};
+
 const TabModalPendapatan: React.FC<TabModalPendapatanProps> = ({ isOpen, onClose }) => {
     const [activeTab, setActiveTab] = useState<'kredit' | 'cash' | 'sewa'>('kredit');
     const [transactions, setTransactions] = useState<Record<string, Transaction[]>>({
@@ -34,34 +60,41 @@ const TabModalPendapatan: React.FC<TabModalPendapatanProps> = ({ isOpen, onClose
                 const currentYear = currentDate.getFullYear();
 
                 // Fetch pembelian data
-                const pembelianResponse = await axios.get('https://backend-umkm-riau.vercel.app/api/pembelian');
+                const pembelianResponse = await axios.get<{ success: boolean; data: Pembelian[] }>(
+                    'https://backend-umkm-riau.vercel.app/api/pembelian'
+                );
                 const pembelianData = pembelianResponse.data;
 
                 if (!pembelianData.success) return;
 
-                // Filter IDs by payment type
                 const kreditIds = pembelianData.data
-                    .filter((item: any) => item.jenis_pembayaran === 'CREDIT')
-                    .map((item: any) => item.id);
+                    .filter((item) => item.jenis_pembayaran === 'CREDIT')
+                    .map((item) => item.id);
 
                 const cashIds = pembelianData.data
-                    .filter((item: any) => item.jenis_pembayaran === 'CASH')
-                    .map((item: any) => item.id);
+                    .filter((item) => item.jenis_pembayaran === 'CASH')
+                    .map((item) => item.id);
 
                 // Fetch bukti data
-                const buktiResponse = await axios.get('https://backend-umkm-riau.vercel.app/api/bukti');
+                const buktiResponse = await axios.get<{ success: boolean; data: Bukti[] }>(
+                    'https://backend-umkm-riau.vercel.app/api/bukti'
+                );
                 const buktiData = buktiResponse.data;
 
                 if (!buktiData.success) return;
 
                 // Fetch produk data
-                const produkResponse = await axios.get('https://backend-umkm-riau.vercel.app/api/produk');
+                const produkResponse = await axios.get<{ success: boolean; data: Produk[] }>(
+                    'https://backend-umkm-riau.vercel.app/api/produk'
+                );
                 const produkData = produkResponse.data;
 
                 if (!produkData.success) return;
 
                 // Fetch sewa data
-                const sewaResponse = await axios.get('https://backend-umkm-riau.vercel.app/api/sewa');
+                const sewaResponse = await axios.get<{ success: boolean; data: Sewa[] }>(
+                    'https://backend-umkm-riau.vercel.app/api/sewa'
+                );
                 const sewaData = sewaResponse.data;
 
                 if (!sewaData.success) return;
@@ -70,15 +103,13 @@ const TabModalPendapatan: React.FC<TabModalPendapatanProps> = ({ isOpen, onClose
                 const cashTransactions: Transaction[] = [];
                 const sewaTransactions: Transaction[] = [];
 
-                buktiData.data.forEach((item: any) => {
+                buktiData.data.forEach((item) => {
                     const transactionDate = new Date(item.tanggal);
                     if (
                         transactionDate.getMonth() === currentMonth &&
                         transactionDate.getFullYear() === currentYear
                     ) {
-                        const product = produkData.data.data.find(
-                            (prod: any) => prod.id_pembelian === item.id_pembelian
-                        );
+                        const product = produkData.data.find((prod) => prod.id_pembelian === item.id_pembelian);
 
                         const transaction: Transaction = {
                             id: item.id,
@@ -104,7 +135,7 @@ const TabModalPendapatan: React.FC<TabModalPendapatanProps> = ({ isOpen, onClose
                 });
 
                 // Map sewa data to transactions
-                sewaData.data.forEach((item: any) => {
+                sewaData.data.forEach((item) => {
                     const transactionDate = new Date(item.tanggal);
                     if (
                         transactionDate.getMonth() === currentMonth &&

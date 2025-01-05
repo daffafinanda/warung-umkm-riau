@@ -29,7 +29,7 @@ interface MultiStepFormProps {
 }
 
 const MultiStepForm: React.FC<MultiStepFormProps> = ({ isOpen, onClose }) => {
-    const { showNotification, showError } = useModal();
+    const { showNotification } = useModal();
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState<FormData>({
         nama: '',

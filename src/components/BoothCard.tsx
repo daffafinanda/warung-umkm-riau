@@ -20,10 +20,7 @@ export default function BoothCard({
     id, // Pastikan id diteruskan
     boothName,
     initialPenyewa,
-    initialKerusakan,
     initialStatus,
-    riwayat,
-    onAddRiwayat,
     refetchData,
 }: BoothCardProps) {
     const [penyewa, setPenyewa] = useState<string | null>(initialPenyewa);
@@ -54,7 +51,7 @@ export default function BoothCard({
             }
             const data = await response.json();
             if (data.success) {
-                const riwayatKerusakan = data.data.map((item) => ({
+                const riwayatKerusakan = data.data.map((item: { id: string; tanggal_kerusakan: string; riwayat_kerusakan: string; }) => ({
                     id: item.id,
                     tanggal: item.tanggal_kerusakan.split("T")[0],
                     deskripsi: item.riwayat_kerusakan,
@@ -64,7 +61,7 @@ export default function BoothCard({
                 console.error("Response tidak berhasil:", data);
             }
         } catch (error) {
-            console.error("Terjadi kesalahan:", error.message);
+            console.error("Terjadi kesalahan:", error);
         } finally {
             setIsLoadingRiwayat(false);
             setIsModalRiwayatKerusakanOpen(true);
@@ -82,7 +79,7 @@ export default function BoothCard({
                 }
                 const data = await response.json();
                 if (data.success) {
-                    const riwayatKerusakan = data.data.map((item) => ({
+                    const riwayatKerusakan = data.data.map((item: { id: string; tanggal_kerusakan: string; riwayat_kerusakan: string; }) => ({
                         id: item.id,
                         tanggal: item.tanggal_kerusakan.split("T")[0],
                         deskripsi: item.riwayat_kerusakan,
@@ -92,7 +89,7 @@ export default function BoothCard({
                     console.error("Response tidak berhasil:", data);
                 }
             } catch (error) {
-                console.error("Terjadi kesalahan:", error.message);
+                console.error("Terjadi kesalahan:", error);
             } finally {
                 setIsLoadingRiwayat(false);
             }
@@ -124,7 +121,7 @@ export default function BoothCard({
             console.log('Riwayat kerusakan berhasil dihapus');
             refetchData(); // Refetch untuk memperbarui UI
         } catch (error) {
-            console.error('Terjadi kesalahan:', error.message);
+            console.error('Terjadi kesalahan:', error);
         }
     };
 
@@ -211,10 +208,10 @@ export default function BoothCard({
 
             // Berikan notifikasi kepada pengguna
             showNotification("Riwayat kerusakan berhasil ditambahkan.");
-        } catch (error: any) {
+        } catch (error) {
             // Tangani kesalahan
-            console.error("Terjadi kesalahan:", error.message);
-            showError(error.message || "Terjadi kesalahan saat menambahkan riwayat kerusakan.");
+            console.error("Terjadi kesalahan:", error);
+            showError("Terjadi kesalahan saat menambahkan riwayat kerusakan.");
         }
     };
 
@@ -290,7 +287,7 @@ export default function BoothCard({
             console.log("Penyewa berhasil dihapus.");
             refetchData(); // Refetch untuk memperbarui UI
         } catch (error) {
-            console.error("Terjadi kesalahan:", error.message);
+            console.error("Terjadi kesalahan:", error);
         }
     };
 
@@ -311,7 +308,7 @@ export default function BoothCard({
 
 
 
-    const updateStatus = async (newStatus) => {
+    const updateStatus = async (newStatus: string) => {
         const payload = {
             status: newStatus,
         };
@@ -337,7 +334,7 @@ export default function BoothCard({
             // Fetch ulang data setelah status diubah
             refetchData();
         } catch (error) {
-            console.error("Error saat memperbarui status:", error.message);
+            console.error("Error saat memperbarui status:", error);
         }
     };
 

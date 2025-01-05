@@ -120,7 +120,7 @@ const Navbar: React.FC = () => {
               <Link href="/register">
                 <button
                   type="button"
-                  className="text-primary text-sm bg-foreground hover:bg-opacity-50 focus:ring-4 focus:outline-none focus:ring-primary focus:ring-opacity-50 font-medium rounded-lg px-2 py-0 text-center shadow-md hover:shadow-lg md:px-5 md:py-3"
+                  className="text-primary text-sm bg-foreground hover:bg-primary hover:bg-opacity-40 hover:text-foreground focus:ring-4 focus:outline-none focus:ring-primary focus:ring-opacity-50 font-medium rounded-lg px-2 py-0 text-center shadow-md hover:shadow-lg md:px-5 md:py-3"
                 >
                   Daftar
                 </button>

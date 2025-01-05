@@ -38,46 +38,50 @@ const Biodata: React.FC = () => {
   const mapInstance = useRef<L.Map | null>(null); // Store map instance
 
   useEffect(() => {
-  if (mapRef.current && !mapInstance.current) {
-    mapInstance.current = L.map(mapRef.current).setView([formData.coordinates.lat, formData.coordinates.lng], 13);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
-
+    if (!mapRef.current || mapInstance.current) return;
+  
+    const map = L.map(mapRef.current).setView([formData.coordinates.lat, formData.coordinates.lng], 13);
+    mapInstance.current = map;
+  
+    const tileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+    tileLayer.addTo(map);
+  
     const customIcon = L.icon({
-      iconUrl: "https://www.openstreetmap.org/assets/marker-green-2de0354ac458a358b9925a8b7f5746324122ff884605073e1ee602fe8006e060.png",
+      iconUrl: "https://www.openstreetmap.org/assets/marker-green.png",
       iconAnchor: [16, 32],
       popupAnchor: [0, -32],
     });
-
-    const marker = L.marker([formData.coordinates.lat, formData.coordinates.lng], { icon: customIcon }).addTo(mapInstance.current);
-
+  
+    const marker = L.marker([formData.coordinates.lat, formData.coordinates.lng], {
+      icon: customIcon,
+      draggable: true,
+    }).addTo(map);
+  
     marker.on("moveend", () => {
       const latlng = marker.getLatLng();
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         coordinates: { lat: latlng.lat, lng: latlng.lng },
         lokasi: `Lat: ${latlng.lat}, Lng: ${latlng.lng}`,
-      });
+      }));
     });
-
-    mapInstance.current.on("click", (e) => {
+  
+    map.on("click", (e) => {
       const { lat, lng } = e.latlng;
       marker.setLatLng([lat, lng]);
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         coordinates: { lat, lng },
         lokasi: `${lat}, ${lng}`,
-      });
+      }));
     });
-  }
-
-  return () => {
-    if (mapInstance.current) {
-      mapInstance.current.remove(); // Cleanup map
+  
+    return () => {
+      map.remove();
       mapInstance.current = null;
-    }
-  };
-}, [formData.coordinates]);
-
+    };
+  }, []);
+  
   
   useEffect(() => {
     const checkRentalRequest = async () => {
@@ -123,70 +127,59 @@ const Biodata: React.FC = () => {
   }, [formData.durasi]);
 
   const validateForm = () => {
-    const emptyFields: string[] = [];
-    if (!formData.durasi) emptyFields.push("durasi");
+    const emptyFields = [];
+    if (!formData.durasi || isNaN(Number(formData.durasi)) || Number(formData.durasi) <= 0) {
+      emptyFields.push("durasi");
+    }
     if (!formData.lokasi) emptyFields.push("lokasi");
-
+  
     setErrorFields(emptyFields);
     return emptyFields.length === 0;
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validasi form sebelum melanjutkan
-    if (!validateForm()) {
-        console.error("Form is invalid!");
-        return;
-    }
-
-    // Ambil biodata dari localStorage
-    const biodata = localStorage.getItem('biodata');
-    if (!biodata) {
-        router.push('/biodata-baru');
-        return;
-    }
-
+    if (!validateForm()) return;
+  
+    setIsSubmitting(true);
+  
     try {
-      setIsSubmitting(true); // Set loading state menjadi true
-        const parsedBiodata = JSON.parse(biodata);
-
-        // Periksa apakah data biodata valid
-        const { nik } = parsedBiodata; // Ambil NIK langsung dari parsedBiodata
-        if (!nik) {
-            console.error("NIK not found in biodata or biodata is invalid");
-            setIsSubmitting(false); // Reset loading state
-            return;
-        }
-
-        // Data yang akan dikirim
-        const data = {
-            biodata_nik: nik,
-            durasi: formData.durasi,
-            lokasi: formData.lokasi,
-
-        };
-
-        // Kirim permintaan PUT ke API
-        const response = await fetch("https://backend-umkm-riau.vercel.app/api/penyewaan", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
-
-        // Tangani respons
-        if (response.ok) {
-            console.log("Permintaan penyewaan berhasil diajukan!");
-            router.push('/pelanggan/pengajuan-sewa');
-        } else {
-            console.error("Gagal mengajukan permintaan penyewaan");
-        }
+      const biodata = localStorage.getItem("biodata");
+      if (!biodata) {
+        router.push("/biodata-baru");
+        return;
+      }
+  
+      const parsedBiodata = JSON.parse(biodata);
+      const { nik } = parsedBiodata;
+  
+      const data = {
+        biodata_nik: nik,
+        durasi: formData.durasi,
+        lokasi: formData.lokasi,
+      };
+  
+      const response = await fetch("https://backend-umkm-riau.vercel.app/api/penyewaan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (response.ok) {
+        router.push("/pelanggan/pengajuan-sewa");
+      } else {
+        console.error("Gagal mengajukan permintaan penyewaan");
+      }
     } catch (error) {
-        console.error("Terjadi kesalahan saat mengirim data:", error);
+      console.error("Error:", error);
+    } finally {
+      setIsSubmitting(false);
     }
-};
+  };
+  
 
 
   return (

@@ -38,45 +38,46 @@ const Biodata: React.FC = () => {
   const mapInstance = useRef<L.Map | null>(null); // Store map instance
 
   useEffect(() => {
-    if (mapRef.current && !mapInstance.current) {
-      mapInstance.current = L.map(mapRef.current).setView([formData.coordinates.lat, formData.coordinates.lng], 13);
-  
-      // Tambahkan tile layer
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
-  
-      // Definisikan ikon khusus
-      const customIcon = L.icon({
-        iconUrl: "https://www.openstreetmap.org/assets/marker-green-2de0354ac458a358b9925a8b7f5746324122ff884605073e1ee602fe8006e060.png", // Ganti dengan path ikon Anda
-  
-        iconAnchor: [16, 32], // Titik jangkar (biasanya bagian bawah tengah)
-        popupAnchor: [0, -32], // Titik jangkar popup
+  if (mapRef.current && !mapInstance.current) {
+    mapInstance.current = L.map(mapRef.current).setView([formData.coordinates.lat, formData.coordinates.lng], 13);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
+
+    const customIcon = L.icon({
+      iconUrl: "https://www.openstreetmap.org/assets/marker-green-2de0354ac458a358b9925a8b7f5746324122ff884605073e1ee602fe8006e060.png",
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
+
+    const marker = L.marker([formData.coordinates.lat, formData.coordinates.lng], { icon: customIcon }).addTo(mapInstance.current);
+
+    marker.on("moveend", () => {
+      const latlng = marker.getLatLng();
+      setFormData({
+        ...formData,
+        coordinates: { lat: latlng.lat, lng: latlng.lng },
+        lokasi: `Lat: ${latlng.lat}, Lng: ${latlng.lng}`,
       });
-  
-      // Tambahkan marker dengan ikon khusus
-      const marker = L.marker([formData.coordinates.lat, formData.coordinates.lng], { icon: customIcon }).addTo(mapInstance.current);
-  
-      // Event untuk memindahkan marker
-      marker.on("moveend", () => {
-        const latlng = marker.getLatLng();
-        setFormData({
-          ...formData,
-          coordinates: { lat: latlng.lat, lng: latlng.lng },
-          lokasi: `Lat: ${latlng.lat}, Lng: ${latlng.lng}`,
-        });
+    });
+
+    mapInstance.current.on("click", (e) => {
+      const { lat, lng } = e.latlng;
+      marker.setLatLng([lat, lng]);
+      setFormData({
+        ...formData,
+        coordinates: { lat, lng },
+        lokasi: `${lat}, ${lng}`,
       });
-  
-      // Event untuk klik pada peta
-      mapInstance.current.on("click", (e) => {
-        const { lat, lng } = e.latlng;
-        marker.setLatLng([lat, lng]);
-        setFormData({
-          ...formData,
-          coordinates: { lat, lng },
-          lokasi: `${lat}, ${lng}`,
-        });
-      });
+    });
+  }
+
+  return () => {
+    if (mapInstance.current) {
+      mapInstance.current.remove(); // Cleanup map
+      mapInstance.current = null;
     }
-  }, [formData.coordinates]);
+  };
+}, [formData.coordinates]);
+
   
   useEffect(() => {
     const checkRentalRequest = async () => {

@@ -1,9 +1,9 @@
 "use client";
-import React, { useState, useEffect, FormEvent, Suspense } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import NotificationPopup from '@/components/NotificationPopUp';
 import ErrorModal from '@/components/errorModal';
 
@@ -14,8 +14,8 @@ export default function Login() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const redirectTo = searchParams.get('redirect') || '/';
+
+
     const [isNotificationVisible, setIsNotificationVisible] = useState(false);
     const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
     const [biodata, setBiodata] = useState(false);
@@ -89,7 +89,7 @@ export default function Login() {
                 if (biodataExists) {
                     router.push('/pelanggan');
                 } else {
-                    router.push(redirectTo)
+                    router.push('/')
                 }
             } else if (role === 'KEPALA DIVISI') {
                 router.push('/kepala-divisi');
@@ -160,7 +160,7 @@ export default function Login() {
                             router.push('/pelanggan');
                             console.log(biodata)
                         } else if (biodata === false) {
-                            router.push(redirectTo)
+                            router.push('/')
                         } 
 
                     } else if (role === 'KEPALA DIVISI') {
@@ -191,7 +191,6 @@ export default function Login() {
     };
 
     return (
-    <Suspense fallback={<div>Loading...</div>}>    
         <div className="min-h-screen bg-primary2 flex items-center justify-center p-6">
             <div className="w-full max-w-md">
                 <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-2xl px-8 pt-6 pb-8 mb-4">
@@ -293,6 +292,5 @@ export default function Login() {
                 />
             )}
         </div>
-     </Suspense>   
     );
 }

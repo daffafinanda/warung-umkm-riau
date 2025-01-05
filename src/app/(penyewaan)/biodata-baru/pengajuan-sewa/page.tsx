@@ -26,6 +26,11 @@ const Biodata: React.FC = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPopupVisible, setPopupVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true); // Set component as mounted to avoid server-side execution issues.
+  }, []);
 
   const steps = [
     { name: "Login", status: "completed" as const },
@@ -35,28 +40,22 @@ const Biodata: React.FC = () => {
     { name: "Pembayaran", status: "upcoming" as const },
   ];
 
-  const mapInstance = useRef<L.Map | null>(null); // Store map instance
+  // const mapInstance = useRef<L.Map | null>(null); // Store map instance
 
   useEffect(() => {
-    if (!mapRef.current || mapInstance.current) return;
-  
-    const map = L.map(mapRef.current).setView([formData.coordinates.lat, formData.coordinates.lng], 13);
-    mapInstance.current = map;
-  
-    const tileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-    tileLayer.addTo(map);
-  
-    const customIcon = L.icon({
-      iconUrl: "https://www.openstreetmap.org/assets/marker-green.png",
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32],
-    });
-  
+    if (!isMounted || !mapRef.current) return;
+
+    const map = L.map(mapRef.current).setView(
+      [formData.coordinates.lat, formData.coordinates.lng],
+      13
+    );
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
     const marker = L.marker([formData.coordinates.lat, formData.coordinates.lng], {
-      icon: customIcon,
       draggable: true,
     }).addTo(map);
-  
+
     marker.on("moveend", () => {
       const latlng = marker.getLatLng();
       setFormData((prev) => ({
@@ -65,35 +64,30 @@ const Biodata: React.FC = () => {
         lokasi: `Lat: ${latlng.lat}, Lng: ${latlng.lng}`,
       }));
     });
-  
+
     map.on("click", (e) => {
       const { lat, lng } = e.latlng;
       marker.setLatLng([lat, lng]);
       setFormData((prev) => ({
         ...prev,
         coordinates: { lat, lng },
-        lokasi: `${lat}, ${lng}`,
+        lokasi: `Lat: ${lat}, ${lng}`,
       }));
     });
-  
+
     return () => {
       map.remove();
-      mapInstance.current = null;
     };
-  }, []);
-  
+  }, [isMounted, formData.coordinates]);
   
   useEffect(() => {
-    const checkRentalRequest = async () => {
-      // Ambil biodata dari localStorage
-      const biodata = localStorage.getItem("biodata");
-      if (!biodata) {
-        console.error("Biodata not found in localStorage");
-        return;
-      }
+    if (typeof window === "undefined") return;
 
-      const parsedBiodata = JSON.parse(biodata);
-      const { nik } = parsedBiodata;
+    const checkRentalRequest = async () => {
+      const biodata = localStorage.getItem("biodata");
+      if (!biodata) return;
+
+      const { nik } = JSON.parse(biodata);
 
       try {
         const response = await fetch(
@@ -102,10 +96,7 @@ const Biodata: React.FC = () => {
         const result = await response.json();
 
         if (result.success && result.data.length > 0) {
-          // Tampilkan pop-up notifikasi
           setPopupVisible(true);
-
-          // Tunggu 3 detik sebelum berpindah halaman
           setTimeout(() => {
             setPopupVisible(false);
             router.replace("/pelanggan");
@@ -127,60 +118,72 @@ const Biodata: React.FC = () => {
   }, [formData.durasi]);
 
   const validateForm = () => {
-    const emptyFields = [];
-    if (!formData.durasi || isNaN(Number(formData.durasi)) || Number(formData.durasi) <= 0) {
-      emptyFields.push("durasi");
-    }
+    const emptyFields: string[] = [];
+    if (!formData.durasi) emptyFields.push("durasi");
     if (!formData.lokasi) emptyFields.push("lokasi");
-  
     setErrorFields(emptyFields);
     return emptyFields.length === 0;
   };
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
-  
-    setIsSubmitting(true);
-  
-    try {
-      const biodata = localStorage.getItem("biodata");
-      if (!biodata) {
-        router.push("/biodata-baru");
-        return;
-      }
-  
-      const parsedBiodata = JSON.parse(biodata);
-      const { nik } = parsedBiodata;
-  
-      const data = {
-        biodata_nik: nik,
-        durasi: formData.durasi,
-        lokasi: formData.lokasi,
-      };
-  
-      const response = await fetch("https://backend-umkm-riau.vercel.app/api/penyewaan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-  
-      if (response.ok) {
-        router.push("/pelanggan/pengajuan-sewa");
-      } else {
-        console.error("Gagal mengajukan permintaan penyewaan");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
 
+    // Validasi form sebelum melanjutkan
+    if (!validateForm()) {
+        console.error("Form is invalid!");
+        return;
+    }
+
+    if (typeof window === "undefined") return;
+
+    // Ambil biodata dari localStorage
+    const biodata = localStorage.getItem('biodata');
+    if (!biodata) {
+        router.push('/biodata-baru');
+        return;
+    }
+
+    try {
+      setIsSubmitting(true); // Set loading state menjadi true
+        const parsedBiodata = JSON.parse(biodata);
+
+        // Periksa apakah data biodata valid
+        const { nik } = parsedBiodata; // Ambil NIK langsung dari parsedBiodata
+        if (!nik) {
+            console.error("NIK not found in biodata or biodata is invalid");
+            setIsSubmitting(false); // Reset loading state
+            return;
+        }
+
+        // Data yang akan dikirim
+        const data = {
+            biodata_nik: nik,
+            durasi: formData.durasi,
+            lokasi: formData.lokasi,
+
+        };
+
+        // Kirim permintaan PUT ke API
+        const response = await fetch("https://backend-umkm-riau.vercel.app/api/penyewaan", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+
+        // Tangani respons
+        if (response.ok) {
+            console.log("Permintaan penyewaan berhasil diajukan!");
+            router.push('/pelanggan/pengajuan-sewa');
+        } else {
+            console.error("Gagal mengajukan permintaan penyewaan");
+        }
+    } catch (error) {
+        console.error("Terjadi kesalahan saat mengirim data:", error);
+    }
+};
+if (!isMounted) return null;
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">

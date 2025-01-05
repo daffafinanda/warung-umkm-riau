@@ -9,7 +9,7 @@ import { useModal } from '@/components/ModalContext';
 import AddProduk from "@/components/AddProduk";
 
 interface Product {
-  id: string;
+  id: number;
   name: string;
   price: number;
   dimensions: string;
@@ -21,7 +21,7 @@ interface ApiResponse {
   success: boolean;
   message?: string;
   data: {
-    id: string;
+    id: number;
     jenis: string;
     harga: number;
     ukuran: string;
@@ -35,7 +35,7 @@ const PengelolaanProduk: React.FC = () => {
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product>({
-    id: "", // Set id kosong pada produk baru
+    id: 0, // Set id kosong pada produk baru
     name: "",
     price: 0,
     dimensions: "",
@@ -67,7 +67,7 @@ const PengelolaanProduk: React.FC = () => {
                 return null; // Jangan masukkan produk yang tidak valid
               }
               return {
-                id: item.id,
+                id: Number(item.id),
                 name: item.jenis, // Assuming 'jenis' is equivalent to 'name'
                 price: item.harga,
                 dimensions: item.ukuran,
@@ -93,7 +93,7 @@ const PengelolaanProduk: React.FC = () => {
   const handleAddProduct = () => {
     setIsAddProductOpen(true);
     setCurrentProduct({
-      id: "", // ID kosong untuk produk baru
+      id: 0, // ID kosong untuk produk baru
       name: "",
       price: 0,
       dimensions: "",
@@ -163,13 +163,13 @@ const PengelolaanProduk: React.FC = () => {
         formData.append("ukuran", product.dimensions);
         formData.append("harga", product.price.toString());
         formData.append("deskripsi", product.deskripsi);
-
+  
         if (imageFile) {
           const response = await fetch(imageFile); // Ambil blob dari URL file
           const blob = await response.blob();
           formData.append("foto", blob, "product-image.jpg");
         }
-
+  
         const response = await fetch(
           "https://backend-umkm-riau.vercel.app/api/dokumentasi",
           {
@@ -177,23 +177,25 @@ const PengelolaanProduk: React.FC = () => {
             body: formData,
           }
         );
-
+  
         const responseData = await response.json();
-        console.log("Response Data:", responseData); // Lihat respons API
-
-        // Periksa jika respons berhasil meskipun tanpa ID
+        console.log("Response Data:", responseData);
+  
         if (response.ok && responseData.success) {
-          // Cek apakah ID produk tersedia di response, jika tidak, kita berikan fallback
-          const newProduct = {
-            ...product,
-            id: "unknown-id", // Anda bisa menggunakan ID acak atau "unknown-id" jika tidak ada ID dari API
-            image: imageFile || "https://via.placeholder.com/150", // Gambar default jika tidak ada
+          const newProduct: Product = {
+            id: responseData.data?.id || Math.random(), // Gunakan ID dari respons API, atau fallback ke ID acak
+            name: product.name,
+            price: product.price,
+            dimensions: product.dimensions,
+            image: imageFile || "https://via.placeholder.com/150", // Gunakan gambar yang diunggah atau gambar default
+            deskripsi: product.deskripsi,
           };
-
+  
+          setProducts((prev) => [...prev, newProduct]);
           showNotification("Produk berhasil ditambahkan");
-          setProducts((prev) => [...prev, newProduct]); // Tambahkan produk baru ke state
-          setIsPopUpOpen(false);
-          setImageFile(null);
+          setImageFile(null); // Reset file gambar
+          setIsAddProductOpen(false); 
+          window.location.reload();
         } else {
           console.error("Error adding product:", responseData.message);
           showError("Gagal menambahkan produk");
@@ -204,9 +206,7 @@ const PengelolaanProduk: React.FC = () => {
       }
     }
   };
-
-
-
+  
 
 
   const handleEditProduct = (product: Product) => {
@@ -304,6 +304,7 @@ const PengelolaanProduk: React.FC = () => {
             <div key={product.id} className="bg-foreground shadow-xl rounded-lg">
               <ProductCard
                 {...product}
+                
                 onClick={() => handleViewProductDetails(product)}
               />
               <div className="flex space-x-2 pb-4 px-4 justify-center">
@@ -328,7 +329,7 @@ const PengelolaanProduk: React.FC = () => {
       <ProductFormModal
         isOpen={isPopUpOpen}
         onClose={() => setIsPopUpOpen(false)}
-        onSave={handleUpdateProduct}
+        onSave={handleSaveProduct}
         product={currentProduct}
         imageFile={imageFile}
         onFileChange={handleFileChange}

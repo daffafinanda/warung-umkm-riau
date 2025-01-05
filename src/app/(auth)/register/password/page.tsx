@@ -3,10 +3,10 @@
 import React, { useState, FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function PasswordPage() {
+const PasswordPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const noHp = searchParams.get("noHp"); // Mendapatkan noHp dari URL query params
+    const noHp = searchParams?.get("noHp"); // Mendapatkan noHp dari URL query params
 
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -46,7 +46,7 @@ export default function PasswordPage() {
 
         // Redirect ke halaman login setelah 1,5 detik
         setTimeout(() => {
-            router.push("/login"); // Mengarahkan ke halaman login
+            router.push("/login");
         }, 1500);
     };
 
@@ -66,7 +66,7 @@ export default function PasswordPage() {
                         </label>
                         <input
                             id="password"
-                            type="text-"
+                            type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Masukkan password"
@@ -82,7 +82,7 @@ export default function PasswordPage() {
                         </label>
                         <input
                             id="confirmPassword"
-                            type="text"
+                            type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Konfirmasi password"
@@ -108,5 +108,13 @@ export default function PasswordPage() {
                 </form>
             </div>
         </div>
+    );
+};
+
+export default function Wrapper() {
+    return (
+        <React.Suspense fallback={<div>Loading...</div>}>
+            <PasswordPage />
+        </React.Suspense>
     );
 }

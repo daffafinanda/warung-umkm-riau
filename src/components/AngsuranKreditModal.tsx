@@ -24,10 +24,10 @@ const ModalStep3: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
             try {
                 const response = await axios.get('https://backend-umkm-riau.vercel.app/api/pembelian/CREDIT');
                 const pembelianData = response.data.data;
-                setDropdownOptions(pembelianData.map((item: any) => ({
+                setDropdownOptions(pembelianData.map((item: Pembelian) => ({
                     id: item.id,
                     nama: item.nama,
-                    tenor: parseInt(item.tenor, 10),
+                    tenor: item.tenor,
                 })));
             } catch (error) {
                 console.error('Error fetching pembelian data:', error);

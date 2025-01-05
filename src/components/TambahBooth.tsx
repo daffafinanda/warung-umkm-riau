@@ -50,7 +50,7 @@ const TambahBoothModal: React.FC<TambahBoothModalProps> = ({ isOpen, onClose, on
         const boothData = {
             ...formData,
             status: "TIDAK DISEWA", // Default status
-            riwayat_kerusakan: ""  // Default riwayat kosong
+            riwayat_kerusakan: []  // Default riwayat kosong
         };
 
         onSubmit(boothData);

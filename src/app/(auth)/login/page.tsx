@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
@@ -191,6 +191,7 @@ export default function Login() {
     };
 
     return (
+    <Suspense fallback={<div>Loading...</div>}>    
         <div className="min-h-screen bg-primary2 flex items-center justify-center p-6">
             <div className="w-full max-w-md">
                 <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-2xl px-8 pt-6 pb-8 mb-4">
@@ -292,5 +293,6 @@ export default function Login() {
                 />
             )}
         </div>
+     </Suspense>   
     );
 }

@@ -4,14 +4,14 @@ import { useRouter } from 'next/navigation';
 
 const LayananSewa: React.FC = () => {
   const [isAgreed, setIsAgreed] = useState(false);
-  const [isPelanggan, setIsPelanggan] = useState(false);
+  const [isPelanggan, setIsPelanggan] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     // Mendapatkan role dari localStorage
     const role = localStorage.getItem('role');
-    if (role === 'PELANGGAN') {
-      setIsPelanggan(true);
+    if (role === 'KEPALA DIVISI' || role === 'DIREKTUR') {
+      setIsPelanggan(false);
     }
   }, []);
 

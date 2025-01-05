@@ -18,6 +18,17 @@ type Booth = {
   durasi: number
   penyewa_nama?: string
   kecamatan?: string
+  id: string;
+  penyewa: string;
+  ktpImage: string;
+  no_hp: string;
+  alamat_domisili: string;
+  nik: string;
+  jenis_kelamin: string;
+  awal_penyewaan: string;
+  akhir_penyewaan: string;
+  riwayat_pembayaran: string | null;
+  riwayat_kerusakan: string | null;
 }
 
 export default function Dashboard() {
@@ -80,21 +91,30 @@ export default function Dashboard() {
         const detail = response.data.data[0];
 
         // Format data sesuai props PemantauanBooth
-        const formattedBooth = {
-          id: booth.booth_id_booth || 'Unknown',
-          penyewa: detail.nama || 'Unknown',
-          lokasi: detail.lokasi || 'Unknown',
-          status: booth.status || 'Unknown',
-          ktpImage: detail.foto_ktp || '/placeholder.svg?height=200&width=320',
-          no_hp: detail.no_hp || 'Unknown',
-          alamat_domisili: detail.alamat_domisili || 'Unknown',
-          nik: detail.nik || 'Unknown',
-          jenis_kelamin: detail.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
-          awal_penyewaan: new Date(detail.awal_penyewaan).toLocaleDateString() || 'Unknown',
-          akhir_penyewaan: new Date(detail.akhir_penyewaan).toLocaleDateString() || 'Unknown',
-          riwayat_pembayaran: detail.riwayat_pembayaran || 'Unknown',
-          riwayat_kerusakan: detail.riwayat_kerusakan || 'Unknown',
-        };
+       const formattedBooth = {
+  id_sewa: booth.id_sewa,
+  mulai_sewa: booth.mulai_sewa,
+  akhir_sewa: booth.akhir_sewa,
+  permintaan_dibuat: booth.permintaan_dibuat,
+  lokasi: detail.lokasi || 'Unknown',
+  status: booth.status || 'Unknown',
+  booth_id_booth: booth.booth_id_booth,
+  biodata_nik: booth.biodata_nik,
+  durasi: booth.durasi,
+  penyewa_nama: detail.nama || 'Unknown',
+  kecamatan: booth.kecamatan,
+  id: booth.booth_id_booth || 'Unknown',
+  penyewa: detail.nama || 'Unknown',
+  ktpImage: detail.foto_ktp || '/placeholder.svg?height=200&width=320',
+  no_hp: detail.no_hp || 'Unknown',
+  alamat_domisili: detail.alamat_domisili || 'Unknown',
+  nik: detail.nik || 'Unknown',
+  jenis_kelamin: detail.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+  awal_penyewaan: new Date(detail.awal_penyewaan).toLocaleDateString() || 'Unknown',
+  akhir_penyewaan: new Date(detail.akhir_penyewaan).toLocaleDateString() || 'Unknown',
+  riwayat_pembayaran: detail.riwayat_pembayaran || 'Unknown',
+  riwayat_kerusakan: detail.riwayat_kerusakan || 'Unknown',
+};
 
         setSelectedBooth(formattedBooth); // Set selected booth to show in modal
       }
@@ -118,9 +138,9 @@ export default function Dashboard() {
       try {
         const response = await axios.get('https://backend-umkm-riau.vercel.app/api/penyewaan')
         if (response.data.success && response.data.data) {
-          const approvedBooths = response.data.data.filter((booth: any) => booth.status === 'DISETUJUI')
+          const approvedBooths = response.data.data.filter((booth: Booth) => booth.status === 'DISETUJUI')
           const boothsWithDetails = await Promise.all(
-            approvedBooths.map(async (booth: any) => {
+            approvedBooths.map(async (booth: Booth) => {
               const name = await fetchBiodataName(booth.biodata_nik)
               const [latitude, longitude] = booth.lokasi.split(',').map(coord => parseFloat(coord))
               const kecamatan = await fetchKecamatanFromCoordinates(latitude, longitude)

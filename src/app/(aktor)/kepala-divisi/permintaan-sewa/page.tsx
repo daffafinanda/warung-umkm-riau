@@ -23,6 +23,23 @@ interface RentalRequest {
   mulaiSewa: string | null;
   akhirSewa: string | null;
 }
+interface APIRentalRequest {
+  id_sewa: number;
+  nama: string;
+  permintaan_dibuat: string;
+  noHp: string;
+  biodata_nik: string;
+  jenisKelamin: string;
+  alamatDomisili: string;
+  alamatKTP: string;
+  fotoKTP: string;
+  durasi: number;
+  status: string;
+  lokasi: string;
+  booth_id_booth: string | null;
+  mulai_sewa: string | null;
+  akhir_sewa: string | null;
+}
 
 export default function Home() {
   const [rentalRequests, setRentalRequests] = useState<RentalRequest[]>([]);
@@ -40,7 +57,7 @@ export default function Home() {
           const rentalData = rentalResponse.data.data;
 
           const requests = await Promise.all(
-            rentalData.map(async (rental: any) => {
+            rentalData.map(async (rental: APIRentalRequest) => {
               try {
                 const biodataResponse = await axios.get(
                   `https://backend-umkm-riau.vercel.app/api/biodata/nik/${rental.biodata_nik}`

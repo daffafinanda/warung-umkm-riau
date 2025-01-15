@@ -21,7 +21,7 @@ const Navbar: React.FC = () => {
   const router = useRouter();
   const [biodata, setBiodata] = useState<boolean>(false);
   const [isLogoutVisible, setLogoutVisible] = useState(false);
-  
+
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Create a ref for the dropdown
 
   useEffect(() => {
@@ -39,13 +39,13 @@ const Navbar: React.FC = () => {
         console.log("Biodata not available or incomplete.");
         setUsername(""); // Pastikan username tidak di-set jika biodata tidak valid
       }
-  
+
       setRole(localStorage.getItem("role") || "User"); // Set role, misalnya "Pelanggan" atau "Admin"
     } else {
       setIsLoggedIn(false);
     }
   }, []);
-  
+
 
   // Close dropdown if click is outside of it
   useEffect(() => {
@@ -101,7 +101,7 @@ const Navbar: React.FC = () => {
     <nav className="bg-background fixed w-full h-auto z-20 top-0 start-0 border-b">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="#" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <span className="self-center text-lg font-black font-outfit whitespace-nowrap text-primary md:text-2xl">
+          <span className="self-center md:text-lg font-black font-outfit whitespace-nowrap text-primary text-md">
             Warung UMKM Riau
           </span>
         </a>
@@ -129,21 +129,21 @@ const Navbar: React.FC = () => {
           )}
           {/* Ikon akun, username, dan dropdown */}
           {isLoggedIn && (
-            <div className="relative flex items-center space-x-2">
-              <FaUserCircle className="w-6 h-6 text-primary" />
-              
+            <div className="relative flex items-center space-x-2 md:bg-black">
+              <FaUserCircle className="md:w-6 md:h-6 w-4 h-4 md:text-red text-primary" />
+
               {/* Tampilkan username hanya jika role adalah "PELANGGAN" */}
-              {role === "PELANGGAN" &&  biodata === true
-              ? (<div>
-                <span className="text-primary font-medium mr-1">{username} </span>
-                <span className="text-sm hidden xl:inline-block text-gray-500"> ({role})</span>
-              </div>
-              )
-              : (<span className="text-base text-primary">{role}</span>
-              
-              )}
-              
-              
+              {role === "PELANGGAN" && biodata === true
+                ? (<div>
+                  <span className="text-primary font-medium mr-1">{username} </span>
+                  <span className="text-sm hidden xl:inline-block text-gray-500"> ({role})</span>
+                </div>
+                )
+                : (<span className=" md:text-base text-sm text-primary">{role}</span>
+
+                )}
+
+
               <button
                 onClick={toggleDropdown}
                 className="flex items-center text-primary hover:text-primary ml-2"
@@ -172,9 +172,9 @@ const Navbar: React.FC = () => {
                     <li>
                       {role === "PELANGGAN" && biodata === true && (
                         <button
-                          onClick = {() => router.push('/biodata')}
+                          onClick={() => router.push('/biodata')}
                           className="block w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-200 border-b"
-                          >
+                        >
                           <AiOutlineUser className="w-4 h-4 inline-block mr-2 " /> Biodata
                         </button>
                       )}
@@ -238,11 +238,10 @@ const Navbar: React.FC = () => {
               <li>
                 <button
                   onClick={handleDashboardRedirect}
-                  className={`block py-2 px-3 rounded md:p-0 ${
-                    pathname === "/dashboard"
-                      ? "text-primary font-bold"
-                      : "text-gray-900 hover:bg-gray-200 md:hover:bg-transparent md:hover:text-primary"
-                  }`}
+                  className={`block py-2 px-3 rounded md:p-0 ${pathname === "/dashboard"
+                    ? "text-primary font-bold"
+                    : "text-gray-900 hover:bg-gray-200 md:hover:bg-transparent md:hover:text-primary"
+                    }`}
                 >
                   Dashboard
                 </button>
@@ -252,11 +251,10 @@ const Navbar: React.FC = () => {
               <li key={item.name}>
                 <a
                   href={item.href}
-                  className={`block py-2 px-3 rounded md:p-0 ${
-                    pathname === item.href
-                      ? "text-primary font-bold"
-                      : "text-gray-900 hover:bg-gray-200 md:hover:bg-transparent md:hover:text-primary"
-                  }`}
+                  className={`block py-2 px-3 rounded md:p-0 ${pathname === item.href
+                    ? "text-primary font-bold"
+                    : "text-gray-900 hover:bg-gray-200 md:hover:bg-transparent md:hover:text-primary"
+                    }`}
                 >
                   {item.name}
                 </a>

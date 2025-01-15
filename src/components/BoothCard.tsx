@@ -11,8 +11,8 @@ interface BoothCardProps {
     initialPenyewa: string;
     initialKerusakan: number;
     initialStatus: string;
-    riwayat: { tanggal: string; deskripsi: string }[];
-    onAddRiwayat: (newRiwayat: { tanggal: string; deskripsi: string }) => void;
+    riwayat: { tanggal: string; deskripsi: string; gambarKerusakan: File }[];
+    onAddRiwayat: (newRiwayat: { tanggal: string; deskripsi: string; gambarKerusakan: File }) => void;
     refetchData: () => void;
 }
 
@@ -25,7 +25,7 @@ export default function BoothCard({
 }: BoothCardProps) {
     const [penyewa, setPenyewa] = useState<string | null>(initialPenyewa);
     const [status, setStatus] = useState(initialStatus);
-    const [newRiwayat, setNewRiwayat] = useState({ tanggal: "", deskripsi: "" });
+    const [newRiwayat, setNewRiwayat] = useState({ tanggal: "", deskripsi: "", gambarKerusakan: new File([], "") });
 
 
 
@@ -51,10 +51,12 @@ export default function BoothCard({
             }
             const data = await response.json();
             if (data.success) {
-                const riwayatKerusakan = data.data.map((item: { id: string; tanggal_kerusakan: string; riwayat_kerusakan: string; }) => ({
+                const riwayatKerusakan = data.data.map((item: { id: string; tanggal_kerusakan: string; riwayat_kerusakan: string; bukti_kerusakan: string }) => ({
                     id: item.id,
                     tanggal: item.tanggal_kerusakan.split("T")[0],
                     deskripsi: item.riwayat_kerusakan,
+                    gambarKerusakan: item.bukti_kerusakan
+
                 }));
                 setRiwayatKerusakan(riwayatKerusakan);
             } else {
@@ -68,6 +70,7 @@ export default function BoothCard({
         }
     };
 
+
     useEffect(() => {
         // Ambil riwayat kerusakan saat komponen pertama kali dimuat
         const fetchRiwayatKerusakan = async () => {
@@ -79,10 +82,11 @@ export default function BoothCard({
                 }
                 const data = await response.json();
                 if (data.success) {
-                    const riwayatKerusakan = data.data.map((item: { id: string; tanggal_kerusakan: string; riwayat_kerusakan: string; }) => ({
+                    const riwayatKerusakan = data.data.map((item: { id: string; tanggal_kerusakan: string; riwayat_kerusakan: string; bukti_kerusakan: string }) => ({
                         id: item.id,
                         tanggal: item.tanggal_kerusakan.split("T")[0],
                         deskripsi: item.riwayat_kerusakan,
+                        gambarKerusakan: item.bukti_kerusakan
                     }));
                     setRiwayatKerusakan(riwayatKerusakan);
                 } else {
@@ -155,61 +159,42 @@ export default function BoothCard({
         // Validasi input sebelum melanjutkan
         if (!newRiwayat.deskripsi.trim()) {
             showError("Deskripsi kerusakan tidak boleh kosong.");
-            closeModalTambahRiwayatKerusakan();
+            return;
+        }
+
+        if (!newRiwayat.gambarKerusakan.name) {
+            showError("File gambar kerusakan tidak boleh kosong.");
             return;
         }
 
         try {
-            // Siapkan payload untuk POST request
-            const payload = {
-                id_booth: id, // Tambahkan id_booth ke payload
-                tanggal_kerusakan: new Date().toISOString().split("T")[0], // Tanggal saat ini dalam format YYYY-MM-DD
-                riwayat_kerusakan: newRiwayat.deskripsi.trim(), // Deskripsi dari input (hapus spasi di awal/akhir)
-            };
+            const formData = new FormData();
+            formData.append("id_booth", id);
+            formData.append("tanggal_kerusakan", new Date().toISOString().split("T")[0]);
+            formData.append("riwayat_kerusakan", newRiwayat.deskripsi.trim());
+            formData.append("bukti_kerusakan", newRiwayat.gambarKerusakan);
 
-            // Kirim data ke endpoint backend
+            // Debugging isi FormData
+
+
             const response = await fetch(
                 `https://backend-umkm-riau.vercel.app/api/kerusakan`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(payload),
-                }
+                { method: "POST", body: formData }
             );
 
-            // Periksa apakah respons berhasil
             if (!response.ok) {
-                const textResponse = await response.text();
-                console.error("Error respons backend:", textResponse);
-
-                // Deteksi jika server mengembalikan HTML
-                if (textResponse.startsWith("<!DOCTYPE")) {
-                    throw new Error("Server mengembalikan HTML, bukan JSON. Periksa URL atau konfigurasi backend.");
-                }
-
-                // Lemparkan error jika respons gagal
-                throw new Error(`Gagal menambahkan riwayat kerusakan. Status: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Gagal menambahkan riwayat kerusakan.");
             }
 
-            // Ambil data JSON dari respons
             const data = await response.json();
             console.log("Riwayat kerusakan berhasil ditambahkan:", data);
 
-            // Reset input riwayat baru
-            setNewRiwayat({ tanggal: "", deskripsi: "" });
-
-            // Tutup modal
+            setNewRiwayat({ tanggal: "", deskripsi: "", gambarKerusakan: new File([], "") });
             closeModalTambahRiwayatKerusakan();
-
-            // Refetch data untuk memperbarui tampilan
             refetchData();
-
-            // Berikan notifikasi kepada pengguna
             showNotification("Riwayat kerusakan berhasil ditambahkan.");
         } catch (error) {
-            // Tangani kesalahan
             console.error("Terjadi kesalahan:", error);
             showError("Terjadi kesalahan saat menambahkan riwayat kerusakan.");
         }

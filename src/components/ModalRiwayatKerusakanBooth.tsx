@@ -6,7 +6,7 @@ import { IoCloseSharp } from "react-icons/io5";
 interface ModalRiwayatKerusakanBoothProps {
     isOpen: boolean;
     onClose: () => void;
-    riwayat: { id: string; tanggal: string; deskripsi: string }[];
+    riwayat: { id: string; tanggal: string; deskripsi: string; gambarKerusakan: string }[]; // Tambahkan gambarKerusakan
     onDelete: (id: string) => void;
     isLoading: boolean;
 }
@@ -46,13 +46,22 @@ const ModalRiwayatKerusakanBooth: React.FC<ModalRiwayatKerusakanBoothProps> = ({
                                     <h3 className="text-lg font-semibold text-primary">{item.tanggal}</h3>
                                     <p className="font-medium text-black">{item.deskripsi}</p>
                                 </div>
-                                <button
-                                    onClick={() => onDelete(item.id)}  // Mengirim ID kerusakan saat dihapus
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-100 p-1 rounded-full transition-colors"
-                                    aria-label={`Delete riwayat from ${item.tanggal}`}
-                                >
-                                    <LuTrash2 className="w-5 h-5" />
-                                </button>
+
+                                <div className="flex flex-col items-end">
+                                    <button
+                                        onClick={() => window.open(item.gambarKerusakan, "_blank")} // Buka gambar di tab baru
+                                        className="text-blue-500 hover:text-blue-700 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                                    >
+                                        Lihat Bukti Kerusakan
+                                    </button>
+                                    <button
+                                        onClick={() => onDelete(item.id)} // Menghapus item
+                                        className="text-red-500 hover:text-red-700 hover:bg-red-100 p-1 rounded-full transition-colors mt-2"
+                                        aria-label={`Delete riwayat from ${item.tanggal}`}
+                                    >
+                                        <LuTrash2 className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
